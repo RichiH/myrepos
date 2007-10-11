@@ -49,7 +49,7 @@ checkout = \
 # and only rarely
 update = echo "skipping cvs update (too slow)"
 status = echo "skipping cvs status (too ugly)"
-skip = ! wantsrc
+skip = ! mylaptop || ! wantsrc
 
 # My home directory, which I keep in svn.
 []
