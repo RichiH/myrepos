@@ -73,8 +73,8 @@ Actions can be abbreviated to any unambiguous subsctring, so
 "mr st" is equivilant to "mr status".
 
 B<mr> operates on all registered repsitories at or below your working
-directory. Or, if you are in a subdirectory of a repository, it will act on
-only that repository.
+directory. Or, if you are in a subdirectory of a repository that contains
+no other registered repositories, it will act on only that repository.
 
 Additional parameters can be passed to other commands than "commit", they
 will be passed on unchanged to the underlying revision control system.
@@ -227,36 +227,37 @@ if ($action eq 'help') {
 	exec($config{''}{default}{help});
 }
 
-# handle being in a subdir of a repository
+# work out what repos to act on
+my @repos;
 my $nochdir=0;
 foreach my $topdir (sort keys %config) {
-	foreach my $subdir (reverse sort keys %{$config{$topdir}}) {
-		next if $subdir eq 'default';
-		my $d=$directory."/";
+	foreach my $subdir (sort keys %{$config{$topdir}}) {
 		my $dir=$topdir.$subdir;
-		$dir.="/" unless $dir=~/\/$/;
-		if ($d =~ /^\Q$dir\E/) {
-			$directory=$topdir.$subdir;
-			$nochdir=1;
-			last;
+		next if $dir ne $directory && $dir !~ /^\Q$directory\E\//;
+		push @repos, [$dir, $topdir, $subdir];
+	}
+}
+if (! @repos) {
+	# fallback to find a leaf repo
+	foreach my $topdir (sort keys %config) {
+		foreach my $subdir (sort keys %{$config{$topdir}}) {
+			my $dir=$topdir.$subdir;
+			my $d=$directory;
+			$dir.="/" unless $dir=~/\/$/;
+			$d.="/" unless $d=~/\/$/;
+			if ($d=~/^\Q$dir\E/) {
+				push @repos, [$dir, $topdir, $subdir];
+			}
 		}
+	}
+	if (@repos > 1) {
+		die "mr: found multiple leaf repos (should never happen)";
 	}
 }
 
 my (@failed, @successful, @skipped);
-foreach my $topdir (sort keys %config) {
-	foreach my $subdir (sort keys %{$config{$topdir}}) {
-		
-		my $dir=$topdir.$subdir;
-
-		if (defined $directory &&
-		    $dir ne $directory &&
-		    $dir !~ /^\Q$directory\E\//) {
-			next;
-		}
-
-		action($action, $dir, $topdir, $subdir);
-	}
+foreach my $repo (@repos) {
+	action($action, @$repo);
 }
 
 sub action {
