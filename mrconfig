@@ -53,6 +53,6 @@ skip = ! mylaptop || ! wantsrc
 
 # My home directory, which I keep in svn.
 []
-checkout = svn co svn+ssh://svn.kitenet.net/srv/svn/joey/trunk/home-$(hostname) joey
+checkout = svn co svn+ssh://svn.kitenet.net/srv/svn/joey/trunk/home-$(hostname) $HOME
 # run svnfix after each update
 update = svn update && svnfix
