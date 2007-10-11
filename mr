@@ -351,6 +351,7 @@ commit = \
 		svn commit "$@"; \
 	elif [ -d .git ]; then \
 		git commit -a "$@"; \
+		git push --all; \
 	else \
 		echo "mr commit: unknown RCS"; \
 		exit 1; \
