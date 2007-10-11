@@ -12,7 +12,7 @@ B<mr> [options] update
 
 B<mr> [options] status
 
-B<mr> [options] commit -m "message"
+B<mr> [options] commit [-m "message"]
 
 B<mr> [options] action [params ...]
 
@@ -23,7 +23,36 @@ set of repositories in a .mrconfig file, and then checkout, update, or
 perform other actions on all of the repositories at once.
 
 Any mix of revision control systems can be used with B<mr>, and you can
-define arbitrary actions like "update", "checkout", or "commit".
+define arbitrary actions for commands like "update", "checkout", or "commit".
+
+The predefined commands should be fairly familiar to users of any revision
+control system:
+
+=over 4
+
+=item checkout
+
+Checks out all the registered repositories that are not already checked
+out.
+
+=item update
+
+Updates each registered repository from its configured remote repository.
+
+If a repository isn't checked out yet, it will first check it out.
+
+=item status
+
+Displays a status report for each registered repository, showing what
+uncommitted changes are present in the repository.
+
+=item commit
+
+Commits changes to each registered repository. (By default, changes
+are pushed to the remote repository too, when using distributed systems
+like git.)
+
+The optional -m parameter allows specifying a commit message.
 
 =head1 OPTIONS
 
@@ -61,9 +90,10 @@ directory that contains the .mrconfig file.
 
 Within a section, each parameter defines a shell command to run to handle a
 given action. Note that these shell commands are run in a "set -e" shell
-environment, and B<mr> cds into the repository directory before running
-them, except for the "checkout" command, which is run in the parent of the
-repository directory, since the repository isn't checked out yet.
+environment, where any additional parameters you pass are available in
+"$@". B<mr> cds into the repository directory before running
+a command, except for the "checkout" command, which is run in the parent
+of the repository directory, since the repository isn't checked out yet.
 
 There are two special parameters. If the "skip" parameter is set and
 its command returns nonzero, then B<mr> will skip acting on that repository.
@@ -147,39 +177,52 @@ foreach my $topdir (sort keys %config) {
 			}
 		}
 
-		if ($action eq 'checkout') {
-			if (-e $dir) {
-				print "mr $action: $dir already exists, skipping checkout\n";
-				push @skipped, $dir;
-				next;
+		action($action, $dir, $topdir, $subdir);
+
+	}
+}
+
+sub action {
+	my ($action, $dir, $topdir, $subdir) = @_;
+
+	if ($action eq 'checkout') {
+		if (-d $dir) {
+			print "mr $action: $dir already exists, skipping checkout\n";
+			push @skipped, $dir;
+			next;
+		}
+		$dir=~s/^(.*)\/[^\/]+\/?$/$1/;
+	}
+	if ($action eq 'update') {
+		if (! -d $dir) {
+			return action("checkout", $dir, $topdir, $subdir);
+		}
+	}
+
+	if (! chdir($dir)) {
+		print STDERR "mr $action: failed to chdir to $dir: $!\n";
+		push @skipped, $dir;
+	}
+	elsif (! exists $config{$topdir}{$subdir}{$action}) {
+		print STDERR "mr $action: no defined $action command for $topdir$subdir, skipping\n";
+		push @skipped, $dir;
+	}
+	else {
+		print "mr $action: in $dir\n";
+		my $command="set -e; my_action(){ $config{$topdir}{$subdir}{$action} ; }; my_action @ARGV";
+		my $ret=system($command);
+		if ($ret != 0) {
+			print STDERR "mr $action: failed to run: $command\n" if $verbose;
+			push @failures, $topdir.$subdir;
+			if ($ret >> 8 != 0) {
+				print STDERR "mr $action: command failed\n";
 			}
-			$dir=~s/^(.*)\/[^\/]+\/?$/$1/;
-		}
-		if (! chdir($dir)) {
-			print STDERR "mr $action: failed to chdir to $dir: $!\n";
-			push @skipped, $dir;
-		}
-		elsif (! exists $config{$topdir}{$subdir}{$action}) {
-			print STDERR "mr $action: no defined $action command for $topdir$subdir, skipping\n";
-			push @skipped, $dir;
+			elsif ($ret != 0) {
+				print STDERR "mr $action: command died ($ret)\n";
+			}
 		}
 		else {
-			print "mr $action: in $dir\n";
-			my $command="set -e; my_action(){ $config{$topdir}{$subdir}{$action} ; }; my_action @ARGV";
-			my $ret=system($command);
-			if ($ret != 0) {
-				print STDERR "mr $action: failed to run: $command\n" if $verbose;
-				push @failures, $topdir.$subdir;
-				if ($ret >> 8 != 0) {
-					print STDERR "mr $action: command failed\n";
-				}
-				elsif ($ret != 0) {
-					print STDERR "mr $action: command died ($ret)\n";
-				}
-			}
-			else {
-				push @successes, $dir;
-			}
+			push @successes, $dir;
 		}
 	}
 }
@@ -223,6 +266,9 @@ sub loadconfig {
 		print "mr: loading config $f\n" if $verbose;
 		open($in, "<", $f) || die "mr: open $f: $!\n";
 		($dir)=$f=~/^(.*\/)[^\/]+$/;
+		if (! defined $dir) {
+			$dir=".";
+		}
 		$dir=abs_path($dir)."/";
 
 		# copy in defaults from first parent
