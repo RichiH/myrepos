@@ -225,7 +225,8 @@ sub action {
 	}
 	else {
 		print "mr $action: in $dir\n";
-		my $command="set -e; my_action(){ $config{$topdir}{$subdir}{$action} ; }; my_action @ARGV";
+		my $command="set -e; my_action(){ $config{$topdir}{$subdir}{$action} ; }; my_action ".
+			join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
 		my $ret=system($command);
 		if ($ret != 0) {
 			print STDERR "mr $action: failed to run: $command\n" if $verbose;
@@ -367,7 +368,6 @@ commit = \
 	if [ -d .svn ]; then \
 		svn commit "$@"; \
 	elif [ -d .git ]; then \
-		echo "foo: $@" \
 		git commit -a "$@" \
 	else \
 		echo "mr commit: unknown repo type"; \
