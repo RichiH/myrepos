@@ -34,31 +34,33 @@ control system:
 
 =item checkout (or co)
 
-Checks out all the registered repositories that are not already checked
-out.
+Checks out any repositories that are not already checked out.
 
 =item update
 
-Updates each registered repository from its configured remote repository.
+Updates each repository from its configured remote repository.
 
 If a repository isn't checked out yet, it will first check it out.
 
 =item status
 
-Displays a status report for each registered repository, showing what
+Displays a status report for each repository, showing what
 uncommitted changes are present in the repository.
 
 =item commit (or ci)
 
-Commits changes to each registered repository. (By default, changes
-are pushed to the remote repository too, when using distributed systems
-like git.)
+Commits changes to each repository. (By default, changes are pushed to the
+remote repository too, when using distributed systems like git.)
 
 The optional -m parameter allows specifying a commit message.
 
 =item diff
 
 Show a diff of uncommitted changes.
+
+=item list
+
+List the repositories that mr will act on.
 
 =item help
 
@@ -68,6 +70,15 @@ Displays this help.
 
 Actions can be abbreviated to any unambiguous subsctring, so
 "mr st" is equivilant to "mr status".
+
+B<mr> operates on all registered repsitories at or below your working
+directory. Or, if you are in a subdirectory of a repository, it will act on
+only that repository.
+
+Additional parameters can be passed to other commands than "commit", they
+will be passed on unchanged to the underlying revision control system.
+This is mostly useful if the repositories mr will act on all use the same
+revision control system.
 
 =head1 OPTIONS
 
@@ -279,7 +290,7 @@ sub action {
 		push @skipped, $dir;
 	}
 	else {
-		print "mr $action: in $dir\n";
+		print "mr $action: $dir\n";
 		my $command="set -e; ".$lib.
 			"my_action(){ $config{$topdir}{$subdir}{$action} ; }; my_action ".
 			join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
@@ -461,6 +472,7 @@ diff = \
 	else \
 		error "unknown repo type"; \
 	fi
+list = true
 help = \
 	if [ ! -e "$MR_PATH" ]; then \
 		error "cannot find program path";\
