@@ -19,7 +19,4 @@ update = git pull origin master && git pull kite sourcev3
 
 # My home directory, which I keep in svn.
 []
-# Since I have a lot of different branches for different machines,
-# the checkout procedure is manual.
-checkout = echo "run svn+ssh://svn.kitenet.net/srv/svn/joey/trunk/home-<branch> ."; \
-	exit 1
+checkout = svn co svn+ssh://svn.kitenet.net/srv/svn/joey/trunk/home-$(hostname) joey
