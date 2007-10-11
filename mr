@@ -201,15 +201,6 @@ foreach my $topdir (sort keys %config) {
 		print "\n" unless $first;
 		$first=0;
 
-		if (exists $config{$topdir}{$subdir}{skip}) {
-			my $ret=system($config{$topdir}{$subdir}{skip});
-			if ($ret >> 8 == 0) {
-				print "mr $action: $dir skipped per config file\n" if $verbose;
-				push @skipped, $dir;
-				next;
-			}
-		}
-
 		action($action, $dir, $topdir, $subdir);
 
 	}
@@ -220,23 +211,33 @@ sub action {
 
 	if ($action eq 'checkout') {
 		if (-d $dir) {
-			print "mr $action: $dir already exists, skipping checkout\n";
+			print "mr $action: $dir already exists, skipping checkout\n" if $verbose;
 			push @skipped, $dir;
 			return;
 		}
 		$dir=~s/^(.*)\/[^\/]+\/?$/$1/;
 	}
-	if ($action eq 'update') {
+	elsif ($action eq 'update') {
 		if (! -d $dir) {
 			return action("checkout", $dir, $topdir, $subdir);
 		}
 	}
-
+	
 	if (! chdir($dir)) {
 		print STDERR "mr $action: failed to chdir to $dir: $!\n";
 		push @skipped, $dir;
 	}
-	elsif (! exists $config{$topdir}{$subdir}{$action}) {
+
+	if (exists $config{$topdir}{$subdir}{skip}) {
+		my $ret=system($config{$topdir}{$subdir}{skip});
+		if ($ret >> 8 == 0) {
+			print "mr $action: $dir skipped per config file\n" if $verbose;
+			push @skipped, $dir;
+			next;
+		}
+	}
+
+	if (! exists $config{$topdir}{$subdir}{$action}) {
 		print STDERR "mr $action: no defined $action command for $topdir$subdir, skipping\n";
 		push @skipped, $dir;
 	}
