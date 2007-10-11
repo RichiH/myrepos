@@ -1,6 +1,6 @@
 # An example config file for the mr(1) command.
 
-[default]
+[DEFAULT]
 # Teach mr how to run svn cleanup.
 cleanup = if [ -d "$MR_REPO"/.svn ]; then svn cleanup ; fi
 # Tests used in the skips below.

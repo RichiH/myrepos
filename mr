@@ -127,10 +127,10 @@ Here is an example .mrconfig file:
 The .mrconfig file uses a variant of the INI file format. Lines starting with
 "#" are comments. Lines ending with "\" are continued on to the next line.
 
-The "default" section allows setting default values for the sections that
+The "DEFAULT" section allows setting default values for the sections that
 come after it.
 
-The "alias" section allows adding aliases for actions. Each parameter
+The "ALIAS" section allows adding aliases for actions. Each parameter
 is an alias, and its value is the action to use.
 
 All other sections specify where each repository is located, relative to the
@@ -238,7 +238,7 @@ if (! exists $knownactions{$action}) {
 }
 
 if ($action eq 'help') {
-	exec($config{''}{default}{help});
+	exec($config{''}{DEFAULT}{help});
 }
 
 # work out what repos to act on
@@ -246,7 +246,7 @@ my @repos;
 my $nochdir=0;
 foreach my $topdir (sort keys %config) {
 	foreach my $subdir (sort keys %{$config{$topdir}}) {
-		next if $subdir eq 'default';
+		next if $subdir eq 'DEFAULT';
 		my $dir=$topdir.$subdir;
 		next if $dir ne $directory && $dir !~ /^\Q$directory\E\//;
 		push @repos, [$dir, $topdir, $subdir];
@@ -256,7 +256,7 @@ if (! @repos) {
 	# fallback to find a leaf repo
 	LEAF: foreach my $topdir (reverse sort keys %config) {
 		foreach my $subdir (reverse sort keys %{$config{$topdir}}) {
-			next if $subdir eq 'default';
+			next if $subdir eq 'DEFAULT';
 			my $dir=$topdir.$subdir;
 			my $d=$directory;
 			$dir.="/" unless $dir=~/\/$/;
@@ -403,8 +403,8 @@ sub loadconfig {
 		my $parent=$dir;
 		while ($parent=~s/^(.*)\/[^\/]+\/?$/$1/) {
 			if (exists $config{$parent} &&
-			    exists $config{$parent}{default}) {
-				$config{$dir}{default}={ %{$config{$parent}{default}} };
+			    exists $config{$parent}{DEFAULT}) {
+				$config{$dir}{DEFAULT}={ %{$config{$parent}{DEFAULT}} };
 				last;
 			}
 		}
@@ -430,13 +430,13 @@ sub loadconfig {
 			if (! defined $section) {
 				die "$f line $.: parameter ($parameter) not in section\n";
 			}
-			if ($section ne 'alias' &&
+			if ($section ne 'ALIAS' &&
 			    ! exists $config{$dir}{$section} &&
-			    exists $config{$dir}{default}) {
+			    exists $config{$dir}{DEFAULT}) {
 				# copy in defaults
-				$config{$dir}{$section}={ %{$config{$dir}{default}} };
+				$config{$dir}{$section}={ %{$config{$dir}{DEFAULT}} };
 			}
-			if ($section eq 'alias') {
+			if ($section eq 'ALIAS') {
 				$alias{$parameter}=$value;
 			}
 			elsif ($parameter eq 'lib') {
@@ -446,7 +446,7 @@ sub loadconfig {
 				$config{$dir}{$section}{$parameter}=$value;
 				$knownactions{$parameter}=1;
 				if ($parameter eq 'chain' &&
-				    length $dir && $section ne "default" &&
+				    length $dir && $section ne "DEFAULT" &&
 				    -e $dir.$section."/.mrconfig" &&
 			    	    system($value) >> 8 == 0) {
 					push @toload, $dir.$section."/.mrconfig";
@@ -467,12 +467,12 @@ sub loadconfig {
 # Finally, some useful actions that mr knows about by default.
 # These can be overridden in ~/.mrconfig.
 __DATA__
-[alias]
+[ALIAS]
 	co = checkout
 	ci = commit
 	ls = list
 
-[default]
+[DEFAULT]
 lib = \
 	error() { \
 		echo "mr: $@" >&2; \
