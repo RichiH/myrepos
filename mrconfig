@@ -21,3 +21,5 @@ commit = git push kite
 # My home directory, which I keep in svn.
 []
 checkout = svn co svn+ssh://svn.kitenet.net/srv/svn/joey/trunk/home-$(hostname) joey
+# run svnfix after each update
+update = svn update && svnfix
