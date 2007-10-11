@@ -323,9 +323,10 @@ sub action {
 		my $command="set -e; ".$lib.
 			"my_action(){ $config{$topdir}{$subdir}{$action} ; }; my_action ".
 			join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
+		print STDERR "mr $action: running $command\n" if $verbose;
 		my $ret=system($command);
 		if ($ret != 0) {
-			print STDERR "mr $action: failed to run: $command\n" if $verbose;
+			print STDERR "mr $action: failed ($ret)\n" if $verbose;
 			push @failed, $topdir.$subdir;
 			if ($ret >> 8 != 0) {
 				print STDERR "mr $action: command failed\n";
@@ -478,6 +479,8 @@ update = \
 		svn update "$@"; \
 	elif [ -d "$MR_REPO"/.git ]; then \
 		git pull origin master "$@"; \
+	elif [ -d "$MR_REPO"/CVS ]; then \
+		cvs update "$@"; \
 	else \
 		error "unknown repo type"; \
 	fi
@@ -486,6 +489,8 @@ status = \
 		svn status "$@"; \
 	elif [ -d "$MR_REPO"/.git ]; then \
 		git status "$@" || true; \
+	elif [ -d "$MR_REPO"/CVS ]; then \
+		echo "cvs status not run (too ugly)"; \
 	else \
 		error "unknown repo type"; \
 	fi
@@ -494,6 +499,8 @@ commit = \
 		svn commit "$@"; \
 	elif [ -d "$MR_REPO"/.git ]; then \
 		git commit -a "$@" && git push --all; \
+	elif [ -d "$MR_REPO"/CVS ]; then \
+		cvs commit "$@"; \
 	else \
 		error "unknown repo type"; \
 	fi
@@ -502,6 +509,8 @@ diff = \
 		svn diff "$@"; \
 	elif [ -d "$MR_REPO"/.git ]; then \
 		git diff "$@"; \
+	elif [ -d "$MR_REPO"/CVS ]; then \
+		cvs diff "$@"; \
 	else \
 		error "unknown repo type"; \
 	fi
@@ -510,6 +519,8 @@ log = \
 		svn log"$@"; \
 	elif [ -d "$MR_REPO"/.git ]; then \
 		git log "$@"; \
+	elif [ -d "$MR_REPO"/CVS ]; then \
+		cvs log "$@"; \
 	else \
 		error "unknown repo type"; \
 	fi

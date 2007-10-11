@@ -10,13 +10,20 @@ skip = test $(hostname) != kodama
 
 [src/dpkg]
 # A merge of the upstream dpkg git repo and my own personal branch.
-checkout = git clone git://git.debian.org/git/dpkg/dpkg.git && \
+checkout = \
+	git clone git://git.debian.org/git/dpkg/dpkg.git && \
 	cd dpkg && \
 	git remote add kite ssh://kitenet.net/srv/git/kitenet.net/dpkg && \
 	git fetch kite && \
 	git checkout -b sourcev3 kite/sourcev3
 update = git pull origin master && git pull kite sourcev3
 commit = git push kite
+
+[html/www.debian.org]
+# Still in CVS..urk!
+checkout = \
+	CVSROOT=:ext:joeyh@cvs.debian.org:/cvs/webwml \
+	cvs co -d www.debian.org webwml
 
 # My home directory, which I keep in svn.
 []
