@@ -129,7 +129,7 @@ foreach my $topdir (sort keys %config) {
 
 		if (defined $directory &&
 		    $dir !~ /^\Q$directory\E\//) {
-			print "mr $action: $dir skipped per -d parameter\n" if $verbose;
+			print "mr $action: $dir skipped per -d parameter ($directory)\n" if $verbose;
 			push @skipped, $dir;
 			next;
 		}
@@ -212,16 +212,17 @@ sub loadconfig {
 		$dir="";
 	}
 	else {
-		$f=abs_path($f);
-
-		if ($loaded{$f}) {
+		# $f might be a symlink
+		my $absf=abs_path($f);
+		if ($loaded{$absf}) {
 			return;
 		}
-		$loaded{$f}=1;
+		$loaded{$absf}=1;
 
 		print "mr: loading config $f\n" if $verbose;
 		open($in, "<", $f) || die "mr: open $f: $!\n";
 		($dir)=$f=~/^(.*\/)[^\/]+$/;
+		$dir=abs_path($dir)."/";
 
 		# copy in defaults from first parent
 		my $parent=$dir;
