@@ -298,10 +298,6 @@ sub action {
 	}
 	
 	$ENV{MR_REPO}=$dir;
-	if (! $nochdir && ! chdir($dir)) {
-		print STDERR "mr $action: failed to chdir to $dir: $!\n";
-		push @skipped, $dir;
-	}
 
 	if (exists $config{$topdir}{$subdir}{skip}) {
 		my $test="set -e;".$lib.$config{$topdir}{$subdir}{skip};
@@ -313,8 +309,12 @@ sub action {
 			return;
 		}
 	}
-
-	if (! exists $config{$topdir}{$subdir}{$action}) {
+	
+	if (! $nochdir && ! chdir($dir)) {
+		print STDERR "mr $action: failed to chdir to $dir: $!\n";
+		push @failed, $dir;
+	}
+	elsif (! exists $config{$topdir}{$subdir}{$action}) {
 		print STDERR "mr $action: no defined $action command for $topdir$subdir, skipping\n";
 		push @skipped, $dir;
 	}
