@@ -334,7 +334,7 @@ update = \
 	elif [ -d .git ]; then \
 		git pull origin master; \
 	else \
-		echo "mr update: unknown RCS"; \
+		echo "mr update: unknown repo type"; \
 		exit 1; \
 	fi
 status = \
@@ -343,7 +343,7 @@ status = \
 	elif [ -d .git ]; then \
 		git status || true; \
 	else \
-		echo "mr status: unknown RCS"; \
+		echo "mr status: unknown repo type"; \
 		exit 1; \
 	fi
 commit = \
@@ -353,6 +353,6 @@ commit = \
 		git commit -a "$@"; \
 		git push --all; \
 	else \
-		echo "mr commit: unknown RCS"; \
+		echo "mr commit: unknown repo type"; \
 		exit 1; \
 	fi
