@@ -356,9 +356,9 @@ sub loadconfig {
 	}
 }
 
-__DATA__
-# Some useful actions that mr knows about by default.
+# Finally, some useful actions that mr knows about by default.
 # These can be overridden in ~/.mrconfig.
+__DATA__
 [default]
 update = \
 	if [ -d .svn ]; then \
