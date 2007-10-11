@@ -405,17 +405,17 @@ lib = \
 	}
 update = \
 	if [ -d .svn ]; then \
-		svn update; \
+		svn update "$@"; \
 	elif [ -d .git ]; then \
-		git pull origin master; \
+		git pull origin master "$@"; \
 	else \
 		error "unknown repo type"; \
 	fi
 status = \
 	if [ -d .svn ]; then \
-		svn status; \
+		svn status "$@"; \
 	elif [ -d .git ]; then \
-		git status || true; \
+		git status "$@" || true; \
 	else \
 		error "unknown repo type"; \
 	fi
