@@ -28,6 +28,11 @@ respository.
 Any mix of revision control systems can be used with B<mr>, and you can
 define arbitrary actions for commands like "update", "checkout", or "commit".
 
+B<mr> cds into and operates on all registered repsitories at or below your
+working directory. Or, if you are in a subdirectory of a repository that
+contains no other registered repositories, it will stay in that directory,
+and work on only that repository,
+
 The predefined commands should be fairly familiar to users of any revision
 control system:
 
@@ -70,11 +75,8 @@ Displays this help.
 =back
 
 Actions can be abbreviated to any unambiguous subsctring, so
-"mr st" is equivilant to "mr status".
-
-B<mr> operates on all registered repsitories at or below your working
-directory. Or, if you are in a subdirectory of a repository that contains
-no other registered repositories, it will act on only that repository.
+"mr st" is equivilant to "mr status", and "mr up" is equivilant to "mr
+update"
 
 Additional parameters can be passed to other commands than "commit", they
 will be passed on unchanged to the underlying revision control system.
