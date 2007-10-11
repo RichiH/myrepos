@@ -100,7 +100,7 @@ the current working directory.
 
 =item -c mrconfig
 
-Use the specified mrconfig file, instead of looking for on in your home
+Use the specified mrconfig file, instead of looking for one in your home
 directory.
 
 =item -v
