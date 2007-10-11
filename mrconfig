@@ -8,12 +8,16 @@ cleanup = if [ -d "$MR_REPO"/.svn ]; then svn cleanup ; fi
 #   large)
 # - mylaptop only succeeds if it's on my main development laptop, which 
 #   gets lots of extra cruft
+# - kite only succeeds on kite
 lib = \
 	wantsrc() { \
 		test "$(whoami)" = joey; \
 	}; \
 	mylaptop() { \
 		test "$(hostname)" = kodama; \
+	}; \
+	kite() { \
+		test "$(hostname)" = wren; \
 	}
 
 [src/mr]

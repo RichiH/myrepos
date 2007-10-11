@@ -133,8 +133,10 @@ come after it.
 The "ALIAS" section allows adding aliases for actions. Each parameter
 is an alias, and its value is the action to use.
 
-All other sections specify where each repository is located, relative to the
-directory that contains the .mrconfig file.
+All other sections add repositories. The section header specifies the
+directory where the repository is located. This is relative to the directory
+that contains the mrconfig file, but you can also choose to use absolute
+paths.
 
 Within a section, each parameter defines a shell command to run to handle a
 given action. mr contains default handlers for the "update", "status", and
@@ -247,8 +249,11 @@ my $nochdir=0;
 foreach my $topdir (sort keys %config) {
 	foreach my $subdir (sort keys %{$config{$topdir}}) {
 		next if $subdir eq 'DEFAULT';
-		my $dir=$topdir.$subdir;
-		next if $dir ne $directory && $dir !~ /^\Q$directory\E\//;
+		my $dir=($subdir =~/^\//) ? $subdir : $topdir.$subdir;
+		my $d=$directory;
+		$dir.="/" unless $dir=~/\/$/;
+		$d.="/" unless $d=~/\/$/;
+		next if $dir ne $directory && $dir !~ /^\Q$directory\E/;
 		push @repos, [$dir, $topdir, $subdir];
 	}
 }
@@ -257,7 +262,7 @@ if (! @repos) {
 	LEAF: foreach my $topdir (reverse sort keys %config) {
 		foreach my $subdir (reverse sort keys %{$config{$topdir}}) {
 			next if $subdir eq 'DEFAULT';
-			my $dir=$topdir.$subdir;
+			my $dir=($subdir =~/^\//) ? $subdir : $topdir.$subdir;
 			my $d=$directory;
 			$dir.="/" unless $dir=~/\/$/;
 			$d.="/" unless $d=~/\/$/;
@@ -330,7 +335,7 @@ sub action {
 		my $ret=system($command);
 		if ($ret != 0) {
 			print STDERR "mr $action: failed ($ret)\n" if $verbose;
-			push @failed, $topdir.$subdir;
+			push @failed, $dir;
 			if ($ret >> 8 != 0) {
 				print STDERR "mr $action: command failed\n";
 			}
