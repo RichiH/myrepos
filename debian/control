@@ -15,7 +15,7 @@ Suggests: subversion, git-core
 Description: a Multiple Repository management tool
  The mr(1) command allows you to register a set of repositories in 
  a .mrconfig file, and then checkout, update, or perform other actions on
- all of the repositories at once.
+ the repositories as if they were one big respository.
  .
  Any mix of revision control systems can be used with mr(1), and you can
  define arbitrary actions for commands like "update", "checkout", or "commit".

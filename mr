@@ -22,7 +22,8 @@ B<mr> [options] action [params ...]
 
 B<mr> is a Multiple Repository management tool. It allows you to register a
 set of repositories in a .mrconfig file, and then checkout, update, or
-perform other actions on all of the repositories at once.
+perform other actions on the repositories as if they were one big
+respository.
 
 Any mix of revision control systems can be used with B<mr>, and you can
 define arbitrary actions for commands like "update", "checkout", or "commit".
@@ -87,8 +88,7 @@ revision control system.
 =item -d directory
 
 Specifies the topmost directory that B<mr> should work in. The default is
-the current working directory. B<mr> will operate on all registered
-repositories at or under the directory.
+the current working directory.
 
 =item -c mrconfig
 
@@ -118,9 +118,11 @@ directory that contains the .mrconfig file.
 Within a section, each parameter defines a shell command to run to handle a
 given action. Note that these shell commands are run in a "set -e" shell
 environment, where any additional parameters you pass are available in
-"$@". B<mr> cds into the repository directory before running
-a command, except for the "checkout" command, which is run in the parent
-of the repository directory, since the repository isn't checked out yet.
+"$@". The "checkout" command is run in the parent of the repository
+directory, since the repository isn't checked out yet. All other commands
+are run inside the repository, though not necessarily at the top of it.
+The "MR_REPO" environment variable is set to the path to the top of the
+repository.
 
 There are three special parameters. If the "skip" parameter is set and
 its command returns nonzero, then B<mr> will skip acting on that repository.
@@ -226,10 +228,17 @@ if ($action eq 'help') {
 }
 
 # handle being in a subdir of a repository
+my $nochdir=0;
 foreach my $topdir (sort keys %config) {
-	foreach my $subdir (sort keys %{$config{$topdir}}) {
-		if ($directory =~ /^\Q$topdir$subdir\E\//) {
+	foreach my $subdir (reverse sort keys %{$config{$topdir}}) {
+		next if $subdir eq 'default';
+		my $d=$directory."/";
+		my $dir=$topdir.$subdir;
+		$dir.="/" unless $dir=~/\/$/;
+		if ($d =~ /^\Q$dir\E/) {
 			$directory=$topdir.$subdir;
+			$nochdir=1;
+			last;
 		}
 	}
 }
@@ -237,7 +246,6 @@ foreach my $topdir (sort keys %config) {
 my (@failed, @successful, @skipped);
 foreach my $topdir (sort keys %config) {
 	foreach my $subdir (sort keys %{$config{$topdir}}) {
-		next if $subdir eq 'default';
 		
 		my $dir=$topdir.$subdir;
 
@@ -271,7 +279,8 @@ sub action {
 		}
 	}
 	
-	if (! chdir($dir)) {
+	$ENV{MR_REPO}=$dir;
+	if (! $nochdir && ! chdir($dir)) {
 		print STDERR "mr $action: failed to chdir to $dir: $!\n";
 		push @skipped, $dir;
 	}
@@ -321,6 +330,9 @@ sub showstat {
 		return "$count ".($count > 1 ? $plural : $singular);
 	}
 	return;
+}
+if (! @successful && ! @failed && ! @skipped) {
+	die "mr $action: no repositories found to work on\n";
 }
 print "mr $action: finished (".join("; ",
 	showstat($#successful+1, "successful", "successful"),
@@ -441,33 +453,33 @@ lib = \
 		exit 1; \
 	}
 update = \
-	if [ -d .svn ]; then \
+	if [ -d "$MR_REPO"/.svn ]; then \
 		svn update "$@"; \
-	elif [ -d .git ]; then \
+	elif [ -d "$MR_REPO"/.git ]; then \
 		git pull origin master "$@"; \
 	else \
 		error "unknown repo type"; \
 	fi
 status = \
-	if [ -d .svn ]; then \
+	if [ -d "$MR_REPO"/.svn ]; then \
 		svn status "$@"; \
-	elif [ -d .git ]; then \
+	elif [ -d "$MR_REPO"/.git ]; then \
 		git status "$@" || true; \
 	else \
 		error "unknown repo type"; \
 	fi
 commit = \
-	if [ -d .svn ]; then \
+	if [ -d "$MR_REPO"/.svn ]; then \
 		svn commit "$@"; \
-	elif [ -d .git ]; then \
+	elif [ -d "$MR_REPO"/.git ]; then \
 		git commit -a "$@" && git push --all; \
 	else \
 		error "unknown repo type"; \
 	fi
 diff = \
-	if [ -d .svn ]; then \
+	if [ -d "$MR_REPO"/.svn ]; then \
 		svn diff "$@"; \
-	elif [ -d .git ]; then \
+	elif [ -d "$MR_REPO"/.git ]; then \
 		git diff "$@"; \
 	else \
 		error "unknown repo type"; \

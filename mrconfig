@@ -26,4 +26,4 @@ update = svn update && svnfix
 
 [default]
 # Teach mr how to run svn cleanup.
-cleanup = if [ -d .svn ]; then svn cleanup ; fi
+cleanup = if [ -d "$MR_REPO"/.svn ]; then svn cleanup ; fi
