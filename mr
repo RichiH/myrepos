@@ -16,6 +16,8 @@ B<mr> [options] commit [-m "message"]
 
 B<mr> [options] diff
 
+B<mr> [options] log
+
 B<mr> [options] action [params ...]
 
 =head1 DESCRIPTION
@@ -63,6 +65,10 @@ The optional -m parameter allows specifying a commit message.
 =item diff
 
 Show a diff of uncommitted changes.
+
+=item log
+
+Show the commit log.
 
 =item list
 
@@ -219,8 +225,13 @@ if (! exists $knownactions{$action}) {
 		if (@matches == 1) {
 			$action=$matches[0];
 		}
+		elsif (@matches == 0) {
+			die "mr: unknown action \"$action\" (known actions: ".
+				join(", ", sort keys %knownactions).")\n";
+		}
 		else {
-			die "mr: ambiguous action \"$action\" (matches @matches)\n";
+			die "mr: ambiguous action \"$action\" (matches: ".
+				join(", ", @matches).")\n";
 		}
 	}
 }
@@ -485,6 +496,14 @@ diff = \
 		svn diff "$@"; \
 	elif [ -d "$MR_REPO"/.git ]; then \
 		git diff "$@"; \
+	else \
+		error "unknown repo type"; \
+	fi
+log = \
+	if [ -d "$MR_REPO"/.svn ]; then \
+		svn log"$@"; \
+	elif [ -d "$MR_REPO"/.git ]; then \
+		git log "$@"; \
 	else \
 		error "unknown repo type"; \
 	fi
