@@ -149,7 +149,7 @@ loadconfig($config);
 #use Data::Dumper;
 #print Dumper(\%config);
 
-my (@failures, @successes, @skipped);
+my (@failed, @successful, @skipped);
 my $first=1;
 foreach my $topdir (sort keys %config) {
 	foreach my $subdir (sort keys %{$config{$topdir}}) {
@@ -213,7 +213,7 @@ sub action {
 		my $ret=system($command);
 		if ($ret != 0) {
 			print STDERR "mr $action: failed to run: $command\n" if $verbose;
-			push @failures, $topdir.$subdir;
+			push @failed, $topdir.$subdir;
 			if ($ret >> 8 != 0) {
 				print STDERR "mr $action: command failed\n";
 			}
@@ -222,7 +222,7 @@ sub action {
 			}
 		}
 		else {
-			push @successes, $dir;
+			push @successful, $dir;
 		}
 	}
 }
@@ -237,11 +237,11 @@ sub showstat {
 	return;
 }
 print "\nmr $action: finished (".join("; ",
-	showstat($#successes+1, "success", "successes"),
-	showstat($#failures+1, "failure", "failures"),
+	showstat($#successful+1, "successful", "successful"),
+	showstat($#failed+1, "failed", "failed"),
 	showstat($#skipped+1, "skipped", "skipped"),
 ).")\n";
-exit @failures ? 1 : 0;
+exit @failed ? 1 : 0;
 
 my %loaded;
 sub loadconfig {

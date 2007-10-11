@@ -16,6 +16,7 @@ checkout = git clone git://git.debian.org/git/dpkg/dpkg.git && \
 	git fetch kite && \
 	git checkout -b sourcev3 kite/sourcev3
 update = git pull origin master && git pull kite sourcev3
+commit = git push kite
 
 # My home directory, which I keep in svn.
 []
