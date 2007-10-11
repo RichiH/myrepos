@@ -15,7 +15,7 @@ binary-indep: build
 	dh_testroot
 	dh_clean -k
 	dh_install mr usr/bin
-	dh_installdocs
+	dh_installdocs README
 	dh_installexamples mrconfig
 	dh_installman *.1
 	dh_installchangelogs
