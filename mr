@@ -70,7 +70,7 @@ Show a diff of uncommitted changes.
 
 Show the commit log.
 
-=item list
+=item list (or ls)
 
 List the repositories that mr will act on.
 
@@ -466,6 +466,7 @@ __DATA__
 [alias]
 	co = checkout
 	ci = commit
+	ls = list
 [default]
 lib = \
 	error() { \
