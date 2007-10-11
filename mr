@@ -208,6 +208,9 @@ foreach my $topdir (sort keys %config) {
 
 sub action {
 	my ($action, $dir, $topdir, $subdir) = @_;
+	
+	my $lib= exists $config{$topdir}{$subdir}{lib} ?
+	                $config{$topdir}{$subdir}{lib} : "";
 
 	if ($action eq 'checkout') {
 		if (-d $dir) {
@@ -229,7 +232,7 @@ sub action {
 	}
 
 	if (exists $config{$topdir}{$subdir}{skip}) {
-		my $ret=system($config{$topdir}{$subdir}{skip});
+		my $ret=system($lib.$config{$topdir}{$subdir}{skip});
 		if ($ret >> 8 == 0) {
 			print "mr $action: $dir skipped per config file\n" if $verbose;
 			push @skipped, $dir;
@@ -243,9 +246,7 @@ sub action {
 	}
 	else {
 		print "mr $action: in $dir\n";
-		my $command="set -e; ".
-			(exists $config{$topdir}{$subdir}{lib} ?
-				$config{$topdir}{$subdir}{lib} : "").
+		my $command="set -e; ".$lib.
 			"my_action(){ $config{$topdir}{$subdir}{$action} ; }; my_action ".
 			join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
 		my $ret=system($command);
