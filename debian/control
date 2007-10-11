@@ -1,0 +1,19 @@
+Source: mr
+Section: utils
+Priority: optional
+Build-Depends: debhelper (>= 5), dpkg-dev (>= 1.9.0)
+Maintainer: Joey Hess <joeyh@debian.org>
+Standards-Version: 3.7.2
+
+Package: mr
+Architecture: all
+Section: utils
+Depends: 
+Suggests: subversion, git-core
+Description: a Multiple Repository management tool
+ The mr(1) command allows you to register a set of repositories in 
+ a .mrconfig file, and then checkout, update, or perform other actions on
+ all of the repositories at once.
+ .
+ Any mix of revision control systems can be used with mr(1), and you can
+ define arbitrary actions like "update", "checkout", or "commit".

@@ -1,0 +1,31 @@
+#!/usr/bin/make -f
+
+build:
+	pod2man -c mr mr > mr.1
+
+clean:
+	dh_testdir
+	dh_testroot
+	dh_clean mr.1
+
+binary-arch: build
+
+binary-indep: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_install mr usr/bin
+	dh_installdocs
+	dh_installexamples mrconfig
+	dh_installman *.1
+	dh_installchangelogs
+	dh_compress
+	dh_fixperms
+	dh_perl
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary

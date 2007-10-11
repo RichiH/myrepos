@@ -1,0 +1,25 @@
+# An example config file for the mr(1) command.
+
+[src/mr]
+checkout = git clone ssh://kitenet.net/srv/git/kitenet.net/mr
+
+[src/linux-2.6]
+checkout = git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+# I only check this out on kodama, otherwise skip it.
+skip = test $(hostname) != kodama
+
+[src/dpkg]
+# A merge of the upstream dpkg git repo and my own personal branch.
+checkout = git clone git://git.debian.org/git/dpkg/dpkg.git && \
+	cd dpkg && \
+	git remote add kite ssh://kitenet.net/srv/git/kitenet.net/dpkg && \
+	git fetch kite && \
+	git checkout -b sourcev3 kite/sourcev3
+update = git pull origin master && git pull kite sourcev3
+
+# My home directory, which I keep in svn.
+[]
+# Since I have a lot of different branches for different machines,
+# the checkout procedure is manual.
+checkout = echo "run svn+ssh://svn.kitenet.net/srv/svn/joey/trunk/home-<branch> ."; \
+	exit 1

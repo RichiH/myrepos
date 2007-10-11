@@ -1,0 +1,309 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+mr - a Multiple Repository management tool
+
+=head1 SYNOPSIS
+
+B<mr> [options] checkout
+
+B<mr> [options] update
+
+B<mr> [options] status
+
+B<mr> [options] commit -m "message"
+
+B<mr> [options] action [params ...]
+
+=head1 DESCRIPTION
+
+B<mr> is a Multiple Repository management tool. It allows you to register a
+set of repositories in a .mrconfig file, and then checkout, update, or
+perform other actions on all of the repositories at once.
+
+Any mix of revision control systems can be used with B<mr>, and you can
+define arbitrary actions like "update", "checkout", or "commit".
+
+=head1 OPTIONS
+
+=over 4
+
+=item -d directory
+
+Specifies the topmost directory that B<mr> should work in. The default is
+the current working directory. B<mr> will operate on all registered
+repositories at or under the directory.
+
+=item -c mrconfig
+
+Use the specified mrconfig file, instead of looking for on in your home
+directory.
+
+=item -v
+
+Be verbose.
+
+=back
+
+=head1 FILES
+
+B<mr> is configured by .mrconfig files. It searches for .mrconfig files in
+your home directory, and in the root directory of each repository specified
+in a .mrconfig file. So you could have a ~/.mrconfig that registers a
+repository ~/src, that itself contains a ~/src/.mrconfig file, that in turn
+registers several additional repositories.
+
+The .mrconfig file uses a variant of the INI file format. Lines starting with
+"#" are comments. Lines ending with "\" are continued on to the next line.
+Sections specify where each repository is located, relative to the
+directory that contains the .mrconfig file.
+
+Within a section, each parameter defines a shell command to run to handle a
+given action. Note that these shell commands are run in a "set -e" shell
+environment, and B<mr> cds into the repository directory before running
+them, except for the "checkout" command, which is run in the parent of the
+repository directory, since the repository isn't checked out yet.
+
+There are two special parameters. If the "skip" parameter is set and
+its command returns nonzero, then B<mr> will skip acting on that repository.
+
+The "default" section allows setting up default handlers for each action,
+and is overridden by the contents of other sections. mr contains default
+handlers for the "update", "status", and "commit" actions, so normally
+you only need to specify what to do for "checkout".
+
+For example:
+
+  [src]
+  checkout = svn co svn://svn.example.com/src/trunk src
+
+  [src/linux-2.6]
+  # only check this out on kodama
+  skip = test $(hostname) != kodama
+  checkout = git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+
+=head1 AUTHOR
+
+Copyright 2007 Joey Hess <joey@kitenet.net>
+
+Licensed under the GNU GPL version 2 or higher.
+
+http://kitenet.net/~joey/code/mr/
+
+=cut
+
+use warnings;
+use strict;
+use Getopt::Long;
+use Cwd qw(getcwd abs_path);
+
+my $directory=getcwd();
+my $config="$ENV{HOME}/.mrconfig";
+my $verbose=0;
+my %config;
+
+Getopt::Long::Configure("no_permute");
+my $result=GetOptions(
+	"d=s" => sub { $directory=abs_path($_[1]) },
+	"c=s" => \$config,
+	"v" => \$verbose,
+);
+if (! $result || @ARGV < 1) {
+	die("Usage: mr [-d directory] action [params ...]\n");
+}
+my $action=shift @ARGV;
+
+loadconfig(\*DATA);
+loadconfig($config);
+#use Data::Dumper;
+#print Dumper(\%config);
+
+my (@failures, @successes, @skipped);
+my $first=1;
+foreach my $topdir (sort keys %config) {
+	foreach my $subdir (sort keys %{$config{$topdir}}) {
+		next if $subdir eq 'default';
+		
+		my $dir=$topdir.$subdir;
+
+		if (defined $directory &&
+		    $dir !~ /^\Q$directory\E\//) {
+			print "mr $action: $dir skipped per -d parameter\n" if $verbose;
+			push @skipped, $dir;
+			next;
+		}
+
+		print "\n" unless $first;
+		$first=0;
+
+		if (exists $config{$topdir}{$subdir}{skip}) {
+			my $ret=system($config{$topdir}{$subdir}{skip});
+			if ($ret >> 8 == 0) {
+				print "mr $action: $dir skipped per config file\n" if $verbose;
+				push @skipped, $dir;
+				next;
+			}
+		}
+
+		if ($action eq 'checkout') {
+			if (-e $dir) {
+				print "mr $action: $dir already exists, skipping checkout\n";
+				push @skipped, $dir;
+				next;
+			}
+			$dir=~s/^(.*)\/[^\/]+\/?$/$1/;
+		}
+		if (! chdir($dir)) {
+			print STDERR "mr $action: failed to chdir to $dir: $!\n";
+			push @skipped, $dir;
+		}
+		elsif (! exists $config{$topdir}{$subdir}{$action}) {
+			print STDERR "mr $action: no defined $action command for $topdir$subdir, skipping\n";
+			push @skipped, $dir;
+		}
+		else {
+			print "mr $action: in $dir\n";
+			my $command="set -e; my_action(){ $config{$topdir}{$subdir}{$action} ; }; my_action @ARGV";
+			my $ret=system($command);
+			if ($ret != 0) {
+				print STDERR "mr $action: failed to run: $command\n" if $verbose;
+				push @failures, $topdir.$subdir;
+				if ($ret >> 8 != 0) {
+					print STDERR "mr $action: command failed\n";
+				}
+				elsif ($ret != 0) {
+					print STDERR "mr $action: command died ($ret)\n";
+				}
+			}
+			else {
+				push @successes, $dir;
+			}
+		}
+	}
+}
+
+sub showstat {
+	my $count=shift;
+	my $singular=shift;
+	my $plural=shift;
+	if ($count) {
+		return "$count ".($count > 1 ? $plural : $singular);
+	}
+	return;
+}
+print "\nmr $action: finished (".join("; ",
+	showstat($#successes+1, "success", "sucesses"),
+	showstat($#failures+1, "failure", "failures"),
+	showstat($#skipped+1, "skipped", "skipped"),
+).")\n";
+exit @failures ? 1 : 0;
+
+my %loaded;
+sub loadconfig {
+	my $f=shift;
+
+	my @toload;
+
+	my $in;
+	my $dir;
+	if (ref $f eq 'GLOB') {
+		$in=$f;	
+		$dir="";
+	}
+	else {
+		$f=abs_path($f);
+
+		if ($loaded{$f}) {
+			return;
+		}
+		$loaded{$f}=1;
+
+		print "mr: loading config $f\n" if $verbose;
+		open($in, "<", $f) || die "mr: open $f: $!\n";
+		($dir)=$f=~/^(.*\/)[^\/]+$/;
+
+		# copy in defaults from first parent
+		my $parent=$dir;
+		while ($parent=~s/^(.*)\/[^\/]+\/?$/$1/) {
+			if (exists $config{$parent} &&
+			    exists $config{$parent}{default}) {
+				$config{$dir}{default}={ %{$config{$parent}{default}} };
+				last;
+			}
+		}
+	}
+
+	my $section;
+	while (<$in>) {
+		chomp;
+		next if /^\s*\#/ || /^\s*$/;
+		if (/^\s*\[([^\]]*)\]\s*$/) {
+			$section=$1;
+			if (length $dir && $section ne "default" &&
+			    -e $dir.$section."/.mrconfig") {
+				push @toload, $dir.$section."/.mrconfig";
+		        }
+		}
+		elsif (/^\s*(\w+)\s*=\s*(.*)/) {
+			my $parameter=$1;
+			my $value=$2;
+
+			# continuation line
+			while ($value=~/(.*)\\$/) {
+				$value=$1.<$in>;
+				chomp $value;
+			}
+
+			if (! defined $section) {
+				die "$f line $.: parameter ($parameter) not in section\n";
+			}
+			if (! exists $config{$dir}{$section} &&
+			      exists $config{$dir}{default}) {
+				# copy in defaults
+				$config{$dir}{$section}={ %{$config{$dir}{default}} };
+			}
+			$config{$dir}{$section}{$parameter}=$value;
+		}
+		else {
+				die "$f line $.: parse error\n";
+		}
+	}
+	close $in;
+
+	foreach (@toload) {
+		loadconfig($_);
+	}
+}
+
+__DATA__
+# Some useful actions that mr knows about by default.
+# These can be overridden in ~/.mrconfig.
+[default]
+update = \
+	if [ -d .svn ]; then \
+		svn update; \
+	elif [ -d .git ]; then \
+		git pull origin master; \
+	else \
+		echo "mr update: unknown RCS"; \
+		exit 1; \
+	fi
+status = \
+	if [ -d .svn ]; then \
+		svn status; \
+	elif [ -d .git ]; then \
+		git status || true; \
+	else \
+		echo "mr status: unknown RCS"; \
+		exit 1; \
+	fi
+commit = \
+	if [ -d .svn ]; then \
+		svn commit "$@"; \
+	elif [ -d .git ]; then \
+		git commit -a "$@"; \
+	else \
+		echo "mr commit: unknown RCS"; \
+		exit 1; \
+	fi
