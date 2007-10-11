@@ -218,24 +218,22 @@ eval {
 
 # alias expansion and command stemming
 my $action=shift @ARGV;
+if (exists $alias{$action}) {
+	$action=$alias{$action};
+}
 if (! exists $knownactions{$action}) {
-	if (exists $alias{$action}) {
-		$action=$alias{$action};
+	my @matches = grep { /^\Q$action\E/ }
+		keys %knownactions, keys %alias;
+	if (@matches == 1) {
+		$action=$matches[0];
+	}
+	elsif (@matches == 0) {
+		die "mr: unknown action \"$action\" (known actions: ".
+			join(", ", sort keys %knownactions).")\n";
 	}
 	else {
-		my @matches = grep { /^\Q$action\E/ }
-			keys %knownactions, keys %alias;
-		if (@matches == 1) {
-			$action=$matches[0];
-		}
-		elsif (@matches == 0) {
-			die "mr: unknown action \"$action\" (known actions: ".
-				join(", ", sort keys %knownactions).")\n";
-		}
-		else {
-			die "mr: ambiguous action \"$action\" (matches: ".
-				join(", ", @matches).")\n";
-		}
+		die "mr: ambiguous action \"$action\" (matches: ".
+			join(", ", @matches).")\n";
 	}
 }
 
@@ -473,12 +471,14 @@ __DATA__
 	co = checkout
 	ci = commit
 	ls = list
+
 [default]
 lib = \
 	error() { \
 		echo "mr: $@" >&2; \
 		exit 1; \
 	}
+
 update = \
 	if [ -d "$MR_REPO"/.svn ]; then \
 		svn update "$@"; \
@@ -530,9 +530,13 @@ log = \
 		error "unknown repo type"; \
 	fi
 list = true
+
 help = \
 	if [ ! -e "$MR_PATH" ]; then \
 		error "cannot find program path";\
 	fi; \
 	(pod2man -c mr "$MR_PATH" | man -l -) || \
 		error "pod2man or man failed"
+
+ed = echo "A horse is a horse, of course, of course.."
+T = echo "I pity the fool."
