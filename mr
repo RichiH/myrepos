@@ -138,16 +138,16 @@ If the "chain" parameter is set and its command returns nonzero, then B<mr>
 will try to load a .mrconfig file from the root of the repository. (You
 should avoid chaining from repositories with untrusted committers.) The
 "lib" parameter can specify some shell code that will be run before each
-command, this can be a useful way to define shell functions other commands
-can use.
+command, this can be a useful way to define shell functions for other commands
+to use.
 
 The "default" section allows setting up default handlers for each action,
 and is overridden by the contents of other sections. mr contains default
 handlers for the "update", "status", and "commit" actions, so normally
 you only need to specify what to do for "checkout".
 
-The "alias" section allows adding aliases for commands. Each parameter
-is an alias, and its value is the command to run.
+The "alias" section allows adding aliases for actions. Each parameter
+is an alias, and its value is the action to use.
 
 For example:
 
