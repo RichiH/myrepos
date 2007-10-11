@@ -263,7 +263,13 @@ print "\nmr $action: finished (".join("; ",
 	showstat($#failed+1, "failed", "failed"),
 	showstat($#skipped+1, "skipped", "skipped"),
 ).")\n";
-exit @failed ? 1 : 0;
+if (@failed) {
+	exit 1;
+}
+elsif (! @successful && @skipped) {
+	exit 1;
+}
+exit 0;
 
 my %loaded;
 sub loadconfig {
