@@ -11,7 +11,7 @@ Package: mr
 Architecture: all
 Section: utils
 Depends: 
-Suggests: subversion, git-core, cvs
+Suggests: subversion, git-core, cvs, bzr
 Description: a Multiple Repository management tool
  The mr(1) command allows you to register a set of repositories in 
  a .mrconfig file, and then checkout, update, or perform other actions on

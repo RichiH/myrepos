@@ -112,11 +112,17 @@ Be verbose.
 =head1 FILES
 
 B<mr> is configured by .mrconfig files. It starts by reading the .mrconfig
-file in your home directory. Each repository specified in a .mrconfig file
-can also have its own .mrconfig file in its root directory that can
-optionally be used as well. So you could have a ~/.mrconfig that registers a
-repository ~/src, that itself contains a ~/src/.mrconfig file, that in turn
-registers several additional repositories.
+file in your home directory, and this can in turn chain load .mrconfig files
+from repositories.
+
+Here is an example .mrconfig file:
+
+  [src]
+  checkout = svn co svn://svn.example.com/src/trunk src
+  chain = true
+
+  [src/linux-2.6]
+  checkout = git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
 
 The .mrconfig file uses a variant of the INI file format. Lines starting with
 "#" are comments. Lines ending with "\" are continued on to the next line.
@@ -143,34 +149,28 @@ are run inside the repository, though not necessarily at the top of it.
 The "MR_REPO" environment variable is set to the path to the top of the
 repository.
 
-There are three special parameters. If the "skip" parameter is set and
-its command returns nonzero, then B<mr> will skip acting on that repository.
+A few parameters have special meanings:
+
+=over 4
+
+=item skip
+
+If the "skip" parameter is set and its command returns nonzero, then B<mr>
+will skip acting on that repository.
+
+=item chain
+
 If the "chain" parameter is set and its command returns nonzero, then B<mr>
 will try to load a .mrconfig file from the root of the repository. (You
-should avoid chaining from repositories with untrusted committers.) The
-"lib" parameter can specify some shell code that will be run before each
+should avoid chaining from repositories with untrusted committers.)
+
+=item lib
+
+The "lib" parameter can specify some shell code that will be run before each
 command, this can be a useful way to define shell functions for other commands
 to use.
 
-For example:
-
-  [src]
-  checkout = svn co svn://svn.example.com/src/trunk src
-  chain = true
-
-  [src/linux-2.6]
-  skip = small
-  checkout = git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
-
-  [default]
-  lib = \
-  small() {
-  	case "$(hostname)" in; \
-  	slug|snail); \
-  		return 0; ;; ; \
-  	esac; \
-  	return 1; \
-  }
+=back
 
 =head1 AUTHOR
 
@@ -196,9 +196,9 @@ my %alias;
 
 Getopt::Long::Configure("no_permute");
 my $result=GetOptions(
-	"d=s" => sub { $directory=abs_path($_[1]) },
-	"c=s" => \$config,
-	"v" => \$verbose,
+	"d|directory=s" => sub { $directory=abs_path($_[1]) },
+	"c|config=s" => \$config,
+	"verbose" => \$verbose,
 );
 if (! $result || @ARGV < 1) {
 	die("Usage: mr [-d directory] action [params ...]\n".
@@ -484,6 +484,8 @@ update = \
 		svn update "$@"; \
 	elif [ -d "$MR_REPO"/.git ]; then \
 		git pull origin master "$@"; \
+	elif [ -d "$MR_REPO"/.bzr ]; then \
+		bzr merge "$@"; \
 	elif [ -d "$MR_REPO"/CVS ]; then \
 		cvs update "$@"; \
 	else \
@@ -494,6 +496,8 @@ status = \
 		svn status "$@"; \
 	elif [ -d "$MR_REPO"/.git ]; then \
 		git status "$@" || true; \
+	elif [ -d "$MR_REPO"/.bzr ]; then \
+		bzr status "$@"; \
 	elif [ -d "$MR_REPO"/CVS ]; then \
 		cvs status "$@"; \
 	else \
@@ -504,6 +508,8 @@ commit = \
 		svn commit "$@"; \
 	elif [ -d "$MR_REPO"/.git ]; then \
 		git commit -a "$@" && git push --all; \
+	elif [ -d "$MR_REPO"/.bzr ]; then \
+		bzr commit "$@" && bzr push; \
 	elif [ -d "$MR_REPO"/CVS ]; then \
 		cvs commit "$@"; \
 	else \
@@ -514,6 +520,8 @@ diff = \
 		svn diff "$@"; \
 	elif [ -d "$MR_REPO"/.git ]; then \
 		git diff "$@"; \
+	elif [ -d "$MR_REPO"/.bzr ]; then \
+		bzr diff "$@"; \
 	elif [ -d "$MR_REPO"/CVS ]; then \
 		cvs diff "$@"; \
 	else \
@@ -524,6 +532,8 @@ log = \
 		svn log"$@"; \
 	elif [ -d "$MR_REPO"/.git ]; then \
 		git log "$@"; \
+	elif [ -d "$MR_REPO"/.bzr ]; then \
+		bzr log "$@"; \
 	elif [ -d "$MR_REPO"/CVS ]; then \
 		cvs log "$@"; \
 	else \
