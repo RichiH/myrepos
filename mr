@@ -175,6 +175,7 @@ loadconfig($config);
 #use Data::Dumper;
 #print Dumper(\%config);
 
+# alias expansion and command stemming
 my $action=shift @ARGV;
 if (! exists $knownactions{$action}) {
 	if (exists $alias{$action}) {
@@ -188,6 +189,15 @@ if (! exists $knownactions{$action}) {
 		}
 		else {
 			die "mr: ambiguous action \"$action\" (matches @matches)\n";
+		}
+	}
+}
+
+# handle being in a subdir of a repository
+foreach my $topdir (sort keys %config) {
+	foreach my $subdir (sort keys %{$config{$topdir}}) {
+		if ($directory =~ /^\Q$topdir$subdir\E\//) {
+			$directory=$topdir.$subdir;
 		}
 	}
 }
