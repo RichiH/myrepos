@@ -224,7 +224,6 @@ foreach my $topdir (sort keys %config) {
 }
 
 my (@failed, @successful, @skipped);
-my $first=1;
 foreach my $topdir (sort keys %config) {
 	foreach my $subdir (sort keys %{$config{$topdir}}) {
 		next if $subdir eq 'default';
@@ -299,8 +298,7 @@ sub action {
 			push @successful, $dir;
 		}
 
-		print "\n" unless $first;
-		$first=0;
+		print "\n";
 	}
 }
 
@@ -313,7 +311,6 @@ sub showstat {
 	}
 	return;
 }
-print "\n" unless $first;
 print "mr $action: finished (".join("; ",
 	showstat($#successful+1, "successful", "successful"),
 	showstat($#failed+1, "failed", "failed"),
