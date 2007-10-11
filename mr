@@ -54,6 +54,11 @@ like git.)
 
 The optional -m parameter allows specifying a commit message.
 
+=back
+
+Actions can be abbreviated to any unambiguous subsctring, so
+"mr st" is equivilant to "mr status".
+
 =head1 OPTIONS
 
 =over 4
@@ -132,6 +137,7 @@ my $directory=getcwd();
 my $config="$ENV{HOME}/.mrconfig";
 my $verbose=0;
 my %config;
+my %knownactions;
 
 Getopt::Long::Configure("no_permute");
 my $result=GetOptions(
@@ -142,12 +148,22 @@ my $result=GetOptions(
 if (! $result || @ARGV < 1) {
 	die("Usage: mr [-d directory] action [params ...]\n");
 }
-my $action=shift @ARGV;
 
 loadconfig(\*DATA);
 loadconfig($config);
 #use Data::Dumper;
 #print Dumper(\%config);
+
+my $action=shift @ARGV;
+if (! $knownactions{$action}) {
+	my @matches = grep { /^\Q$action\E/ } keys %knownactions;
+	if (@matches == 1) {
+		$action=$matches[0];
+	}
+	else {
+		die "mr: ambiguous action \"$action\" (matches @matches)\n";
+	}
+}
 
 my (@failed, @successful, @skipped);
 my $first=1;
@@ -312,6 +328,7 @@ sub loadconfig {
 				$config{$dir}{$section}={ %{$config{$dir}{default}} };
 			}
 			$config{$dir}{$section}{$parameter}=$value;
+			$knownactions{$parameter}=1;
 		}
 		else {
 				die "$f line $.: parse error\n";
