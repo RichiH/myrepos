@@ -14,6 +14,8 @@ B<mr> [options] status
 
 B<mr> [options] commit [-m "message"]
 
+B<mr> [options] diff
+
 B<mr> [options] action [params ...]
 
 =head1 DESCRIPTION
@@ -53,6 +55,14 @@ are pushed to the remote repository too, when using distributed systems
 like git.)
 
 The optional -m parameter allows specifying a commit message.
+
+=item diff
+
+Show a diff of uncommitted changes.
+
+=item help
+
+Displays this help.
 
 =back
 
@@ -167,13 +177,20 @@ my $result=GetOptions(
 	"v" => \$verbose,
 );
 if (! $result || @ARGV < 1) {
-	die("Usage: mr [-d directory] action [params ...]\n");
+	die("Usage: mr [-d directory] action [params ...]\n".
+	    "(Use mr help for man page.)\n");
+
 }
 
 loadconfig(\*DATA);
 loadconfig($config);
 #use Data::Dumper;
 #print Dumper(\%config);
+
+eval {
+	use FindBin qw($Bin $Script);
+	$ENV{MR_PATH}=$Bin."/".$Script;
+};
 
 # alias expansion and command stemming
 my $action=shift @ARGV;
@@ -191,6 +208,10 @@ if (! exists $knownactions{$action}) {
 			die "mr: ambiguous action \"$action\" (matches @matches)\n";
 		}
 	}
+}
+
+if ($action eq 'help') {
+	exec($config{''}{default}{help});
 }
 
 # handle being in a subdir of a repository
@@ -217,7 +238,6 @@ foreach my $topdir (sort keys %config) {
 		}
 
 		action($action, $dir, $topdir, $subdir);
-
 	}
 }
 
@@ -436,3 +456,17 @@ commit = \
 	else \
 		error "unknown repo type"; \
 	fi
+diff = \
+	if [ -d .svn ]; then \
+		svn diff "$@"; \
+	elif [ -d .git ]; then \
+		git diff "$@"; \
+	else \
+		error "unknown repo type"; \
+	fi
+help = \
+	if [ ! -e "$MR_PATH" ]; then \
+		error "cannot find program path";\
+	fi; \
+	(pod2man -c mr "$MR_PATH" | man -l -) || \
+		error "pod2man or man failed"

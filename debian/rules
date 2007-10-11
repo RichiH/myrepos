@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 build:
-	pod2man -c mr mr > mr.1
+	./mr help > mr.1
 
 clean:
 	dh_testdir

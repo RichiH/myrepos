@@ -1,1 +1,5 @@
+mr is intended to be very self-contained, since it might be useful to check
+it into ~/bin when keeping your home in version control. It has no
+dependencies aside from basic perl.
+
 Just copy mr into your PATH somewhere, and set up ~/.mrconfig
