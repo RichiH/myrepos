@@ -367,7 +367,8 @@ commit = \
 	if [ -d .svn ]; then \
 		svn commit "$@"; \
 	elif [ -d .git ]; then \
-		git commit -a "$@" && git push --all; \
+		echo "foo: $@" \
+		git commit -a "$@" \
 	else \
 		echo "mr commit: unknown repo type"; \
 		exit 1; \
