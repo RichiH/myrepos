@@ -236,7 +236,7 @@ sub action {
 		if ($ret >> 8 == 0) {
 			print "mr $action: $dir skipped per config file\n" if $verbose;
 			push @skipped, $dir;
-			next;
+			return;
 		}
 	}
 
