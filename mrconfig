@@ -23,3 +23,7 @@ commit = git push kite
 checkout = svn co svn+ssh://svn.kitenet.net/srv/svn/joey/trunk/home-$(hostname) joey
 # run svnfix after each update
 update = svn update && svnfix
+
+# Teach mr how to run svn cleanup.
+[default]
+cleanup = if [ -d .svn ]; then svn cleanup ; fi
