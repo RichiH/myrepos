@@ -82,9 +82,10 @@ Be verbose.
 
 =head1 FILES
 
-B<mr> is configured by .mrconfig files. It searches for .mrconfig files in
-your home directory, and in the root directory of each repository specified
-in a .mrconfig file. So you could have a ~/.mrconfig that registers a
+B<mr> is configured by .mrconfig files. It starts by reading the .mrconfig
+file in your home directory. Each repository specified in a .mrconfig file
+can also have its own .mrconfig file in its root directory that can
+optionally be used as well. So you could have a ~/.mrconfig that registers a
 repository ~/src, that itself contains a ~/src/.mrconfig file, that in turn
 registers several additional repositories.
 
@@ -102,6 +103,9 @@ of the repository directory, since the repository isn't checked out yet.
 
 There are two special parameters. If the "skip" parameter is set and
 its command returns nonzero, then B<mr> will skip acting on that repository.
+If the "chain" parameter is set and its command returns nonzero, then B<mr>
+will try to load a .mrconfig file from the root of the repository. (You
+should avoid chaining from repositories with untrusted committers.)
 
 The "default" section allows setting up default handlers for each action,
 and is overridden by the contents of other sections. mr contains default
@@ -112,6 +116,7 @@ For example:
 
   [src]
   checkout = svn co svn://svn.example.com/src/trunk src
+  chain = true
 
   [src/linux-2.6]
   # only check this out on kodama
@@ -205,7 +210,7 @@ sub action {
 		if (-d $dir) {
 			print "mr $action: $dir already exists, skipping checkout\n";
 			push @skipped, $dir;
-			next;
+			return;
 		}
 		$dir=~s/^(.*)\/[^\/]+\/?$/$1/;
 	}
@@ -305,10 +310,6 @@ sub loadconfig {
 		next if /^\s*\#/ || /^\s*$/;
 		if (/^\s*\[([^\]]*)\]\s*$/) {
 			$section=$1;
-			if (length $dir && $section ne "default" &&
-			    -e $dir.$section."/.mrconfig") {
-				push @toload, $dir.$section."/.mrconfig";
-		        }
 		}
 		elsif (/^\s*(\w+)\s*=\s*(.*)/) {
 			my $parameter=$1;
@@ -330,6 +331,13 @@ sub loadconfig {
 			}
 			$config{$dir}{$section}{$parameter}=$value;
 			$knownactions{$parameter}=1;
+
+			if ($parameter eq 'chain' &&
+			    length $dir && $section ne "default" &&
+			    -e $dir.$section."/.mrconfig" &&
+		    	    system($value) >> 8 == 0) {
+				push @toload, $dir.$section."/.mrconfig";
+		        }
 		}
 		else {
 				die "$f line $.: parse error\n";
