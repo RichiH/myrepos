@@ -101,11 +101,14 @@ environment, where any additional parameters you pass are available in
 a command, except for the "checkout" command, which is run in the parent
 of the repository directory, since the repository isn't checked out yet.
 
-There are two special parameters. If the "skip" parameter is set and
+There are three special parameters. If the "skip" parameter is set and
 its command returns nonzero, then B<mr> will skip acting on that repository.
 If the "chain" parameter is set and its command returns nonzero, then B<mr>
 will try to load a .mrconfig file from the root of the repository. (You
-should avoid chaining from repositories with untrusted committers.)
+should avoid chaining from repositories with untrusted committers.) The
+"lib" parameter can specify some shell code that will be run before each
+command, this can be a useful way to define shell functions other commands
+can use.
 
 The "default" section allows setting up default handlers for each action,
 and is overridden by the contents of other sections. mr contains default
@@ -119,9 +122,18 @@ For example:
   chain = true
 
   [src/linux-2.6]
-  # only check this out on kodama
-  skip = test $(hostname) != kodama
+  skip = small
   checkout = git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+
+  [default]
+  lib = \
+  small() {
+  	case "$(hostname)" in; \
+  	slug|snail); \
+  		return 0; ;; ; \
+  	esac; \
+  	return 1; \
+  }
 
 =head1 AUTHOR
 
@@ -230,7 +242,10 @@ sub action {
 	}
 	else {
 		print "mr $action: in $dir\n";
-		my $command="set -e; my_action(){ $config{$topdir}{$subdir}{$action} ; }; my_action ".
+		my $command="set -e; ".
+			(exists $config{$topdir}{$subdir}{lib} ?
+				$config{$topdir}{$subdir}{lib} : "").
+			"my_action(){ $config{$topdir}{$subdir}{$action} ; }; my_action ".
 			join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
 		my $ret=system($command);
 		if ($ret != 0) {
@@ -335,8 +350,13 @@ sub loadconfig {
 				# copy in defaults
 				$config{$dir}{$section}={ %{$config{$dir}{default}} };
 			}
-			$config{$dir}{$section}{$parameter}=$value;
-			$knownactions{$parameter}=1;
+			if ($parameter ne 'lib') {
+				$config{$dir}{$section}{$parameter}=$value;
+				$knownactions{$parameter}=1;
+			}
+			else {
+				$config{$dir}{$section}{$parameter}.=$value." ; ";
+			}
 
 			if ($parameter eq 'chain' &&
 			    length $dir && $section ne "default" &&
@@ -360,14 +380,18 @@ sub loadconfig {
 # These can be overridden in ~/.mrconfig.
 __DATA__
 [default]
+lib = \
+	error() { \
+		echo "mr: $@" >&2; \
+		exit 1; \
+	}
 update = \
 	if [ -d .svn ]; then \
 		svn update; \
 	elif [ -d .git ]; then \
 		git pull origin master; \
 	else \
-		echo "mr update: unknown repo type"; \
-		exit 1; \
+		error "unknown repo type"; \
 	fi
 status = \
 	if [ -d .svn ]; then \
@@ -375,8 +399,7 @@ status = \
 	elif [ -d .git ]; then \
 		git status || true; \
 	else \
-		echo "mr status: unknown repo type"; \
-		exit 1; \
+		error "unknown repo type"; \
 	fi
 commit = \
 	if [ -d .svn ]; then \
@@ -384,6 +407,5 @@ commit = \
 	elif [ -d .git ]; then \
 		git commit -a "$@" && git push --all; \
 	else \
-		echo "mr commit: unknown repo type"; \
-		exit 1; \
+		error "unknown repo type"; \
 	fi
