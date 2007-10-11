@@ -1,12 +1,28 @@
 # An example config file for the mr(1) command.
 
+[default]
+# Teach mr how to run svn cleanup.
+cleanup = if [ -d "$MR_REPO"/.svn ]; then svn cleanup ; fi
+# Tests used in the skips below.
+# - wantsrc checks whether I probably want a full source checkout (quite
+#   large)
+# - mylaptop only succeeds if it's on my main development laptop, which 
+#   gets lots of extra cruft
+lib = \
+	wantsrc() { \
+		test "$(whoami)" = joey; \
+	}; \
+	mylaptop() { \
+		test "$(hostname)" = kodama; \
+	}
+
 [src/mr]
 checkout = git clone ssh://kitenet.net/srv/git/kitenet.net/mr
+skip = ! wantsrc
 
 [src/linux-2.6]
 checkout = git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
-# I only check this out on kodama, otherwise skip it.
-skip = test $(hostname) != kodama
+skip = ! mylaptop || ! wantsrc
 
 [src/dpkg]
 # A merge of the upstream dpkg git repo and my own personal branch.
@@ -18,6 +34,7 @@ checkout = \
 	git checkout -b sourcev3 kite/sourcev3
 update = git pull origin master && git pull kite sourcev3
 commit = git push kite
+skip = ! wantsrc
 
 [html/www.debian.org]
 # Still in CVS..urk!
@@ -28,13 +45,10 @@ checkout = \
 # and only rarely
 update = echo "skipping cvs update (too slow)"
 status = echo "skipping cvs status (too ugly)"
+skip = ! wantsrc
 
 # My home directory, which I keep in svn.
 []
 checkout = svn co svn+ssh://svn.kitenet.net/srv/svn/joey/trunk/home-$(hostname) joey
 # run svnfix after each update
 update = svn update && svnfix
-
-[default]
-# Teach mr how to run svn cleanup.
-cleanup = if [ -d "$MR_REPO"/.svn ]; then svn cleanup ; fi

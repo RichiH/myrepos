@@ -120,11 +120,22 @@ registers several additional repositories.
 
 The .mrconfig file uses a variant of the INI file format. Lines starting with
 "#" are comments. Lines ending with "\" are continued on to the next line.
-Sections specify where each repository is located, relative to the
+
+The "default" section allows setting default values for the sections that
+come after it.
+
+The "alias" section allows adding aliases for actions. Each parameter
+is an alias, and its value is the action to use.
+
+All other sections specify where each repository is located, relative to the
 directory that contains the .mrconfig file.
 
 Within a section, each parameter defines a shell command to run to handle a
-given action. Note that these shell commands are run in a "set -e" shell
+given action. mr contains default handlers for the "update", "status", and
+"commit" actions, so normally you only need to specify what to do for
+"checkout".
+
+Note that these shell commands are run in a "set -e" shell
 environment, where any additional parameters you pass are available in
 "$@". The "checkout" command is run in the parent of the repository
 directory, since the repository isn't checked out yet. All other commands
@@ -140,14 +151,6 @@ should avoid chaining from repositories with untrusted committers.) The
 "lib" parameter can specify some shell code that will be run before each
 command, this can be a useful way to define shell functions for other commands
 to use.
-
-The "default" section allows setting up default handlers for each action,
-and is overridden by the contents of other sections. mr contains default
-handlers for the "update", "status", and "commit" actions, so normally
-you only need to specify what to do for "checkout".
-
-The "alias" section allows adding aliases for actions. Each parameter
-is an alias, and its value is the action to use.
 
 For example:
 
@@ -301,7 +304,9 @@ sub action {
 	}
 
 	if (exists $config{$topdir}{$subdir}{skip}) {
-		my $ret=system($lib.$config{$topdir}{$subdir}{skip});
+		my $test="set -e;".$lib.$config{$topdir}{$subdir}{skip};
+		print "mr $action: running skip test $test\n" if $verbose;
+		my $ret=system($test);
 		if ($ret >> 8 == 0) {
 			print "mr $action: $dir skipped per config file\n" if $verbose;
 			push @skipped, $dir;
