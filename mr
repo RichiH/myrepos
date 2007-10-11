@@ -213,8 +213,6 @@ foreach my $topdir (sort keys %config) {
 		if (defined $directory &&
 		    $dir ne $directory &&
 		    $dir !~ /^\Q$directory\E\//) {
-			print "mr $action: $dir skipped per -d parameter ($directory)\n" if $verbose;
-			push @skipped, $dir;
 			next;
 		}
 
