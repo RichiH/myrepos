@@ -193,7 +193,7 @@ sub showstat {
 	return;
 }
 print "\nmr $action: finished (".join("; ",
-	showstat($#successes+1, "success", "sucesses"),
+	showstat($#successes+1, "success", "successes"),
 	showstat($#failures+1, "failure", "failures"),
 	showstat($#skipped+1, "skipped", "skipped"),
 ).")\n";
