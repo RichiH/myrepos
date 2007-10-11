@@ -232,6 +232,7 @@ my @repos;
 my $nochdir=0;
 foreach my $topdir (sort keys %config) {
 	foreach my $subdir (sort keys %{$config{$topdir}}) {
+		next if $subdir eq 'default';
 		my $dir=$topdir.$subdir;
 		next if $dir ne $directory && $dir !~ /^\Q$directory\E\//;
 		push @repos, [$dir, $topdir, $subdir];
@@ -239,20 +240,20 @@ foreach my $topdir (sort keys %config) {
 }
 if (! @repos) {
 	# fallback to find a leaf repo
-	foreach my $topdir (sort keys %config) {
-		foreach my $subdir (sort keys %{$config{$topdir}}) {
+	LEAF: foreach my $topdir (reverse sort keys %config) {
+		foreach my $subdir (reverse sort keys %{$config{$topdir}}) {
+			next if $subdir eq 'default';
 			my $dir=$topdir.$subdir;
 			my $d=$directory;
 			$dir.="/" unless $dir=~/\/$/;
 			$d.="/" unless $d=~/\/$/;
 			if ($d=~/^\Q$dir\E/) {
 				push @repos, [$dir, $topdir, $subdir];
+				last LEAF;
 			}
 		}
 	}
-	if (@repos > 1) {
-		die "mr: found multiple leaf repos (should never happen)";
-	}
+	$nochdir=1;
 }
 
 my (@failed, @successful, @skipped);
