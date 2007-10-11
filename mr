@@ -490,7 +490,7 @@ status = \
 	elif [ -d "$MR_REPO"/.git ]; then \
 		git status "$@" || true; \
 	elif [ -d "$MR_REPO"/CVS ]; then \
-		echo "cvs status not run (too ugly)"; \
+		cvs status "$@"; \
 	else \
 		error "unknown repo type"; \
 	fi

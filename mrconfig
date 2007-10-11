@@ -24,6 +24,10 @@ commit = git push kite
 checkout = \
 	CVSROOT=:ext:joeyh@cvs.debian.org:/cvs/webwml \
 	cvs co -d www.debian.org webwml
+# cvs sucks sufficiently that I prefer to run these commands by hand,
+# and only rarely
+update = echo "skipping cvs update (too slow)"
+status = echo "skipping cvs status (too ugly)"
 
 # My home directory, which I keep in svn.
 []
