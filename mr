@@ -314,7 +314,12 @@ sub action {
 		push @skipped, $dir;
 	}
 	else {
-		print "mr $action: $dir\n";
+		if (! $nochdir) {
+			print "mr $action: $dir\n";
+		}
+		else {
+			print "mr $action: $dir (in subdir $directory)\n";
+		}
 		my $command="set -e; ".$lib.
 			"my_action(){ $config{$topdir}{$subdir}{$action} ; }; my_action ".
 			join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
