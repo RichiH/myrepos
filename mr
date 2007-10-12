@@ -730,6 +730,13 @@ register =								\
 		fi							\
 		echo "Registering git url: $url"			\
 		mr config "$(pwd)" checkout="git clone $url $basedir"	\
+	elif [ -d .bzr ]; then						\
+		url=$(cat .bzr/branch/parent)				\
+		if [ -z "$url" ]; then					\
+			error "cannot determine bzr url"		\
+		fi							\
+		echo "Registering bzr url: $url"			\
+		mr config "$(pwd)" checkout="bzr clone $url $basedir"	\
 	else								\
 		error "unable to register this repo type"		\
 	fi
