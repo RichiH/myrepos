@@ -346,7 +346,7 @@ sub action {
 
 	if (exists $config{$topdir}{$subdir}{deleted}) {
 		if (! -d $dir) {
-			next;
+			return;
 		}
 		else {
 			my $test="set -e;".$lib.$config{$topdir}{$subdir}{deleted};
@@ -463,6 +463,10 @@ sub loadconfig {
 		$dir="";
 	}
 	else {
+		if (! -e $f) {
+			return;
+		}
+
 		my $absf=abs_path($f);
 		if ($loaded{$absf}) {
 			return;
@@ -551,14 +555,28 @@ sub modifyconfig {
 	my %changefields=@_;
 
 	my @lines;
+	my @out;
+
 	if (-e $f) {
 		open(my $in, "<", $f) || die "mr: open $f: $!\n";
 		@lines=<$in>;
 		close $in;
 	}
 
+	my $addfields=sub {
+		my @blanks;
+		while ($out[$#out] =~ /^\s*$/) {
+			unshift @blanks, pop @out;
+		}
+		foreach my $field (sort keys %changefields) {
+			if (length $changefields{$field}) {
+				push @out, "$field = $changefields{$field}\n";
+			}
+		}
+		push @out, @blanks;
+	};
+
 	my $section;
-	my @out;
 	while (@lines) {
 		$_=shift(@lines);
 
@@ -568,16 +586,7 @@ sub modifyconfig {
 		elsif (/^\s*\[([^\]]*)\]\s*$/) {
 			if (defined $section && 
 			    $section eq $targetsection) {
-				my @blanks;
-				while ($out[$#out] =~ /^\s*$/) {
-					unshift @blanks, pop @out;
-				}
-				foreach my $field (sort keys %changefields) {
-					if (length $changefields{$field}) {
-						push @out, "$field = $changefields{$field}\n";
-					}
-				}
-				push @out, @blanks;
+				$addfields->();
 			}
 
 			$section=$1;
@@ -607,7 +616,11 @@ sub modifyconfig {
 		}
 	}
 
-	if (%changefields) {
+	if (defined $section && 
+	    $section eq $targetsection) {
+			$addfields->();
+	}
+	elsif (%changefields) {
 		push @out, "\n[$targetsection]\n";
 		foreach my $field (sort keys %changefields) {
 			if (length $changefields{$field}) {
