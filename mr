@@ -89,9 +89,9 @@ Modifies the mrconfig file. The next parameter is the name of the section
 to add or modify, and it is followed by one or more instances of
 "parameter=value". Use "parameter=" to remove a parameter. 
 
-For example, to register a new svn repository in src/foo:
+For example, to add (or edit) a repository in src/foo:
 
-  mr config src/foo checkout="svn co svn://example.com/foo/trunk"
+  mr config src/foo checkout="svn co svn://example.com/foo/trunk foo"
 
 =item help
 
@@ -103,10 +103,10 @@ Actions can be abbreviated to any unambiguous subsctring, so
 "mr st" is equivilant to "mr status", and "mr up" is equivilant to "mr
 update"
 
-Additional parameters can be passed to other commands than "commit", they
-will be passed on unchanged to the underlying revision control system.
-This is mostly useful if the repositories mr will act on all use the same
-revision control system.
+Additional parameters can be passed to most commands, and are passed on
+unchanged to the underlying revision control system. This is mostly useful
+if the repositories mr will act on all use the same revision control
+system.
 
 =head1 OPTIONS
 
@@ -708,14 +708,14 @@ register =								\
 		if [ -z "$url" ]; then					\
 			error "cannot determine svn url"		\
 		fi							\
-		echo "Found svn url: $url"				\
+		echo "Registering svn url: $url"			\
 		mr config "$(pwd)" checkout="svn co $url $basedir"	\
 	elif [ -d .git ]; then						\
 		url=$(git-config --get remote.origin.url)		\
 		if [ -z "$url" ]; then					\
 			error "cannot determine git url"		\
 		fi							\
-		echo "Found git url: $url"				\
+		echo "Registering git url: $url"			\
 		mr config "$(pwd)" checkout="git clone $url $basedir"	\
 	else								\
 		error "unable to register this repo type"		\
