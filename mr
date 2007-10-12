@@ -323,10 +323,10 @@ sub action {
 	}
 	else {
 		if (! $nochdir) {
-			print "mr $action: $dir\n";
+			print "mr $action: $topdir$subdir\n";
 		}
 		else {
-			print "mr $action: $dir (in subdir $directory)\n";
+			print "mr $action: $topdir$subdir (in subdir $directory)\n";
 		}
 		my $command="set -e; ".$lib.
 			"my_action(){ $config{$topdir}{$subdir}{$action} ; }; my_action ".
