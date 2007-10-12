@@ -18,6 +18,8 @@ B<mr> [options] diff
 
 B<mr> [options] log
 
+B<mr> [options] config section [parameter=[value] ...]
+
 B<mr> [options] action [params ...]
 
 =head1 DESCRIPTION
@@ -73,6 +75,15 @@ Show the commit log.
 =item list (or ls)
 
 List the repositories that mr will act on.
+
+=item config
+
+Modifies the mrconfig file. The next parameter is the name of the section
+to add or modify, and it is followed by one or more instances of
+"parameter=value". Use "parameter=" to remove a parameter. For example,
+to register a new svn repository in src/foo:
+
+  mr config src/foo checkout="svn co svn://example.com/foo/trunk"
 
 =item help
 
@@ -249,6 +260,23 @@ if (! exists $knownactions{$action}) {
 
 if ($action eq 'help') {
 	exec($config{''}{DEFAULT}{help});
+}
+elsif ($action eq 'config') {
+	if (@ARGV < 2) {
+		die "mr config: not enough parameters\n";
+	}
+	my $section=shift;
+	my %fields;
+	foreach (@ARGV) {
+		if (/^([^=]+)=(.*)$/) {
+			$fields{$1}=$2;
+		}
+		else {
+			die "mr config: expected parameter=value, not \"$_\"\n";
+		}
+	}
+	modifyconfig($config, $section, %fields);
+	exit 0;
 }
 
 # work out what repos to act on
@@ -493,6 +521,85 @@ sub loadconfig {
 	}
 }
 
+sub modifyconfig {
+	my $f=shift;
+	# the section to modify or add
+	my $targetsection=shift;
+	# fields to change in the section
+	# To remove a field, set its value to "".
+	my %changefields=@_;
+
+	my @lines;
+	if (-e $f) {
+		open(my $in, "<", $f) || die "mr: open $f: $!\n";
+		@lines=<$in>;
+		close $in;
+	}
+
+	my $section;
+	my @out;
+	while (@lines) {
+		$_=shift(@lines);
+
+		if (/^\s*\#/ || /^\s*$/) {
+			push @out, $_;
+		}
+		elsif (/^\s*\[([^\]]*)\]\s*$/) {
+			if (defined $section && 
+			    $section eq $targetsection) {
+				my @blanks;
+				while ($out[$#out] =~ /^\s*$/) {
+					unshift @blanks, pop @out;
+				}
+				foreach my $field (sort keys %changefields) {
+					if (length $changefields{$field}) {
+						push @out, "$field = $changefields{$field}\n";
+					}
+				}
+				push @out, @blanks;
+			}
+
+			$section=$1;
+
+			push @out, $_;
+		}
+		elsif (/^\s*(\w+)\s*=\s(.*)/) {
+			my $parameter=$1;
+			my $value=$2;
+
+			# continuation line
+			while ($value=~/(.*\\)$/s) {
+				$value=$1."\n".shift(@lines);
+				chomp $value;
+			}
+
+			if ($section eq $targetsection) {
+				if (exists $changefields{$parameter}) {
+					if (length $changefields{$parameter}) {
+						$value=$changefields{$parameter};
+					}
+					delete $changefields{$parameter};
+				}
+			}
+
+			push @out, "$parameter = $value\n";
+		}
+	}
+
+	if (%changefields) {
+		push @out, "\n[$targetsection]\n";
+		foreach my $field (sort keys %changefields) {
+			if (length $changefields{$field}) {
+				push @out, "$field = $changefields{$field}\n";
+			}
+		}
+	}
+
+	open(my $out, ">", $f) || die "mr: write $f: $!\n";
+	print $out @out;
+	close $out;	
+}
+
 # Finally, some useful actions that mr knows about by default.
 # These can be overridden in ~/.mrconfig.
 __DATA__
@@ -569,7 +676,7 @@ log =							\
 		error "unknown repo type"		\
 	fi
 list = true
-
+config = 
 help =							\
 	if [ ! -e "$MR_PATH" ]; then			\
 		error "cannot find program path"	\

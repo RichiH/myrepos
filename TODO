@@ -18,7 +18,7 @@
   closest mrconfig file.
 
   mr register would be implemented as a shell command that then calls
-  mr config with flags that make it actually edit the mrconfig file:
+  mr config with flags that make it edit the mrconfig file:
 
   if [ -d "$MR_REPO/.svn" ]; then
   	url=$(svn info "$MR_REPO" | grep -i ^URL: | cut -d ' ' -f 2)
