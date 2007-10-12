@@ -11,19 +11,3 @@
   renamedfrom = src/foo/bar
 
   (Support multple renames of a single repo?)
-
-* mr register
-
-  Idea is you check out a repo and then use mr register to add it to the
-  closest mrconfig file.
-
-  mr register would be implemented as a shell command that then calls
-  mr config with flags that make it edit the mrconfig file:
-
-  if [ -d "$MR_REPO/.svn" ]; then
-  	url=$(svn info "$MR_REPO" | grep -i ^URL: | cut -d ' ' -f 2)
-	if [ -z "$url" ]; then
-		error "cannot determine svn url"
-	fi
-	mr -c "$MR_CONFIG" config --add "$MR_REPO" --checkout="svn co $URL"
-  fi
