@@ -166,6 +166,14 @@ If the "chain" parameter is set and its command returns nonzero, then B<mr>
 will try to load a .mrconfig file from the root of the repository. (You
 should avoid chaining from repositories with untrusted committers.)
 
+=item deleted
+
+If the "deleted" parameter is set and its command returns nonzero, then
+B<mr> will treat the repository as deleted. It won't ever actually delete
+the repository, but it will warn if it sees the repsoitory's directory.
+This is useful when one mrconfig file is shared amoung multiple machines,
+to keep track of and remember to delete old repositories.
+
 =item lib
 
 The "lib" parameter can specify some shell code that will be run before each
@@ -285,6 +293,22 @@ sub action {
 	
 	my $lib= exists $config{$topdir}{$subdir}{lib} ?
 	                $config{$topdir}{$subdir}{lib}."\n" : "";
+
+	if (exists $config{$topdir}{$subdir}{deleted}) {
+		if (! -d $dir) {
+			next;
+		}
+		else {
+			my $test="set -e;".$lib.$config{$topdir}{$subdir}{deleted};
+			print "mr $action: running deleted test >>$test<<\n" if $verbose;
+			my $ret=system($test);
+			if ($ret >> 8 == 0) {
+				print STDERR "mr error: $dir should be deleted yet still exists\n\n";
+				push @failed, $dir;
+				return;
+			}
+		}
+	}
 
 	if ($action eq 'checkout') {
 		if (-d $dir) {

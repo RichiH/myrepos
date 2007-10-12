@@ -1,4 +1,5 @@
 * more revision control systems
+
 * support for tracking repo renames
 
   It should be possible to tell mr that there used to be a repo at
@@ -10,16 +11,6 @@
   renamedfrom = src/foo/bar
 
   (Support multple renames of a single repo?)
-
-* repo deletions
-
-  Handling repo deletions might also be possible, but is tricky, since
-  there's no good way to tell if a local checkout of a given repo is clean
-  and really should be deleted. Probably better for mr to just warn that a
-  repo still exists on disk that it is no longer managed.
-
-  [src/foo/baz]
-  deleted = true
 
 * mr register
 
