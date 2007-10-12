@@ -3,6 +3,8 @@
 [DEFAULT]
 # Teach mr how to run svn cleanup.
 cleanup = if [ -d "$MR_REPO"/.svn ]; then svn cleanup ; fi
+# And how to run git gc
+gc = if [ -d "$MR_REPO"/.git ]; then git gc; fi
 # Tests used in the skips below.
 # - wantsrc checks whether I probably want a full source checkout (quite
 #   large)
