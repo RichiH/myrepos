@@ -19,7 +19,7 @@
   repo still exists on disk that it is no longer managed.
 
   [src/foo/baz]
-  deleted = yes
+  deleted = true
 
 * mr register
 

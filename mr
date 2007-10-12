@@ -284,7 +284,7 @@ sub action {
 	my ($action, $dir, $topdir, $subdir) = @_;
 	
 	my $lib= exists $config{$topdir}{$subdir}{lib} ?
-	                $config{$topdir}{$subdir}{lib} : "";
+	                $config{$topdir}{$subdir}{lib}."\n" : "";
 
 	if ($action eq 'checkout') {
 		if (-d $dir) {
@@ -304,7 +304,7 @@ sub action {
 
 	if (exists $config{$topdir}{$subdir}{skip}) {
 		my $test="set -e;".$lib.$config{$topdir}{$subdir}{skip};
-		print "mr $action: running skip test $test\n" if $verbose;
+		print "mr $action: running skip test >>$test<<\n" if $verbose;
 		my $ret=system($test);
 		if ($ret >> 8 == 0) {
 			print "mr $action: $dir skipped per config file\n" if $verbose;
@@ -329,9 +329,9 @@ sub action {
 			print "mr $action: $topdir$subdir (in subdir $directory)\n";
 		}
 		my $command="set -e; ".$lib.
-			"my_action(){ $config{$topdir}{$subdir}{$action} ; }; my_action ".
+			"my_action(){ $config{$topdir}{$subdir}{$action}\n }; my_action ".
 			join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
-		print STDERR "mr $action: running $command\n" if $verbose;
+		print STDERR "mr $action: running >>$command<<\n" if $verbose;
 		my $ret=system($command);
 		if ($ret != 0) {
 			print STDERR "mr $action: failed ($ret)\n" if $verbose;
@@ -427,8 +427,8 @@ sub loadconfig {
 			my $value=$2;
 
 			# continuation line
-			while ($value=~/(.*)\\$/) {
-				$value=$1.<$in>;
+			while ($value=~/(.*)\\$/s) {
+				$value=$1."\n".<$in>;
 				chomp $value;
 			}
 
@@ -445,7 +445,7 @@ sub loadconfig {
 				$alias{$parameter}=$value;
 			}
 			elsif ($parameter eq 'lib') {
-				$config{$dir}{$section}{lib}.=$value." ; ";
+				$config{$dir}{$section}{lib}.=$value."\n";
 			}
 			else {
 				$config{$dir}{$section}{$parameter}=$value;
@@ -478,79 +478,79 @@ __DATA__
 	ls = list
 
 [DEFAULT]
-lib = \
-	error() { \
-		echo "mr: $@" >&2; \
-		exit 1; \
+lib =							\
+	error() {					\
+		echo "mr: $@" >&2			\
+		exit 1					\
 	}
 
-update = \
-	if [ -d "$MR_REPO"/.svn ]; then \
-		svn update "$@"; \
-	elif [ -d "$MR_REPO"/.git ]; then \
-		git pull origin master "$@"; \
-	elif [ -d "$MR_REPO"/.bzr ]; then \
-		bzr merge "$@"; \
-	elif [ -d "$MR_REPO"/CVS ]; then \
-		cvs update "$@"; \
-	else \
-		error "unknown repo type"; \
+update =						\
+	if [ -d "$MR_REPO"/.svn ]; then			\
+		svn update "$@"				\
+	elif [ -d "$MR_REPO"/.git ]; then		\
+		git pull origin master "$@"		\
+	elif [ -d "$MR_REPO"/.bzr ]; then		\
+		bzr merge "$@"				\
+	elif [ -d "$MR_REPO"/CVS ]; then		\
+		cvs update "$@"				\
+	else						\
+		error "unknown repo type"		\
 	fi
-status = \
-	if [ -d "$MR_REPO"/.svn ]; then \
-		svn status "$@"; \
-	elif [ -d "$MR_REPO"/.git ]; then \
-		git status "$@" || true; \
-	elif [ -d "$MR_REPO"/.bzr ]; then \
-		bzr status "$@"; \
-	elif [ -d "$MR_REPO"/CVS ]; then \
-		cvs status "$@"; \
-	else \
-		error "unknown repo type"; \
+status =						\
+	if [ -d "$MR_REPO"/.svn ]; then			\
+		svn status "$@"				\
+	elif [ -d "$MR_REPO"/.git ]; then		\
+		git status "$@" || true			\
+	elif [ -d "$MR_REPO"/.bzr ]; then		\
+		bzr status "$@"				\
+	elif [ -d "$MR_REPO"/CVS ]; then		\
+		cvs status "$@"				\
+	else						\
+		error "unknown repo type"		\
 	fi
-commit = \
-	if [ -d "$MR_REPO"/.svn ]; then \
-		svn commit "$@"; \
-	elif [ -d "$MR_REPO"/.git ]; then \
-		git commit -a "$@" && git push --all; \
-	elif [ -d "$MR_REPO"/.bzr ]; then \
-		bzr commit "$@" && bzr push; \
-	elif [ -d "$MR_REPO"/CVS ]; then \
-		cvs commit "$@"; \
-	else \
-		error "unknown repo type"; \
+commit =						\
+	if [ -d "$MR_REPO"/.svn ]; then			\
+		svn commit "$@"				\
+	elif [ -d "$MR_REPO"/.git ]; then		\
+		git commit -a "$@" && git push --all	\
+	elif [ -d "$MR_REPO"/.bzr ]; then		\
+		bzr commit "$@" && bzr push		\
+	elif [ -d "$MR_REPO"/CVS ]; then		\
+		cvs commit "$@"				\
+	else						\
+		error "unknown repo type"		\
 	fi
-diff = \
-	if [ -d "$MR_REPO"/.svn ]; then \
-		svn diff "$@"; \
-	elif [ -d "$MR_REPO"/.git ]; then \
-		git diff "$@"; \
-	elif [ -d "$MR_REPO"/.bzr ]; then \
-		bzr diff "$@"; \
-	elif [ -d "$MR_REPO"/CVS ]; then \
-		cvs diff "$@"; \
-	else \
-		error "unknown repo type"; \
+diff =							\
+	if [ -d "$MR_REPO"/.svn ]; then			\
+		svn diff "$@"				\
+	elif [ -d "$MR_REPO"/.git ]; then		\
+		git diff "$@"				\
+	elif [ -d "$MR_REPO"/.bzr ]; then		\
+		bzr diff "$@"				\
+	elif [ -d "$MR_REPO"/CVS ]; then		\
+		cvs diff "$@"				\
+	else						\
+		error "unknown repo type"		\
 	fi
-log = \
-	if [ -d "$MR_REPO"/.svn ]; then \
-		svn log"$@"; \
-	elif [ -d "$MR_REPO"/.git ]; then \
-		git log "$@"; \
-	elif [ -d "$MR_REPO"/.bzr ]; then \
-		bzr log "$@"; \
-	elif [ -d "$MR_REPO"/CVS ]; then \
-		cvs log "$@"; \
-	else \
-		error "unknown repo type"; \
+log =							\
+	if [ -d "$MR_REPO"/.svn ]; then			\
+		svn log"$@"				\
+	elif [ -d "$MR_REPO"/.git ]; then		\
+		git log "$@"				\
+	elif [ -d "$MR_REPO"/.bzr ]; then		\
+		bzr log "$@"				\
+	elif [ -d "$MR_REPO"/CVS ]; then		\
+		cvs log "$@"				\
+	else						\
+		error "unknown repo type"		\
 	fi
 list = true
 
-help = \
-	if [ ! -e "$MR_PATH" ]; then \
-		error "cannot find program path";\
-	fi; \
-	(pod2man -c mr "$MR_PATH" | man -l -) || \
+help =							\
+	if [ ! -e "$MR_PATH" ]; then			\
+		error "cannot find program path"	\
+	fi						\
+	(pod2man -c mr "$MR_PATH" | man -l -) ||	\
 		error "pod2man or man failed"
 
 ed = echo "A horse is a horse, of course, of course.."

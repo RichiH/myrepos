@@ -6,22 +6,33 @@ cleanup = if [ -d "$MR_REPO"/.svn ]; then svn cleanup ; fi
 # Tests used in the skips below.
 # - wantsrc checks whether I probably want a full source checkout (quite
 #   large)
+# - private are hosts I trust private data to
 # - mylaptop only succeeds if it's on my main development laptop, which 
 #   gets lots of extra cruft
 # - kite only succeeds on kite
-lib = \
-	wantsrc() { \
-		test "$(whoami)" = joey; \
-	}; \
-	mylaptop() { \
-		test "$(hostname)" = kodama; \
-	}; \
-	kite() { \
-		test "$(hostname)" = wren; \
+lib = 								\
+	wantsrc() {						\
+		test "$(whoami)" = joey				\
+	}							\
+	private() {						\
+		if [ "$(whoami)" = joey ]; then			\
+			case "$(hostname)" in			\
+			wren|kodama|dragon|dodo|bluebird)	\
+				return 0			\
+			;;					\
+			esac					\
+		fi						\
+		return 1					\
+	}							\
+	mylaptop() {						\
+		test "$(hostname)" = kodama			\
+	}							\
+	kite() {						\
+		test "$(hostname)" = wren			\
 	}
 
 [src/mr]
-checkout = git clone ssh://kitenet.net/srv/git/kitenet.net/mr
+checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/mr
 skip = ! wantsrc
 
 [src/linux-2.6]
@@ -33,7 +44,7 @@ skip = ! mylaptop || ! wantsrc
 checkout = \
 	git clone git://git.debian.org/git/dpkg/dpkg.git && \
 	cd dpkg && \
-	git remote add kite ssh://kitenet.net/srv/git/kitenet.net/dpkg && \
+	git remote add kite ssh://git.kitenet.net/srv/git/kitenet.net/dpkg && \
 	git fetch kite && \
 	git checkout -b sourcev3 kite/sourcev3
 update = git pull origin master && git pull kite sourcev3
@@ -51,8 +62,32 @@ update = echo "skipping cvs update (too slow)"
 status = echo "skipping cvs status (too ugly)"
 skip = ! mylaptop || ! wantsrc
 
+[src/packages/uqm]
+checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/uqm
+skip = ! wantsrc
+
+[src/packages/uqm-content]
+checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/uqm-content
+skip = ! wantsrc
+
+[src/packages/uqm-voice]
+checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/uqm-voice
+skip = ! wantsrc
+
+[src/packages/uqm-music]
+checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/uqm-music
+skip = ! wantsrc
+
 # My home directory, which I keep in svn.
 []
-checkout = svn co svn+ssh://svn.kitenet.net/srv/svn/joey/trunk/home-$(hostname) $HOME
+checkout = svn co svn+ssh://svn.kitenet.net/srv/svn/joey/trunk/home-$(hostname) joey
 # run svnfix after each update
 update = svn update && svnfix
+
+[mail]
+checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/joey/private/mail
+skip = ! private
+
+[doc]
+checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/joey/private/doc
+skip = ! private
