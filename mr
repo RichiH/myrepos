@@ -18,7 +18,7 @@ B<mr> [options] diff
 
 B<mr> [options] log
 
-B<mr> [options] register repository
+B<mr> [options] register [repository]
 
 B<mr> [options] config section [parameter=[value] ...]
 
@@ -80,8 +80,9 @@ List the repositories that mr will act on.
 
 =item register
 
-The next parameter is the directory of an existing repository. The
-repository will be registered in the mrconfig file.
+Register an existing repository in the mrconfig file. By default, the
+epository in the current directory is registered, or you can specify a
+directory to register.
 
 =item config
 
@@ -710,13 +711,12 @@ log =							\
 		error "unknown repo type"		\
 	fi
 register =								\
-	if [ -z "$1" ]; then						\
-		error "repository directory not specified"		\
+	if [ -n "$1" ]; then						\
+		cd "$1"							\
 	fi								\
-	cd "$1"								\
 	basedir="$(basename $(pwd))"					\
 	if [ -d .svn ]; then						\
-		url=$(LANG=C svn info . |					\
+		url=$(LANG=C svn info . |				\
 		      grep -i ^URL: | cut -d ' ' -f 2)			\
 		if [ -z "$url" ]; then					\
 			error "cannot determine svn url"		\
@@ -724,7 +724,7 @@ register =								\
 		echo "Registering svn url: $url"			\
 		mr config "$(pwd)" checkout="svn co $url $basedir"	\
 	elif [ -d .git ]; then						\
-		url=$(LANG=C git-config --get remote.origin.url)		\
+		url=$(LANG=C git-config --get remote.origin.url)	\
 		if [ -z "$url" ]; then					\
 			error "cannot determine git url"		\
 		fi							\
