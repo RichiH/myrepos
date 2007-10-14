@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 
+#man{{{
 =head1 NAME
 
 mr - a Multiple Repository management tool
@@ -226,6 +227,7 @@ Licensed under the GNU GPL version 2 or higher.
 http://kitenet.net/~joey/code/mr/
 
 =cut
+#}}}
 
 use warnings;
 use strict;
@@ -364,7 +366,7 @@ foreach my $repo (@repos) {
 	action($action, @$repo);
 }
 
-sub action {
+sub action { #{{{
 	my ($action, $dir, $topdir, $subdir) = @_;
 	
 	my $lib= exists $config{$topdir}{$subdir}{lib} ?
@@ -450,9 +452,9 @@ sub action {
 
 		print "\n";
 	}
-}
+} #}}}
 
-sub showstat {
+sub showstat { #{{{
 	my $count=shift;
 	my $singular=shift;
 	my $plural=shift;
@@ -460,7 +462,7 @@ sub showstat {
 		return "$count ".($count > 1 ? $plural : $singular);
 	}
 	return;
-}
+} #}}}
 if (! @ok && ! @failed && ! @skipped) {
 	die "mr $action: no repositories found to work on\n";
 }
@@ -478,7 +480,7 @@ elsif (! @ok && @skipped) {
 exit 0;
 
 my %loaded;
-sub loadconfig {
+sub loadconfig { #{{{
 	my $f=shift;
 
 	my @toload;
@@ -575,9 +577,9 @@ sub loadconfig {
 	foreach (@toload) {
 		loadconfig($_);
 	}
-}
+} #}}}
 
-sub modifyconfig {
+sub modifyconfig { #{{{
 	my $f=shift;
 	# the section to modify or add
 	my $targetsection=shift;
@@ -672,10 +674,11 @@ sub modifyconfig {
 	open(my $out, ">", $f) || die "mr: write $f: $!\n";
 	print $out @out;
 	close $out;	
-}
+} #}}}
 
 # Finally, some useful actions that mr knows about by default.
 # These can be overridden in ~/.mrconfig.
+#DATA{{{
 __DATA__
 [ALIAS]
 co = checkout
@@ -801,3 +804,4 @@ config =
 
 ed = echo "A horse is a horse, of course, of course.."
 T = echo "I pity the fool."
+#}}}
