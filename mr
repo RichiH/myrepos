@@ -86,9 +86,11 @@ directory to register.
 
 =item config
 
-Modifies the mrconfig file. The next parameter is the name of the section
-to add or modify, and it is followed by one or more instances of
-"parameter=value". Use "parameter=" to remove a parameter. 
+Adds, modifies, removed, or prints a value from the mrconfig file. The next
+parameter is the name of the section the value is in. To add or modify a
+value, follow it by one or more instances of "parameter=value". Use
+"parameter=" to remove a parameter. Use just "parameter" to get the value
+of a parameter.
 
 For example, to add (or edit) a repository in src/foo:
 
@@ -282,16 +284,21 @@ elsif ($action eq 'config') {
 			$section=$1;
 		}
 	}
-	my %fields;
+	my %changefields;
 	foreach (@ARGV) {
 		if (/^([^=]+)=(.*)$/) {
-			$fields{$1}=$2;
+			$changefields{$1}=$2;
 		}
 		else {
-			die "mr config: expected parameter=value, not \"$_\"\n";
+			foreach my $topdir (sort keys %config) {
+				if (exists $config{$topdir}{$section} &&
+				    exists $config{$topdir}{$section}{$_}) {
+					print $config{$topdir}{$section}{$_}."\n";
+				}
+			}
 		}
 	}
-	modifyconfig($config, $section, %fields);
+	modifyconfig($config, $section, %changefields) if %changefields;
 	exit 0;
 }
 elsif ($action eq 'register') {
