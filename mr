@@ -180,7 +180,16 @@ A few parameters have special meanings:
 =item skip
 
 If the "skip" parameter is set and its command returns nonzero, then B<mr>
-will skip acting on that repository.
+will skip acting on that repository. The command is passed the action
+name in $1.
+
+Here are two examples. The first skips the repo unless
+mr is run by joey. The second uses the hours_since function
+(included in mr's built-in library) to skip updating the repo unless it's
+been at least 12 hours since the last update.
+
+  skip = test $(whoami) != joey
+  skip = [ "$1" = update ] && [ $(hours_since "$1") -lt 12 ]
 
 =item chain
 
@@ -385,7 +394,8 @@ sub action {
 	$ENV{MR_REPO}=$dir;
 
 	if (exists $config{$topdir}{$subdir}{skip}) {
-		my $test="set -e;".$lib.$config{$topdir}{$subdir}{skip};
+		my $test="set -e;".$lib.
+			"my_action(){ $config{$topdir}{$subdir}{skip}\n }; my_action '$action'";
 		print "mr $action: running skip test >>$test<<\n" if $verbose;
 		my $ret=system($test);
 		if ($ret >> 8 == 0) {
@@ -651,71 +661,84 @@ __DATA__
 	ls = list
 
 [DEFAULT]
-lib =							\
-	error() {					\
-		echo "mr: $@" >&2			\
-		exit 1					\
+lib =									\
+	error() {							\
+		echo "mr: $@" >&2					\
+		exit 1							\
+	}								\
+	hours_since() {							\
+		for dir in .git .svn .bzr CVS; do			\
+			if [ -e "$MR_REPO/$dir" ]; then			\
+				flagfile="$MR_REPO/$dir/.mr_last$1"	\
+				break					\
+			fi						\
+		done							\
+		if [ -z "$flagfile" ]; then				\
+			error "cannot determine flag filename"		\
+		fi							\
+		perl -wle 'print -f shift() ? int((-M _) * 24) : 9999' "$flagfile" \
+		touch "$flagfile"					\
 	}
 
-update =						\
-	if [ -d "$MR_REPO"/.svn ]; then			\
-		svn update "$@"				\
-	elif [ -d "$MR_REPO"/.git ]; then		\
-		git pull origin master "$@"		\
-	elif [ -d "$MR_REPO"/.bzr ]; then		\
-		bzr merge "$@"				\
-	elif [ -d "$MR_REPO"/CVS ]; then		\
-		cvs update "$@"				\
-	else						\
-		error "unknown repo type"		\
+update =								\
+	if [ -d "$MR_REPO"/.svn ]; then					\
+		svn update "$@"						\
+	elif [ -d "$MR_REPO"/.git ]; then				\
+		git pull origin master "$@"				\
+	elif [ -d "$MR_REPO"/.bzr ]; then				\
+		bzr merge "$@"						\
+	elif [ -d "$MR_REPO"/CVS ]; then				\
+		cvs update "$@"						\
+	else								\
+		error "unknown repo type"				\
 	fi
-status =						\
-	if [ -d "$MR_REPO"/.svn ]; then			\
-		svn status "$@"				\
-	elif [ -d "$MR_REPO"/.git ]; then		\
-		git status "$@" || true			\
-	elif [ -d "$MR_REPO"/.bzr ]; then		\
-		bzr status "$@"				\
-	elif [ -d "$MR_REPO"/CVS ]; then		\
-		cvs status "$@"				\
-	else						\
-		error "unknown repo type"		\
+status =								\
+	if [ -d "$MR_REPO"/.svn ]; then					\
+		svn status "$@"						\
+	elif [ -d "$MR_REPO"/.git ]; then				\
+		git status "$@" || true					\
+	elif [ -d "$MR_REPO"/.bzr ]; then				\
+		bzr status "$@"						\
+	elif [ -d "$MR_REPO"/CVS ]; then				\
+		cvs status "$@"						\
+	else								\
+		error "unknown repo type"				\
 	fi
-commit =						\
-	if [ -d "$MR_REPO"/.svn ]; then			\
-		svn commit "$@"				\
-	elif [ -d "$MR_REPO"/.git ]; then		\
-		git commit -a "$@" && git push --all	\
-	elif [ -d "$MR_REPO"/.bzr ]; then		\
-		bzr commit "$@" && bzr push		\
-	elif [ -d "$MR_REPO"/CVS ]; then		\
-		cvs commit "$@"				\
-	else						\
-		error "unknown repo type"		\
+commit =								\
+	if [ -d "$MR_REPO"/.svn ]; then					\
+		svn commit "$@"						\
+	elif [ -d "$MR_REPO"/.git ]; then				\
+		git commit -a "$@" && git push --all			\
+	elif [ -d "$MR_REPO"/.bzr ]; then				\
+		bzr commit "$@" && bzr push				\
+	elif [ -d "$MR_REPO"/CVS ]; then				\
+		cvs commit "$@"						\
+	else								\
+		error "unknown repo type"				\
 	fi
-diff =							\
-	if [ -d "$MR_REPO"/.svn ]; then			\
-		svn diff "$@"				\
-	elif [ -d "$MR_REPO"/.git ]; then		\
-		git diff "$@"				\
-	elif [ -d "$MR_REPO"/.bzr ]; then		\
-		bzr diff "$@"				\
-	elif [ -d "$MR_REPO"/CVS ]; then		\
-		cvs diff "$@"				\
-	else						\
-		error "unknown repo type"		\
+diff =									\
+	if [ -d "$MR_REPO"/.svn ]; then					\
+		svn diff "$@"						\
+	elif [ -d "$MR_REPO"/.git ]; then				\
+		git diff "$@"						\
+	elif [ -d "$MR_REPO"/.bzr ]; then				\
+		bzr diff "$@"						\
+	elif [ -d "$MR_REPO"/CVS ]; then				\
+		cvs diff "$@"						\
+	else								\
+		error "unknown repo type"				\
 	fi
-log =							\
-	if [ -d "$MR_REPO"/.svn ]; then			\
-		svn log"$@"				\
-	elif [ -d "$MR_REPO"/.git ]; then		\
-		git log "$@"				\
-	elif [ -d "$MR_REPO"/.bzr ]; then		\
-		bzr log "$@"				\
-	elif [ -d "$MR_REPO"/CVS ]; then		\
-		cvs log "$@"				\
-	else						\
-		error "unknown repo type"		\
+log =									\
+	if [ -d "$MR_REPO"/.svn ]; then					\
+		svn log"$@"						\
+	elif [ -d "$MR_REPO"/.git ]; then				\
+		git log "$@"						\
+	elif [ -d "$MR_REPO"/.bzr ]; then				\
+		bzr log "$@"						\
+	elif [ -d "$MR_REPO"/CVS ]; then				\
+		cvs log "$@"						\
+	else								\
+		error "unknown repo type"				\
 	fi
 register =								\
 	if [ -n "$1" ]; then						\
@@ -749,11 +772,11 @@ register =								\
 	fi
 list = true
 config = 
-help =							\
-	if [ ! -e "$MR_PATH" ]; then			\
-		error "cannot find program path"	\
-	fi						\
-	(pod2man -c mr "$MR_PATH" | man -l -) ||	\
+help =									\
+	if [ ! -e "$MR_PATH" ]; then					\
+		error "cannot find program path"			\
+	fi								\
+	(pod2man -c mr "$MR_PATH" | man -l -) ||			\
 		error "pod2man or man failed"
 
 ed = echo "A horse is a horse, of course, of course.."
