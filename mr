@@ -527,8 +527,10 @@ sub loadconfig { #{{{
 	close $in;
 
 	my $section;
+	my $line=0;
 	while (@lines) {
 		$_=shift @lines;
+		$line++;
 		chomp;
 		next if /^\s*\#/ || /^\s*$/;
 		if (/^\[([^\]]*)\]\s*$/) {
@@ -541,6 +543,7 @@ sub loadconfig { #{{{
 			# continued value
 			while (@lines && $lines[0]=~/^\s(.+)/) {
 				shift(@lines);
+				$line++;
 				$value.="\n$1";
 				chomp $value;
 			}
@@ -572,7 +575,7 @@ sub loadconfig { #{{{
 			}
 		}
 		else {
-			die "$f line $.: parse error\n";
+			die "$f line $line: parse error\n";
 		}
 	}
 
