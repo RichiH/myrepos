@@ -147,10 +147,13 @@ Here is an example .mrconfig file:
   chain = true
 
   [src/linux-2.6]
-  checkout = git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+  checkout = git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git &&
+  	cd linux-2.6 &&
+  	git checkout -b mybranch origin/master
 
 The .mrconfig file uses a variant of the INI file format. Lines starting with
-"#" are comments. Lines ending with "\" are continued on to the next line.
+"#" are comments. Values can be continued to the following line by
+indenting the line with whitespace.
 
 The "DEFAULT" section allows setting default values for the sections that
 come after it.
@@ -485,8 +488,8 @@ sub loadconfig {
 	my $in;
 	my $dir;
 	if (ref $f eq 'GLOB') {
-		$in=$f;	
 		$dir="";
+		$in=$f;	
 	}
 	else {
 		if (! -e $f) {
@@ -499,8 +502,6 @@ sub loadconfig {
 		}
 		$loaded{$absf}=1;
 
-		print "mr: loading config $f\n" if $verbose;
-		open($in, "<", $f) || die "mr: open $f: $!\n";
 		($dir)=$f=~/^(.*\/)[^\/]+$/;
 		if (! defined $dir) {
 			$dir=".";
@@ -516,22 +517,29 @@ sub loadconfig {
 				last;
 			}
 		}
+		
+		print "mr: loading config $f\n" if $verbose;
+		open($in, "<", $f) || die "mr: open $f: $!\n";
 	}
+	my @lines=<$in>;
+	close $in;
 
 	my $section;
-	while (<$in>) {
+	while (@lines) {
+		$_=shift @lines;
 		chomp;
 		next if /^\s*\#/ || /^\s*$/;
-		if (/^\s*\[([^\]]*)\]\s*$/) {
+		if (/^\[([^\]]*)\]\s*$/) {
 			$section=$1;
 		}
-		elsif (/^\s*(\w+)\s*=\s*(.*)/) {
+		elsif (/^(\w+)\s*=\s*(.*)/) {
 			my $parameter=$1;
 			my $value=$2;
 
-			# continuation line
-			while ($value=~/(.*)\\$/s) {
-				$value=$1."\n".<$in>;
+			# continued value
+			while (@lines && $lines[0]=~/^\s(.+)/) {
+				shift(@lines);
+				$value.="\n$1";
 				chomp $value;
 			}
 
@@ -565,7 +573,6 @@ sub loadconfig {
 			die "$f line $.: parse error\n";
 		}
 	}
-	close $in;
 
 	foreach (@toload) {
 		loadconfig($_);
@@ -589,6 +596,13 @@ sub modifyconfig {
 		close $in;
 	}
 
+	my $formatfield=sub {
+		my $field=shift;
+		my @value=split(/\n/, shift);
+
+		return "$field = ".shift(@value)."\n".
+			join("", map { "\t$_\n" } @value);
+	};
 	my $addfields=sub {
 		my @blanks;
 		while ($out[$#out] =~ /^\s*$/) {
@@ -597,6 +611,7 @@ sub modifyconfig {
 		foreach my $field (sort keys %changefields) {
 			if (length $changefields{$field}) {
 				push @out, "$field = $changefields{$field}\n";
+				delete $changefields{$field};
 			}
 		}
 		push @out, @blanks;
@@ -609,7 +624,7 @@ sub modifyconfig {
 		if (/^\s*\#/ || /^\s*$/) {
 			push @out, $_;
 		}
-		elsif (/^\s*\[([^\]]*)\]\s*$/) {
+		elsif (/^\[([^\]]*)\]\s*$/) {
 			if (defined $section && 
 			    $section eq $targetsection) {
 				$addfields->();
@@ -619,13 +634,14 @@ sub modifyconfig {
 
 			push @out, $_;
 		}
-		elsif (/^\s*(\w+)\s*=\s(.*)/) {
+		elsif (/^(\w+)\s*=\s(.*)/) {
 			my $parameter=$1;
 			my $value=$2;
 
-			# continuation line
-			while ($value=~/(.*\\)$/s) {
-				$value=$1."\n".shift(@lines);
+			# continued value
+			while (@lines && $lines[0]=~/^\s(.+)/) {
+				shift(@lines);
+				$value.="\n$1";
 				chomp $value;
 			}
 
@@ -638,19 +654,19 @@ sub modifyconfig {
 				}
 			}
 
-			push @out, "$parameter = $value\n";
+			push @out, $formatfield->($parameter, $value);
 		}
 	}
 
 	if (defined $section && 
 	    $section eq $targetsection) {
-			$addfields->();
+		$addfields->();
 	}
 	elsif (%changefields) {
 		push @out, "\n[$targetsection]\n";
 		foreach my $field (sort keys %changefields) {
 			if (length $changefields{$field}) {
-				push @out, "$field = $changefields{$field}\n";
+				push @out, $formatfield->($field, $changefields{$field});
 			}
 		}
 	}
@@ -664,128 +680,126 @@ sub modifyconfig {
 # These can be overridden in ~/.mrconfig.
 __DATA__
 [ALIAS]
-	co = checkout
-	ci = commit
-	ls = list
+co = checkout
+ci = commit
+ls = list
 
 [DEFAULT]
-lib =									\
-	error() {							\
-		echo "mr: $@" >&2					\
-		exit 1							\
-	}								\
-	hours_since() {							\
-		for dir in .git .svn .bzr CVS; do			\
-			if [ -e "$MR_REPO/$dir" ]; then			\
-				flagfile="$MR_REPO/$dir/.mr_last$1"	\
-				break					\
-			fi						\
-		done							\
-		if [ -z "$flagfile" ]; then				\
-			error "cannot determine flag filename"		\
-		fi							\
-		perl -wle 'print -f shift() ? int((-M _) * 24) : 9999' "$flagfile" \
-		touch "$flagfile"					\
+lib =
+	error() {
+		echo "mr: $@" >&2
+		exit 1
+	}
+	hours_since() {
+		for dir in .git .svn .bzr CVS; do
+			if [ -e "$MR_REPO/$dir" ]; then
+				flagfile="$MR_REPO/$dir/.mr_last$1"
+				break
+			fi
+		done
+		if [ -z "$flagfile" ]; then
+			error "cannot determine flag filename"
+		fi
+		perl -wle 'print -f shift() ? int((-M _) * 24) : 9999' "$flagfile"
+		touch "$flagfile"
 	}
 
-update =								\
-	if [ -d "$MR_REPO"/.svn ]; then					\
-		svn update "$@"						\
-	elif [ -d "$MR_REPO"/.git ]; then				\
-		git pull origin master "$@"				\
-	elif [ -d "$MR_REPO"/.bzr ]; then				\
-		bzr merge "$@"						\
-	elif [ -d "$MR_REPO"/CVS ]; then				\
-		cvs update "$@"						\
-	else								\
-		error "unknown repo type"				\
+update =
+	if [ -d "$MR_REPO"/.svn ]; then
+		svn update "$@"
+	elif [ -d "$MR_REPO"/.git ]; then
+		git pull origin master "$@"
+	elif [ -d "$MR_REPO"/.bzr ]; then
+		bzr merge "$@"
+	elif [ -d "$MR_REPO"/CVS ]; then
+		cvs update "$@"
+	else
+		error "unknown repo type"
 	fi
-status =								\
-	if [ -d "$MR_REPO"/.svn ]; then					\
-		svn status "$@"						\
-	elif [ -d "$MR_REPO"/.git ]; then				\
-		git status "$@" || true					\
-	elif [ -d "$MR_REPO"/.bzr ]; then				\
-		bzr status "$@"						\
-	elif [ -d "$MR_REPO"/CVS ]; then				\
-		cvs status "$@"						\
-	else								\
-		error "unknown repo type"				\
+status =
+	if [ -d "$MR_REPO"/.svn ]; then
+		svn status "$@"
+	elif [ -d "$MR_REPO"/.git ]; then
+		git status "$@" || true
+	elif [ -d "$MR_REPO"/.bzr ]; then
+		bzr status "$@"
+	elif [ -d "$MR_REPO"/CVS ]; then
+		cvs status "$@"
+	else
+		error "unknown repo type"
 	fi
-commit =								\
-	if [ -d "$MR_REPO"/.svn ]; then					\
-		svn commit "$@"						\
-	elif [ -d "$MR_REPO"/.git ]; then				\
-		git commit -a "$@" && git push --all			\
-	elif [ -d "$MR_REPO"/.bzr ]; then				\
-		bzr commit "$@" && bzr push				\
-	elif [ -d "$MR_REPO"/CVS ]; then				\
-		cvs commit "$@"						\
-	else								\
-		error "unknown repo type"				\
+commit =
+	if [ -d "$MR_REPO"/.svn ]; then
+		svn commit "$@"
+	elif [ -d "$MR_REPO"/.git ]; then
+		git commit -a "$@" && git push --all
+	elif [ -d "$MR_REPO"/.bzr ]; then
+		bzr commit "$@" && bzr push
+	elif [ -d "$MR_REPO"/CVS ]; then
+		cvs commit "$@"
+	else
+		error "unknown repo type"
 	fi
-diff =									\
-	if [ -d "$MR_REPO"/.svn ]; then					\
-		svn diff "$@"						\
-	elif [ -d "$MR_REPO"/.git ]; then				\
-		git diff "$@"						\
-	elif [ -d "$MR_REPO"/.bzr ]; then				\
-		bzr diff "$@"						\
-	elif [ -d "$MR_REPO"/CVS ]; then				\
-		cvs diff "$@"						\
-	else								\
-		error "unknown repo type"				\
+diff =
+	if [ -d "$MR_REPO"/.svn ]; then
+		svn diff "$@"
+	elif [ -d "$MR_REPO"/.git ]; then
+		git diff "$@"
+	elif [ -d "$MR_REPO"/.bzr ]; then
+		bzr diff "$@"
+	elif [ -d "$MR_REPO"/CVS ]; then
+		cvs diff "$@"
+	else
+		error "unknown repo type"
 	fi
-log =									\
-	if [ -d "$MR_REPO"/.svn ]; then					\
-		svn log"$@"						\
-	elif [ -d "$MR_REPO"/.git ]; then				\
-		git log "$@"						\
-	elif [ -d "$MR_REPO"/.bzr ]; then				\
-		bzr log "$@"						\
-	elif [ -d "$MR_REPO"/CVS ]; then				\
-		cvs log "$@"						\
-	else								\
-		error "unknown repo type"				\
+log =
+	if [ -d "$MR_REPO"/.svn ]; then
+		svn log"$@"
+	elif [ -d "$MR_REPO"/.git ]; then
+		git log "$@"
+	elif [ -d "$MR_REPO"/.bzr ]; then
+		bzr log "$@"
+	elif [ -d "$MR_REPO"/CVS ]; then
+		cvs log "$@"
+	else
+		error "unknown repo type"
 	fi
-register =								\
-	if [ -n "$1" ]; then						\
-		cd "$1"							\
-	fi								\
-	basedir="$(basename $(pwd))"					\
-	if [ -d .svn ]; then						\
-		url=$(LANG=C svn info . |				\
-		      grep -i ^URL: | cut -d ' ' -f 2)			\
-		if [ -z "$url" ]; then					\
-			error "cannot determine svn url"		\
-		fi							\
-		echo "Registering svn url: $url"			\
-		mr config "$(pwd)" checkout="svn co $url $basedir"	\
-	elif [ -d .git ]; then						\
-		url=$(LANG=C git-config --get remote.origin.url)	\
-		if [ -z "$url" ]; then					\
-			error "cannot determine git url"		\
-		fi							\
-		echo "Registering git url: $url"			\
-		mr config "$(pwd)" checkout="git clone $url $basedir"	\
-	elif [ -d .bzr ]; then						\
-		url=$(cat .bzr/branch/parent)				\
-		if [ -z "$url" ]; then					\
-			error "cannot determine bzr url"		\
-		fi							\
-		echo "Registering bzr url: $url"			\
-		mr config "$(pwd)" checkout="bzr clone $url $basedir"	\
-	else								\
-		error "unable to register this repo type"		\
+register =
+	if [ -n "$1" ]; then
+		cd "$1"
 	fi
+	basedir="$(basename $(pwd))"
+	if [ -d .svn ]; then
+		url=$(LANG=C svn info . | grep -i ^URL: | cut -d ' ' -f 2)
+		if [ -z "$url" ]; then
+			error "cannot determine svn url"
+		fi
+		echo "Registering svn url: $url"
+		mr config "$(pwd)" checkout="svn co $url $basedir"
+	elif [ -d .git ]; then
+		url=$(LANG=C git-config --get remote.origin.url)
+		if [ -z "$url" ]; then
+			error "cannot determine git url"
+		fi
+		echo "Registering git url: $url"
+		mr config "$(pwd)" checkout="git clone $url $basedir"
+	elif [ -d .bzr ]; then
+		url=$(cat .bzr/branch/parent)
+		if [ -z "$url" ]; then
+			error "cannot determine bzr url"
+		fi
+		echo "Registering bzr url: $url"
+		mr config "$(pwd)" checkout="bzr clone $url $basedir"
+	else
+		error "unable to register this repo type"
+	fi
+help =
+	if [ ! -e "$MR_PATH" ]; then
+		error "cannot find program path"
+	fi
+	(pod2man -c mr "$MR_PATH" | man -l -) || error "pod2man or man failed"
 list = true
 config = 
-help =									\
-	if [ ! -e "$MR_PATH" ]; then					\
-		error "cannot find program path"			\
-	fi								\
-	(pod2man -c mr "$MR_PATH" | man -l -) ||			\
-		error "pod2man or man failed"
 
 ed = echo "A horse is a horse, of course, of course.."
 T = echo "I pity the fool."

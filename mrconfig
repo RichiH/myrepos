@@ -8,30 +8,42 @@ gc = if [ -d "$MR_REPO"/.git ]; then git gc; fi
 # Tests used in the skips below.
 # - wantsrc checks whether I probably want a full source checkout (quite
 #   large)
+# - wantmedia checks whethere I probably want various large media files
+#   here.
 # - private are hosts I trust private data to
 # - mylaptop only succeeds if it's on my main development laptop, which 
 #   gets lots of extra cruft
 # - kite only succeeds on kite
-lib = 									\
-	wantsrc() {							\
-		test "$(whoami)" = joey					\
-	}								\
-	private() {							\
-		if [ "$(whoami)" = joey ]; then				\
-			case "$(hostname)" in				\
-			wren|kodama|dragon|dodo|bluebird)		\
-				return 0				\
-			;;						\
-			esac						\
-		fi							\
-		return 1						\
-	}								\
-	mylaptop() {							\
-		test "$(hostname)" = kodama				\
-	}								\
-	kite() {							\
-		test "$(hostname)" = wren				\
-	}								\
+lib =
+	wantsrc() {
+		test "$(whoami)" = joey
+	}
+	wantmedia() {
+		if [ "$(whoami)" = joey ]; then
+			case "$(hostname)" in
+				kodama|dragon|dodo)
+					return 0
+			;;
+			esac
+		fi
+		return 1
+	}
+	private() {
+		if [ "$(whoami)" = joey ]; then
+			case "$(hostname)" in
+			wren|kodama|dragon|dodo|bluebird)
+				return 0
+			;;
+			esac
+		fi
+		return 1
+	}
+	mylaptop() {
+		test "$(hostname)" = kodama
+	}
+	kite() {
+		test "$(hostname)" = wren
+	}
 
 [src/mr]
 checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/mr
@@ -39,16 +51,16 @@ skip = ! wantsrc
 
 [src/linux-2.6]
 checkout = git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
-skip = ! mylaptop || ! wantsrc || \
+skip = ! mylaptop || ! wantsrc ||
 	([ "$1" = update ] && [ $(hours_since "$1") -lt 12 ])
 
 [src/dpkg]
 # A merge of the upstream dpkg git repo and my own personal branch.
-checkout = \
-	git clone git://git.debian.org/git/dpkg/dpkg.git && \
-	cd dpkg && \
-	git remote add kite ssh://git.kitenet.net/srv/git/kitenet.net/dpkg && \
-	git fetch kite && \
+checkout =
+	git clone git://git.debian.org/git/dpkg/dpkg.git &&
+	cd dpkg &&
+	git remote add kite ssh://git.kitenet.net/srv/git/kitenet.net/dpkg &&
+	git fetch kite &&
 	git checkout -b sourcev3 kite/sourcev3
 update = git pull origin master && git pull kite sourcev3
 commit = git push kite
@@ -56,8 +68,8 @@ skip = ! wantsrc
 
 [html/www.debian.org]
 # Still in CVS..urk!
-checkout = \
-	CVSROOT=:ext:joeyh@cvs.debian.org:/cvs/webwml \
+checkout =
+	CVSROOT=:ext:joeyh@cvs.debian.org:/cvs/webwml
 	cvs co -d www.debian.org webwml
 # cvs sucks sufficiently that I prefer to run these commands by hand,
 # and only rarely
