@@ -86,15 +86,18 @@ directory to register.
 
 =item config
 
-Adds, modifies, removed, or prints a value from the mrconfig file. The next
-parameter is the name of the section the value is in. To add or modify a
-value, follow it by one or more instances of "parameter=value". Use
-"parameter=" to remove a parameter. Use just "parameter" to get the value
-of a parameter.
+Adds, modifies, removes, or prints a value from the mrconfig file. The next
+parameter is the name of the section the value is in. To add or modify
+values, use one or more instances of "parameter=value". Use "parameter=" to
+remove a parameter. Use just "parameter" to get the value of a parameter.
 
 For example, to add (or edit) a repository in src/foo:
 
   mr config src/foo checkout="svn co svn://example.com/foo/trunk foo"
+
+To show the command that mr uses to update the repository in src/foo:
+
+  mr config src/foo update
 
 =item help
 
@@ -299,11 +302,16 @@ elsif ($action eq 'config') {
 			$changefields{$1}=$2;
 		}
 		else {
+			my $found=0;
 			foreach my $topdir (sort keys %config) {
 				if (exists $config{$topdir}{$section} &&
 				    exists $config{$topdir}{$section}{$_}) {
 					print $config{$topdir}{$section}{$_}."\n";
+					$found=1;
 				}
+			}
+			if (! $found) {
+				die "mr $action: $section $_ not set\n";
 			}
 		}
 	}
