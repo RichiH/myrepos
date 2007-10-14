@@ -13,9 +13,15 @@ Section: utils
 Depends: 
 Suggests: subversion, git-core, cvs, bzr
 Description: a Multiple Repository management tool
- The mr(1) command allows you to register a set of repositories in 
- a .mrconfig file, and then checkout, update, or perform other actions on
- the repositories as if they were one big respository.
+ The mr(1) command can checkout, update, or perform other actions on
+ a set of repositories as if they were one combined respository. It
+ supports any combination of subversion, git, cvs, and bzr repositories,
+ and support for other revision control systems can easily be added.
  .
- Any mix of revision control systems can be used with mr(1), and you can
- define arbitrary actions for commands like "update", "checkout", or "commit".
+ It is extremely configurable via simple shell scripting. Some examples
+ of things it can be configured to do include:
+ .
+ * Update a repository no more frequently than once every twelve hours.
+ * Run an arbitrary command before committing to a repository.
+ * When updating a git repository, pull from two different upstreams
+   and merge the two together.
