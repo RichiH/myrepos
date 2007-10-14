@@ -21,7 +21,7 @@ Description: a Multiple Repository management tool
  It is extremely configurable via simple shell scripting. Some examples
  of things it can be configured to do include:
  .
- * Update a repository no more frequently than once every twelve hours.
- * Run an arbitrary command before committing to a repository.
- * When updating a git repository, pull from two different upstreams
-   and merge the two together.
+  * Update a repository no more frequently than once every twelve hours.
+  * Run an arbitrary command before committing to a repository.
+  * When updating a git repository, pull from two different upstreams
+    and merge the two together.

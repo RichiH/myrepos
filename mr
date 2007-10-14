@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 #man{{{
+
 =head1 NAME
 
 mr - a Multiple Repository management tool
@@ -227,6 +228,7 @@ Licensed under the GNU GPL version 2 or higher.
 http://kitenet.net/~joey/code/mr/
 
 =cut
+
 #}}}
 
 use warnings;
