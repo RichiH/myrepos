@@ -359,7 +359,7 @@ if (! @repos) {
 	$nochdir=1;
 }
 
-my (@failed, @successful, @skipped);
+my (@failed, @ok, @skipped);
 foreach my $repo (@repos) {
 	action($action, @$repo);
 }
@@ -445,7 +445,7 @@ sub action {
 			}
 		}
 		else {
-			push @successful, $dir;
+			push @ok, $dir;
 		}
 
 		print "\n";
@@ -461,18 +461,18 @@ sub showstat {
 	}
 	return;
 }
-if (! @successful && ! @failed && ! @skipped) {
+if (! @ok && ! @failed && ! @skipped) {
 	die "mr $action: no repositories found to work on\n";
 }
 print "mr $action: finished (".join("; ",
-	showstat($#successful+1, "successful", "successful"),
+	showstat($#ok+1, "ok", "ok"),
 	showstat($#failed+1, "failed", "failed"),
 	showstat($#skipped+1, "skipped", "skipped"),
 ).")\n";
 if (@failed) {
 	exit 1;
 }
-elsif (! @successful && @skipped) {
+elsif (! @ok && @skipped) {
 	exit 1;
 }
 exit 0;
