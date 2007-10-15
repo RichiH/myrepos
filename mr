@@ -39,7 +39,7 @@ working directory. Or, if you are in a subdirectory of a repository that
 contains no other registered repositories, it will stay in that directory,
 and work on only that repository,
 
-The predefined commands should be fairly familiar to users of any revision
+These predefined commands should be fairly familiar to users of any revision
 control system:
 
 =over 4
@@ -73,6 +73,12 @@ Show a diff of uncommitted changes.
 =item log
 
 Show the commit log.
+
+=back
+
+These commands are also available:
+
+=over 4
 
 =item list (or ls)
 
