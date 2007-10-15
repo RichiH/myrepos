@@ -809,4 +809,5 @@ config =
 
 ed = echo "A horse is a horse, of course, of course.."
 T = echo "I pity the fool."
+right = echo "Not found."
 #}}}
