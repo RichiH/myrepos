@@ -518,7 +518,10 @@ sub loadconfig { #{{{
 
 		# copy in defaults from first parent
 		my $parent=$dir;
-		while ($parent=~s/^(.*)\/[^\/]+\/?$/$1/) {
+		while ($parent=~s/^(.*\/)[^\/]+\/?$/$1/) {
+			if ($parent eq '/') {
+				$parent="";
+			}
 			if (exists $config{$parent} &&
 			    exists $config{$parent}{DEFAULT}) {
 				$config{$dir}{DEFAULT}={ %{$config{$parent}{DEFAULT}} };
