@@ -77,22 +77,6 @@ update = echo "skipping cvs update (too slow)"
 status = echo "skipping cvs status (too ugly)"
 skip = ! mylaptop || ! wantsrc
 
-[src/packages/uqm]
-checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/uqm
-skip = ! wantsrc
-
-[src/packages/uqm-content]
-checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/uqm-content
-skip = ! wantsrc
-
-[src/packages/uqm-voice]
-checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/uqm-voice
-skip = ! wantsrc
-
-[src/packages/uqm-music]
-checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/uqm-music
-skip = ! wantsrc
-
 # My home directory, which I keep in svn.
 []
 checkout = svn co svn+ssh://svn.kitenet.net/srv/svn/joey/trunk/home-$(hostname) joey
@@ -102,11 +86,3 @@ update = svn update && svnfix
 [mail]
 checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/joey/private/mail
 skip = ! private
-
-[doc]
-checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/joey/private/doc
-skip = ! private
-
-[lib/text]
-checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/joey/private/text
-skip = ! wantmedia
