@@ -1,3 +1,9 @@
+mr (0.3) UNRELEASED; urgency=low
+
+  * Add a check to make sure the expected directory exists after checkout.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 16 Oct 2007 19:51:14 -0400
+
 mr (0.2) unstable; urgency=low
 
   * Fix line number display for config file parse errors.

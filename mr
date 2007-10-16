@@ -462,6 +462,12 @@ sub action { #{{{
 			}
 		}
 		else {
+			if ($action eq 'checkout' && ! -d $dir) {
+				print STDERR "mr $action: $dir missing after checkout\n";;
+				push @failed, $dir;
+				return;
+			}
+
 			push @ok, $dir;
 		}
 
