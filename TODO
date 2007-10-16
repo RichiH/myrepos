@@ -10,7 +10,9 @@
   [src/bar]
   renamedfrom = src/foo/bar
 
-  (Support multple renames of a single repo?)
+  (How to support multple renames of a single repo? List multiple
+  renamedfrom dirs?)
 
 * a way to detect repos in a tree that are not registered, and warn
-  about or even auto-register them
+  about or even auto-register them. (svn externals make this quite
+  difficult!)
