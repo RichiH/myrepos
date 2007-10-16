@@ -2,8 +2,9 @@ mr (0.2) UNRELEASED; urgency=low
 
   * Fix line number display for config file parse errors.
   * Fix a bug in inheritance of default settings in chained .mrconfig files.
+  * Add the -s options.
 
- -- Joey Hess <joeyh@debian.org>  Tue, 16 Oct 2007 01:40:32 -0400
+ -- Joey Hess <joeyh@debian.org>  Tue, 16 Oct 2007 02:13:31 -0400
 
 mr (0.1) unstable; urgency=low
 

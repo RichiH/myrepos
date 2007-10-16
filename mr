@@ -138,6 +138,11 @@ directory.
 
 Be verbose.
 
+=item -s
+
+Expand the statistics line displayed at the end to include information
+about exactly which repositories failed and were skipped, if any.
+
 =back
 
 =head1 FILES
@@ -245,6 +250,7 @@ use Cwd qw(getcwd abs_path);
 my $directory=getcwd();
 my $config="$ENV{HOME}/.mrconfig";
 my $verbose=0;
+my $stats=0;
 my %config;
 my %knownactions;
 my %alias;
@@ -253,7 +259,8 @@ Getopt::Long::Configure("no_permute");
 my $result=GetOptions(
 	"d|directory=s" => sub { $directory=abs_path($_[1]) },
 	"c|config=s" => \$config,
-	"verbose" => \$verbose,
+	"v|verbose" => \$verbose,
+	"s|stats" => \$stats,
 );
 if (! $result || @ARGV < 1) {
 	die("Usage: mr [-d directory] action [params ...]\n".
@@ -479,6 +486,14 @@ print "mr $action: finished (".join("; ",
 	showstat($#failed+1, "failed", "failed"),
 	showstat($#skipped+1, "skipped", "skipped"),
 ).")\n";
+if ($stats) {
+	if (@skipped) {
+		print "mr $action: (skipped: ".join(" ", @skipped).")\n";
+	}
+	if (@failed) {
+		print "mr $action: (failed: ".join(" ", @failed).")\n";
+	}
+}
 if (@failed) {
 	exit 1;
 }
