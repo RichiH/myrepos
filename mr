@@ -188,7 +188,7 @@ environment, where any additional parameters you pass are available in
 directory, since the repository isn't checked out yet. All other commands
 are run inside the repository, though not necessarily at the top of it.
 The "MR_REPO" environment variable is set to the path to the top of the
-repository.
+repository, and "MR_CONFIG" is set to the topmost .mrconfig file used.
 
 A few parameters have special meanings:
 
@@ -247,8 +247,8 @@ use strict;
 use Getopt::Long;
 use Cwd qw(getcwd abs_path);
 
+$ENV{MR_CONFIG}="$ENV{HOME}/.mrconfig";
 my $directory=getcwd();
-my $config="$ENV{HOME}/.mrconfig";
 my $verbose=0;
 my $stats=0;
 my %config;
@@ -258,7 +258,7 @@ my %alias;
 Getopt::Long::Configure("no_permute");
 my $result=GetOptions(
 	"d|directory=s" => sub { $directory=abs_path($_[1]) },
-	"c|config=s" => \$config,
+	"c|config=s" => \$ENV{MR_CONFIG},
 	"v|verbose" => \$verbose,
 	"s|stats" => \$stats,
 );
@@ -269,7 +269,7 @@ if (! $result || @ARGV < 1) {
 }
 
 loadconfig(\*DATA);
-loadconfig($config);
+loadconfig($ENV{MR_CONFIG});
 #use Data::Dumper;
 #print Dumper(\%config);
 
@@ -309,7 +309,7 @@ elsif ($action eq 'config') {
 	my $section=shift;
 	if ($section=~/^\//) {
 		# try to convert to a path relative to $config's dir
-		my ($dir)=$config=~/^(.*\/)[^\/]+$/;
+		my ($dir)=$ENV{MR_CONFIG}=~/^(.*\/)[^\/]+$/;
 		if ($section=~/^\Q$dir\E(.*)/) {
 			$section=$1;
 		}
@@ -333,7 +333,7 @@ elsif ($action eq 'config') {
 			}
 		}
 	}
-	modifyconfig($config, $section, %changefields) if %changefields;
+	modifyconfig($ENV{MR_CONFIG}, $section, %changefields) if %changefields;
 	exit 0;
 }
 elsif ($action eq 'register') {
@@ -811,21 +811,21 @@ register =
 			error "cannot determine svn url"
 		fi
 		echo "Registering svn url: $url"
-		mr config "$(pwd)" checkout="svn co $url $basedir"
+		mr -c "$MR_CONFIG" config "$(pwd)" checkout="svn co $url $basedir"
 	elif [ -d .git ]; then
 		url=$(LANG=C git-config --get remote.origin.url)
 		if [ -z "$url" ]; then
 			error "cannot determine git url"
 		fi
 		echo "Registering git url: $url"
-		mr config "$(pwd)" checkout="git clone $url $basedir"
+		mr -c "$MR_CONFIG" config "$(pwd)" checkout="git clone $url $basedir"
 	elif [ -d .bzr ]; then
 		url=$(cat .bzr/branch/parent)
 		if [ -z "$url" ]; then
 			error "cannot determine bzr url"
 		fi
 		echo "Registering bzr url: $url"
-		mr config "$(pwd)" checkout="bzr clone $url $basedir"
+		mr -c "$MR_CONFIG" config "$(pwd)" checkout="bzr clone $url $basedir"
 	else
 		error "unable to register this repo type"
 	fi
