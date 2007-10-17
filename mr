@@ -34,7 +34,7 @@ a set of repositories as if they were one combined respository. It
 supports any combination of subversion, git, cvs, and bzr repositories, 
 and support for other revision control systems can easily be added.
 
-B<mr> cds into and operates on all registered repsitories at or below your
+B<mr> cds into and operates on all registered repositories at or below your
 working directory. Or, if you are in a subdirectory of a repository that
 contains no other registered repositories, it will stay in that directory,
 and work on only that repository,
@@ -87,7 +87,7 @@ List the repositories that mr will act on.
 =item register
 
 Register an existing repository in the mrconfig file. By default, the
-epository in the current directory is registered, or you can specify a
+repository in the current directory is registered, or you can specify a
 directory to register.
 
 =item config
@@ -218,7 +218,7 @@ should avoid chaining from repositories with untrusted committers.)
 
 If the "deleted" parameter is set and its command returns nonzero, then
 B<mr> will treat the repository as deleted. It won't ever actually delete
-the repository, but it will warn if it sees the repsoitory's directory.
+the repository, but it will warn if it sees the repository's directory.
 This is useful when one mrconfig file is shared amoung multiple machines,
 to keep track of and remember to delete old repositories.
 

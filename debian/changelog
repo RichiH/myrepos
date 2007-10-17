@@ -2,6 +2,7 @@ mr (0.3) UNRELEASED; urgency=low
 
   * Add a check to make sure the expected directory exists after checkout.
   * mr register will now write to whatever config file is specified with -c
+  * Typo files from madduck.
 
  -- Joey Hess <joeyh@debian.org>  Wed, 17 Oct 2007 12:45:28 -0400
 
