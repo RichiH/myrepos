@@ -8,7 +8,7 @@ gc = if [ -d "$MR_REPO"/.git ]; then git gc; fi
 # Tests used in the skips below.
 # - wantsrc checks whether I probably want a full source checkout (quite
 #   large)
-# - wantmedia checks whethere I probably want various large media files
+# - wantmedia checks whether I probably want various large media files
 #   here.
 # - private are hosts I trust private data to
 # - mylaptop only succeeds if it's on my main development laptop, which 
