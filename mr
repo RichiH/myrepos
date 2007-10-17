@@ -90,6 +90,9 @@ Register an existing repository in the mrconfig file. By default, the
 repository in the current directory is registered, or you can specify a
 directory to register.
 
+By default it registers it to the ~/.mrconfig file. To make it write to a
+different file, use the -c option.
+
 =item config
 
 Adds, modifies, removes, or prints a value from the mrconfig file. The next
