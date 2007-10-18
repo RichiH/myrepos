@@ -4,8 +4,9 @@ mr (0.4) UNRELEASED; urgency=low
   * Signal handling for commands run by mr, including handling of SIGINT
     to stop mr.
   * Ensure parent dir exists prior to checkout. (madduck)
+  * Output list of failed repos to stderr when -s is used.
 
- -- Joey Hess <joeyh@debian.org>  Thu, 18 Oct 2007 13:57:41 -0400
+ -- Joey Hess <joeyh@debian.org>  Thu, 18 Oct 2007 14:56:58 -0400
 
 mr (0.3) unstable; urgency=low
 

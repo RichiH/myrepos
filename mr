@@ -537,7 +537,7 @@ if ($stats) {
 		print "mr $action: (skipped: ".join(" ", @skipped).")\n";
 	}
 	if (@failed) {
-		print "mr $action: (failed: ".join(" ", @failed).")\n";
+		print STDERR "mr $action: (failed: ".join(" ", @failed).")\n";
 	}
 }
 if (@failed) {
