@@ -10,6 +10,11 @@ mr (0.4) UNRELEASED; urgency=low
   * Allow for more complex deleted tests, such as marking a repo deleted on
     some hosts, while not on others.
   * Support registering CVS repositories. Closes: #447171
+  * MR_CONFIG now points to the config file that contains the repo mr is
+    acting on.
+  * Make mr register smarter about what mrconfig file to write to.
+    (It probably does what you'd expect it to do now; if it doesn't, -c
+    can still override.)
 
  -- Joey Hess <joeyh@debian.org>  Thu, 18 Oct 2007 16:20:34 -0400
 
