@@ -404,25 +404,27 @@ sub action { #{{{
 	                $config{$topdir}{$subdir}{lib}."\n" : "";
 
 	if (exists $config{$topdir}{$subdir}{deleted}) {
-		if (! -d $dir) {
-			return;
-		}
-		else {
-			my $test="set -e;".$lib.$config{$topdir}{$subdir}{deleted};
-			print "mr $action: running deleted test >>$test<<\n" if $verbose;
-			my $ret=system($test);
-			if ($ret != 0) {
-				if (($? & 127) == 2) {
-					print STDERR "mr $action: interrupted\n";
-					exit 2;
-				}
-				elsif ($? & 127) {
-					print STDERR "mr $action: deleted test received signal ".($? & 127)."\n";
-				}
+		my $test="set -e;".$lib.$config{$topdir}{$subdir}{deleted};
+		print "mr $action: running deleted test >>$test<<\n" if $verbose;
+		my $ret=system($test);
+		if ($ret != 0) {
+			if (($? & 127) == 2) {
+				print STDERR "mr $action: interrupted\n";
+				exit 2;
 			}
-			if ($ret >> 8 == 0) {
+			elsif ($? & 127) {
+				print STDERR "mr $action: deleted test received signal ".($? & 127)."\n";
+			}
+		}
+		if ($ret >> 8 == 0) {
+			if (-d $dir) {
 				print STDERR "mr error: $dir should be deleted yet still exists\n\n";
 				push @failed, $dir;
+				return;
+			}
+			else {
+				print "mr $action: $dir skipped (as deleted) per config file\n" if $verbose;
+				push @skipped, $dir;
 				return;
 			}
 		}
