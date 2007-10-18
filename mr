@@ -276,7 +276,7 @@ my %alias;
 Getopt::Long::Configure("no_permute");
 my $result=GetOptions(
 	"d|directory=s" => sub { $directory=abs_path($_[1]) },
-	"c|config=s" => sub { $ENV{MR_CONFIG}=abs_path($_[1]) },
+	"c|config=s" => \$ENV{MR_CONFIG},
 	"v|verbose" => \$verbose,
 	"s|stats" => \$stats,
 	"n|no-recurse" => \$no_recurse,
@@ -285,6 +285,13 @@ if (! $result || @ARGV < 1) {
 	die("Usage: mr [-d directory] action [params ...]\n".
 	    "(Use mr help for man page.)\n");
 
+}
+
+# Make sure MR_CONFIG is an absolute path, but don't use abs_path since
+# the config file might be a symlink to elsewhere, and the directory it's
+# in is significant.
+if ($ENV{MR_CONFIG} !~ /^\//) {
+	$ENV{MR_CONFIG}=getcwd()."/".$ENV{MR_CONFIG};
 }
 
 loadconfig(\*DATA);
@@ -329,6 +336,8 @@ elsif ($action eq 'config') {
 	if ($section=~/^\//) {
 		# try to convert to a path relative to the config file
 		my ($dir)=$ENV{MR_CONFIG}=~/^(.*\/)[^\/]+$/;
+		$dir=abs_path($dir);
+		$dir.="/" unless $dir=~/\/$/;
 		if ($section=~/^\Q$dir\E(.*)/) {
 			$section=$1;
 		}
@@ -895,6 +904,15 @@ register =
 		fi
 		echo "Registering bzr url: $url in $MR_CONFIG"
 		mr -c "$MR_CONFIG" config "$(pwd)" checkout="bzr clone $url $basedir"
+	elif [ -d CVS ]; then
+		repo=$(cat CVS/Repository)
+		root=$(cat CVS/Root)
+		if [ -z "$root" ]; then
+			error "cannot determine cvs root"
+		fi
+		echo "Registering cvs repository $repo at root $root"
+		mr -c "$MR_CONFIG" config "$(pwd)" \
+			checkout="cvs -d '$root' co -d $basedir $repo"
 	else
 		error "unable to register this repo type"
 	fi
