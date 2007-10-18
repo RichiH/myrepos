@@ -428,9 +428,10 @@ sub action { #{{{
 		}
 
 		$dir=~s/^(.*)\/[^\/]+\/?$/$1/;
+
 		if (! -d $dir) {
 			print "mr $action: creating parent directory $dir\n" if $verbose;
-			mkdir $dir;
+			my $ret=system("mkdir", "-p", $dir);
 		}
 	}
 	elsif ($action eq 'update') {

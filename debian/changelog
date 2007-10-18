@@ -4,6 +4,7 @@ mr (0.4) UNRELEASED; urgency=low
     is used to register a sibdirectory.
   * Signal handling for commands run by mr, including handling of SIGINT
     to stop mr.
+  * Ensure parent dir exists prior to checkout. (madduck)
 
  -- Joey Hess <joeyh@debian.org>  Thu, 18 Oct 2007 13:57:41 -0400
 
