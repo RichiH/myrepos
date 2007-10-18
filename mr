@@ -204,7 +204,7 @@ A few parameters have special meanings:
 
 =item skip
 
-If the "skip" parameter is set and its command returns nonzero, then B<mr>
+If the "skip" parameter is set and its command returns true, then B<mr>
 will skip acting on that repository. The command is passed the action
 name in $1.
 
@@ -218,13 +218,13 @@ been at least 12 hours since the last update.
 
 =item chain
 
-If the "chain" parameter is set and its command returns nonzero, then B<mr>
+If the "chain" parameter is set and its command returns true, then B<mr>
 will try to load a .mrconfig file from the root of the repository. (You
 should avoid chaining from repositories with untrusted committers.)
 
 =item deleted
 
-If the "deleted" parameter is set and its command returns nonzero, then
+If the "deleted" parameter is set and its command returns true, then
 B<mr> will treat the repository as deleted. It won't ever actually delete
 the repository, but it will warn if it sees the repository's directory.
 This is useful when one mrconfig file is shared amoung multiple machines,
@@ -419,11 +419,11 @@ sub action { #{{{
 				elsif ($? & 127) {
 					print STDERR "mr $action: deleted test received signal ".($? & 127)."\n";
 				}
-				if ($ret >> 8 == 0) {
-					print STDERR "mr error: $dir should be deleted yet still exists\n\n";
-					push @failed, $dir;
-					return;
-				}
+			}
+			if ($ret >> 8 == 0) {
+				print STDERR "mr error: $dir should be deleted yet still exists\n\n";
+				push @failed, $dir;
+				return;
 			}
 		}
 	}
@@ -464,11 +464,11 @@ sub action { #{{{
 				print STDERR "mr $action: skip test received signal ".($? & 127)."\n";
 				exit 1;
 			}
-			if ($ret >> 8 == 0) {
-				print "mr $action: $dir skipped per config file\n" if $verbose;
-				push @skipped, $dir;
-				return;
-			}
+		}
+		if ($ret >> 8 == 0) {
+			print "mr $action: $dir skipped per config file\n" if $verbose;
+			push @skipped, $dir;
+			return;
 		}
 	}
 	
