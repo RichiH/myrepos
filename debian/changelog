@@ -5,8 +5,9 @@ mr (0.4) UNRELEASED; urgency=low
     to stop mr.
   * Ensure parent dir exists prior to checkout. (madduck)
   * Output list of failed repos to stderr when -s is used.
+  * Fix a bug caused by a stupid typo.
 
- -- Joey Hess <joeyh@debian.org>  Thu, 18 Oct 2007 14:56:58 -0400
+ -- Joey Hess <joeyh@debian.org>  Thu, 18 Oct 2007 15:00:00 -0400
 
 mr (0.3) unstable; urgency=low
 

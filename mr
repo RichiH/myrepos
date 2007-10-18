@@ -362,7 +362,7 @@ foreach my $topdir (sort keys %config) {
 		my $d=$directory;
 		$dir.="/" unless $dir=~/\/$/;
 		$d.="/" unless $d=~/\/$/;
-		next if $dir ne $directory && $dir !~ /^\Q$directory\E/;
+		next if $dir ne $d && $dir !~ /^\Q$d\E/;
 		push @repos, [$dir, $topdir, $subdir];
 	}
 }
