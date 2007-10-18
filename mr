@@ -887,6 +887,15 @@ register =
 		fi
 		echo "Registering bzr url: $url"
 		mr -c "$MR_CONFIG" config "$(pwd)" checkout="bzr clone $url $basedir"
+	elif [ -d CVS ]; then
+		repo=$(cat CVS/Repository)
+		root=$(cat CVS/Root)
+		if [ -z "$root" ]; then
+			error "cannot determine cvs root"
+		fi
+		echo "Registering cvs repository $repo at root $root"
+		mr -c "$MR_CONFIG" config "$(pwd)" \
+			checkout="cvs -d '$root' co -d $basedir $repo"
 	else
 		error "unable to register this repo type"
 	fi
