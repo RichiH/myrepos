@@ -86,16 +86,16 @@ List the repositories that mr will act on.
 
 =item register
 
-Register an existing repository in the mrconfig file. By default, the
+Register an existing repository in a mrconfig file. By default, the
 repository in the current directory is registered, or you can specify a
 directory to register.
 
-By default it registers it to the ~/.mrconfig file. To make it write to a
-different file, use the -c option.
+The mrconfig file that is modified is chosen by either the -c option, or by
+looking for the closest known one at or below the current directory.
 
 =item config
 
-Adds, modifies, removes, or prints a value from the mrconfig file. The next
+Adds, modifies, removes, or prints a value from a mrconfig file. The next
 parameter is the name of the section the value is in. To add or modify
 values, use one or more instances of "parameter=value". Use "parameter=" to
 remove a parameter. Use just "parameter" to get the value of a parameter.
@@ -107,6 +107,9 @@ For example, to add (or edit) a repository in src/foo:
 To show the command that mr uses to update the repository in src/foo:
 
   mr config src/foo update
+
+The ~/.mrconfig file is used by default. To use a different config file,
+use the -c option.
 
 =item help
 
@@ -134,8 +137,7 @@ the current working directory.
 
 =item -c mrconfig
 
-Use the specified mrconfig file, instead of looking for one in your home
-directory.
+Use the specified mrconfig file. The default is B<~/.mrconfig>
 
 =item -v
 
@@ -197,9 +199,9 @@ directory, since the repository isn't checked out yet. All other commands
 are run inside the repository, though not necessarily at the top of it.
 
 The "MR_REPO" environment variable is set to the path to the top of the
-repository, and "MR_CONFIG" is set to the .mrconfig file that defines the
-repo being acted on, or, if the repo is not yet in a config file, the
-.mrconfig file that mr thinks it should be added to.
+repository. The "MR_CONFIG" environment variable is set to the .mrconfig file
+that defines the repo being acted on, or, if the repo is not yet in a config
+file, the .mrconfig file that should be modified to register the repo.
 
 A few parameters have special meanings:
 
@@ -264,6 +266,7 @@ $SIG{INT}=sub {
 };
 
 $ENV{MR_CONFIG}="$ENV{HOME}/.mrconfig";
+my $config_overridden=0;
 my $directory=getcwd();
 my $verbose=0;
 my $stats=0;
@@ -276,7 +279,7 @@ my %alias;
 Getopt::Long::Configure("no_permute");
 my $result=GetOptions(
 	"d|directory=s" => sub { $directory=abs_path($_[1]) },
-	"c|config=s" => \$ENV{MR_CONFIG},
+	"c|config=s" => sub { $ENV{MR_CONFIG}=$_[1]; $config_overridden=1 },
 	"v|verbose" => \$verbose,
 	"s|stats" => \$stats,
 	"n|no-recurse" => \$no_recurse,
@@ -325,6 +328,7 @@ if (! exists $knownactions{$action}) {
 	}
 }
 
+# commands that do not operate on all repos
 if ($action eq 'help') {
 	exec($config{''}{DEFAULT}{$action}) || die "exec: $!";
 }
@@ -365,6 +369,18 @@ elsif ($action eq 'config') {
 	exit 0;
 }
 elsif ($action eq 'register') {
+	if (! $config_overridden) {
+		# Find the closest known mrconfig file to the current
+		# directory.
+		$directory.="/" unless $directory=~/\/$/;
+		foreach my $topdir (reverse sort keys %config) {
+			next unless length $topdir;
+			if ($directory=~/^\Q$topdir\E/) {
+				$ENV{MR_CONFIG}=$configfiles{$topdir};
+				last;
+			}
+		}
+	}
 	my $command="set -e; ".$config{''}{DEFAULT}{lib}."\n".
 		"my_action(){ $config{''}{DEFAULT}{$action}\n }; my_action ".
 		join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
@@ -600,6 +616,10 @@ sub loadconfig { #{{{
 			$dir=".";
 		}
 		$dir=abs_path($dir)."/";
+		
+		if (! exists $configfiles{$dir}) {
+			$configfiles{$dir}=$f;
+		}
 
 		# copy in defaults from first parent
 		my $parent=$dir;
@@ -660,9 +680,6 @@ sub loadconfig { #{{{
 			else {
 				$config{$dir}{$section}{$parameter}=$value;
 				$knownactions{$parameter}=1;
-				if (! exists $configfiles{$dir}) {
-					$configfiles{$dir}=abs_path($f);
-				}
 				if ($parameter eq 'chain' &&
 				    length $dir && $section ne "DEFAULT" &&
 				    -e $dir.$section."/.mrconfig") {
