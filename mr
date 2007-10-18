@@ -316,7 +316,7 @@ elsif ($action eq 'config') {
 	}
 	my $section=shift;
 	if ($section=~/^\//) {
-		# try to convert to a path relative to $config's dir
+		# try to convert to a path relative to the config file
 		my ($dir)=$ENV{MR_CONFIG}=~/^(.*\/)[^\/]+$/;
 		if ($section=~/^\Q$dir\E(.*)/) {
 			$section=$1;
