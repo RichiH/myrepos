@@ -1,3 +1,10 @@
+mr (0.4) UNRELEASED; urgency=low
+
+  * Fix mr register to work when -c is specified using a relative path and
+    is used to register a sibdirectory.
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 18 Oct 2007 13:32:21 -0400
+
 mr (0.3) unstable; urgency=low
 
   * Add a check to make sure the expected directory exists after checkout.

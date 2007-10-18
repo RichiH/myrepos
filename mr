@@ -261,7 +261,7 @@ my %alias;
 Getopt::Long::Configure("no_permute");
 my $result=GetOptions(
 	"d|directory=s" => sub { $directory=abs_path($_[1]) },
-	"c|config=s" => \$ENV{MR_CONFIG},
+	"c|config=s" => sub { $ENV{MR_CONFIG}=abs_path($_[1]) },
 	"v|verbose" => \$verbose,
 	"s|stats" => \$stats,
 );
