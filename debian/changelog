@@ -1,9 +1,9 @@
-mr (0.4) UNRELEASED; urgency=low
+mr (0.4) unstable; urgency=low
 
   * Fix mr register of a subdir to also work with -c.
   * Signal handling for commands run by mr, including handling of SIGINT
     to stop mr.
-  * Ensure parent dir exists prior to checkout. (madduck)
+  * Ensure parent dirs exist prior to checkout. (madduck)
   * Output list of failed repos to stderr when -s is used.
   * Fix a bug caused by a stupid typo.
   * Add the -n switch, for disabling recursion.
