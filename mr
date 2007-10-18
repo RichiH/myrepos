@@ -250,6 +250,11 @@ use strict;
 use Getopt::Long;
 use Cwd qw(getcwd abs_path);
 
+$SIG{INT}=sub {
+	print STDERR "mr: interrupted\n";
+	exit 2;
+};
+
 $ENV{MR_CONFIG}="$ENV{HOME}/.mrconfig";
 my $directory=getcwd();
 my $verbose=0;
@@ -398,10 +403,19 @@ sub action { #{{{
 			my $test="set -e;".$lib.$config{$topdir}{$subdir}{deleted};
 			print "mr $action: running deleted test >>$test<<\n" if $verbose;
 			my $ret=system($test);
-			if ($ret >> 8 == 0) {
-				print STDERR "mr error: $dir should be deleted yet still exists\n\n";
-				push @failed, $dir;
-				return;
+			if ($ret != 0) {
+				if (($? & 127) == 2) {
+					print STDERR "mr $action: interrupted\n";
+					exit 2;
+				}
+				elsif ($? & 127) {
+					print STDERR "mr $action: deleted test received signal ".($? & 127)."\n";
+				}
+				if ($ret >> 8 == 0) {
+					print STDERR "mr error: $dir should be deleted yet still exists\n\n";
+					push @failed, $dir;
+					return;
+				}
 			}
 		}
 	}
@@ -427,10 +441,20 @@ sub action { #{{{
 			"my_action(){ $config{$topdir}{$subdir}{skip}\n }; my_action '$action'";
 		print "mr $action: running skip test >>$test<<\n" if $verbose;
 		my $ret=system($test);
-		if ($ret >> 8 == 0) {
-			print "mr $action: $dir skipped per config file\n" if $verbose;
-			push @skipped, $dir;
-			return;
+		if ($ret != 0) {
+			if (($? & 127) == 2) {
+				print STDERR "mr $action: interrupted\n";
+				exit 2;
+			}
+			elsif ($? & 127) {
+				print STDERR "mr $action: skip test received signal ".($? & 127)."\n";
+				exit 1;
+			}
+			if ($ret >> 8 == 0) {
+				print "mr $action: $dir skipped per config file\n" if $verbose;
+				push @skipped, $dir;
+				return;
+			}
 		}
 	}
 	
@@ -455,6 +479,13 @@ sub action { #{{{
 		print STDERR "mr $action: running >>$command<<\n" if $verbose;
 		my $ret=system($command);
 		if ($ret != 0) {
+			if (($? & 127) == 2) {
+				print STDERR "mr $action: interrupted\n";
+				exit 2;
+			}
+			elsif ($? & 127) {
+				print STDERR "mr $action: received signal ".($? & 127)."\n";
+			}
 			print STDERR "mr $action: failed ($ret)\n" if $verbose;
 			push @failed, $dir;
 			if ($ret >> 8 != 0) {
@@ -601,9 +632,20 @@ sub loadconfig { #{{{
 				$knownactions{$parameter}=1;
 				if ($parameter eq 'chain' &&
 				    length $dir && $section ne "DEFAULT" &&
-				    -e $dir.$section."/.mrconfig" &&
-			    	    system($value) >> 8 == 0) {
-					push @toload, $dir.$section."/.mrconfig";
+				    -e $dir.$section."/.mrconfig") {
+					my $ret=system($value);
+					if ($ret != 0) {
+						if (($? & 127) == 2) {
+							print STDERR "mr $action: chain test interrupted\n";
+							exit 2;
+						}
+						elsif ($? & 127) {
+							print STDERR "mr $action: chain test received signal ".($? & 127)."\n";
+						}
+					}
+					else {
+						push @toload, $dir.$section."/.mrconfig";
+					}
 			        }
 			}
 		}

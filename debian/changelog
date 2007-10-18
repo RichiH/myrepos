@@ -2,8 +2,10 @@ mr (0.4) UNRELEASED; urgency=low
 
   * Fix mr register to work when -c is specified using a relative path and
     is used to register a sibdirectory.
+  * Signal handling for commands run by mr, including handling of SIGINT
+    to stop mr.
 
- -- Joey Hess <joeyh@debian.org>  Thu, 18 Oct 2007 13:32:21 -0400
+ -- Joey Hess <joeyh@debian.org>  Thu, 18 Oct 2007 13:57:41 -0400
 
 mr (0.3) unstable; urgency=low
 
