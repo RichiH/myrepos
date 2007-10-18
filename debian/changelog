@@ -1,6 +1,6 @@
 mr (0.4) UNRELEASED; urgency=low
 
-  * Fix mr register of a subdir also work with -c.
+  * Fix mr register of a subdir to also work with -c.
   * Signal handling for commands run by mr, including handling of SIGINT
     to stop mr.
   * Ensure parent dir exists prior to checkout. (madduck)
