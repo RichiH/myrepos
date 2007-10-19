@@ -22,7 +22,7 @@ B<mr> [options] log
 
 B<mr> [options] register [repository]
 
-B<mr> [options] config section [parameter=[value] ...]
+B<mr> [options] config section ["parameter=[value]" ...]
 
 B<mr> [options] action [params ...]
 
@@ -350,6 +350,7 @@ elsif ($action eq 'config') {
 				    exists $config{$topdir}{$section}{$_}) {
 					print $config{$topdir}{$section}{$_}."\n";
 					$found=1;
+					last if $section eq 'DEFAULT';
 				}
 			}
 			if (! $found) {
