@@ -188,9 +188,9 @@ that contains the mrconfig file, but you can also choose to use absolute
 paths.
 
 Within a section, each parameter defines a shell command to run to handle a
-given action. mr contains default handlers for the "update", "status", and
-"commit" actions, so normally you only need to specify what to do for
-"checkout".
+given action. mr contains default handlers for "update", "status",
+"commit", and other standard actions. Normally you only need to specify what
+to do for "checkout".
 
 Note that these shell commands are run in a "set -e" shell
 environment, where any additional parameters you pass are available in
@@ -226,14 +226,6 @@ been at least 12 hours since the last update.
 If the "chain" parameter is set and its command returns true, then B<mr>
 will try to load a .mrconfig file from the root of the repository. (You
 should avoid chaining from repositories with untrusted committers.)
-
-=item deleted
-
-If the "deleted" parameter is set and its command returns true, then
-B<mr> will treat the repository as deleted. It won't ever actually delete
-the repository, but it will warn if it sees the repository's directory.
-This is useful when one mrconfig file is shared amoung multiple machines,
-to keep track of and remember to delete old repositories.
 
 =item lib
 
@@ -432,33 +424,6 @@ sub action { #{{{
 	$ENV{MR_CONFIG}=$configfiles{$topdir};
 	my $lib=exists $config{$topdir}{$subdir}{lib} ?
 	               $config{$topdir}{$subdir}{lib}."\n" : "";
-
-	if (exists $config{$topdir}{$subdir}{deleted}) {
-		my $test="set -e;".$lib.$config{$topdir}{$subdir}{deleted};
-		print "mr $action: running deleted test >>$test<<\n" if $verbose;
-		my $ret=system($test);
-		if ($ret != 0) {
-			if (($? & 127) == 2) {
-				print STDERR "mr $action: interrupted\n";
-				exit 2;
-			}
-			elsif ($? & 127) {
-				print STDERR "mr $action: deleted test received signal ".($? & 127)."\n";
-			}
-		}
-		if ($ret >> 8 == 0) {
-			if (-d $dir) {
-				print STDERR "mr error: $dir should be deleted yet still exists\n\n";
-				push @failed, $dir;
-				return;
-			}
-			else {
-				print "mr $action: $dir skipped (as deleted) per config file\n" if $verbose;
-				push @skipped, $dir;
-				return;
-			}
-		}
-	}
 
 	if ($action eq 'checkout') {
 		if (-d $dir) {

@@ -86,3 +86,10 @@ update = svn update && svnfix
 [mail]
 checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/joey/private/mail
 skip = ! private
+
+# Example of how to remember to delete a repo, when one mrconfig file is
+# used on multiple systems. If you're feeling brave, use rm -rf $MR_REPO
+# instead. This approach can also be used for renames.
+[foo]
+update = error "$MR_REPO is no longer used and should be deleted"
+skip = ! test -d "$MR_REPO"

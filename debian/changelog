@@ -1,3 +1,12 @@
+mr (0.5) UNRELEASED; urgency=low
+
+  * Removed special case repository deletion handling code. The same
+    thing can be accomplished in a mrconfig by skipping a repo unless
+    it exists, and printing a reminder on update. See the mrconfig file
+    for an example.
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 19 Oct 2007 15:53:15 -0400
+
 mr (0.4) unstable; urgency=low
 
   * Fix mr register of a subdir to also work with -c.
