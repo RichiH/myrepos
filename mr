@@ -108,6 +108,10 @@ To show the command that mr uses to update the repository in src/foo:
 
   mr config src/foo update
 
+To see the built-in library of shell functions contained in mr:
+
+  mr config DEFAULT lib
+
 The ~/.mrconfig file is used by default. To use a different config file,
 use the -c option.
 
