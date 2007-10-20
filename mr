@@ -833,7 +833,7 @@ status =
 	elif [ -d "$MR_REPO"/CVS ]; then
 		cvs status "$@"
 	elif [ -d "$MR_REPO"/.hg ]; then
-		hg status "$@" 
+		hg status "$@"
 	else
 		error "unknown repo type"
 	fi
@@ -847,7 +847,7 @@ commit =
 	elif [ -d "$MR_REPO"/CVS ]; then
 		cvs commit "$@"
 	elif [ -d "$MR_REPO"/.hg ]; then
-		hg commit -m "$@" && hg push 
+		hg commit -m "$@" && hg push
 	else
 		error "unknown repo type"
 	fi

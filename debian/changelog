@@ -11,7 +11,7 @@ mr (0.5) UNRELEASED; urgency=low
     for git pull, any parameters passed to mr update will replace them.
 
   [ Alexander Wirt ]
-  * Add support for mercurial (http://www.selenic.com/mercurial/) 
+  * Add support for mercurial.
 
  -- Alexander Wirt <formorer@debian.org>  Sat, 20 Oct 2007 11:03:27 +0200
 
