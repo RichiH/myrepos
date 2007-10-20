@@ -28,11 +28,11 @@ B<mr> [options] action [params ...]
 
 =head1 DESCRIPTION
 
-B<mr> is a Multiple Repository management tool. It
-can checkout, update, or perform other actions on
-a set of repositories as if they were one combined respository. It
-supports any combination of subversion, git, cvs, and bzr repositories, 
-and support for other revision control systems can easily be added.
+B<mr> is a Multiple Repository management tool. It can checkout, update, or
+perform other actions on a set of repositories as if they were one combined
+respository. It supports any combination of subversion, git, cvs, mecurial and
+bzr repositories, and support for other revision control systems can easily be
+added.
 
 B<mr> cds into and operates on all registered repositories at or below your
 working directory. Or, if you are in a subdirectory of a repository that
@@ -792,7 +792,7 @@ lib =
 		exit 1
 	}
 	hours_since() {
-		for dir in .git .svn .bzr CVS; do
+		for dir in .git .svn .bzr CVS .hg; do
 			if [ -e "$MR_REPO/$dir" ]; then
 				flagfile="$MR_REPO/$dir/.mr_last$1"
 				break
@@ -818,6 +818,8 @@ update =
 		bzr merge "$@"
 	elif [ -d "$MR_REPO"/CVS ]; then
 		cvs update "$@"
+	elif [ -d "$MR_REPO"/.hg ]; then
+		hg pull "$@" && hg update "$@"
 	else
 		error "unknown repo type"
 	fi
@@ -830,6 +832,8 @@ status =
 		bzr status "$@"
 	elif [ -d "$MR_REPO"/CVS ]; then
 		cvs status "$@"
+	elif [ -d "$MR_REPO"/.hg ]; then
+		hg status "$@" 
 	else
 		error "unknown repo type"
 	fi
@@ -842,6 +846,8 @@ commit =
 		bzr commit "$@" && bzr push
 	elif [ -d "$MR_REPO"/CVS ]; then
 		cvs commit "$@"
+	elif [ -d "$MR_REPO"/.hg ]; then
+		hg commit -m "$@" && hg push 
 	else
 		error "unknown repo type"
 	fi
@@ -854,6 +860,8 @@ diff =
 		bzr diff "$@"
 	elif [ -d "$MR_REPO"/CVS ]; then
 		cvs diff "$@"
+	elif [ -d "$MR_REPO"/.hg ]; then
+		hg diff "$@"
 	else
 		error "unknown repo type"
 	fi
@@ -866,6 +874,8 @@ log =
 		bzr log "$@"
 	elif [ -d "$MR_REPO"/CVS ]; then
 		cvs log "$@"
+	elif [ -d "$MR_REPO"/.hg ]; then
+		hg log "$@"
 	else
 		error "unknown repo type"
 	fi
@@ -904,6 +914,11 @@ register =
 		echo "Registering cvs repository $repo at root $root"
 		mr -c "$MR_CONFIG" config "$(pwd)" \
 			checkout="cvs -d '$root' co -d $basedir $repo"
+	elif [ -d .hg ]; then
+		url=$(hg showconfig paths.default)
+		echo "Registering mercurial repo url: $url in $MR_CONFIG"
+		mr -c "$MR_CONFIG" config "$(pwd)" \
+			checkout="hg clone $url $basedir"
 	else
 		error "unable to register this repo type"
 	fi
