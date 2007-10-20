@@ -569,15 +569,14 @@ sub action { #{{{
 } #}}}
 
 # run actions on multiple repos, in parallel
-my %jobs;
 sub mrs { #{{{
 	$| = 1;
+	my @active;
 	my @fhs;
 	my @out;
 	my $running=0;
 	while (@fhs or @repos) {
 		while ($running < $jobs && @repos) {
-			$SIG{CHLD}='DEFAULT';
 			$running++;
 			my $repo = shift @repos;
 			my $pid = open(my $fh, "-|");
@@ -585,11 +584,9 @@ sub mrs { #{{{
 				open(STDERR, ">&STDOUT");
 				exit action($action, @$repo);
 			}
-			$jobs{$pid}=$repo;
+			push @active, $repo;
 			push @fhs, $fh;
 			push @out, "";
-			$SIG{CHLD}=\&reaper;
-			reaper();
 		}
 		my ($rin, $rout) = ('','', '');
 		my $nfound;
@@ -605,6 +602,7 @@ sub mrs { #{{{
 				my $r = '';
 				if (sysread($fh, $r, 1024) == 0) {
 					close($fh);
+					record($active[$i], $? >> 8);
 					$fhs[$i] = undef;
 					$running--;
 					print $out[$i];
@@ -614,18 +612,13 @@ sub mrs { #{{{
 			}
 		}
 		while (@fhs and !defined $fhs[0]) {
+			shift @active;
 			shift @fhs;
 			shift @out;
 		}
 	}
 } #}}}
 
-sub reaper { #{{{
-	while ((my $pid = waitpid(-1, &WNOHANG)) > 0) {
-		record($jobs{$pid}, $? >> 8) if exists $jobs{$pid};
-	}
-} #}}}
-		
 sub record { #{{{
 	my $dir=shift()->[0];
 	my $ret=shift;
