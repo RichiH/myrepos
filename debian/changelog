@@ -5,8 +5,11 @@ mr (0.5) UNRELEASED; urgency=low
     it exists, and printing a reminder on update. See the mrconfig file
     for an example.
   * Fix output of "mr config DEFAULT lib".
+  * Change mr update to use git pull -t origin master, to make sure new tags
+    are pulled. And since those might not always be the right parameters
+    for git pull, any parameters passed to mr update will replace them.
 
- -- Joey Hess <joeyh@debian.org>  Fri, 19 Oct 2007 16:14:21 -0400
+ -- Joey Hess <joeyh@debian.org>  Fri, 19 Oct 2007 20:45:07 -0400
 
 mr (0.4) unstable; urgency=low
 

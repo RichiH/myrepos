@@ -809,7 +809,11 @@ update =
 	if [ -d "$MR_REPO"/.svn ]; then
 		svn update "$@"
 	elif [ -d "$MR_REPO"/.git ]; then
-		git pull origin master "$@"
+		if [ -z "$@" ]; then
+			git pull -t origin master
+		else
+			git pull "$@"
+		fi
 	elif [ -d "$MR_REPO"/.bzr ]; then
 		bzr merge "$@"
 	elif [ -d "$MR_REPO"/CVS ]; then
