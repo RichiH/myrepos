@@ -157,6 +157,14 @@ about exactly which repositories failed and were skipped, if any.
 Just operate on the repository for the current directory, do not 
 recurse into deeper repositories.
 
+=item -j number
+
+Run the specified number of jobs in parallel. This can greatly speed up
+operations such as updates.
+
+Note that in -j mode, all output of the jobs goes to standard output, even
+output that would normally go to standard error.
+
 =back
 
 =head1 FILES
@@ -255,6 +263,13 @@ use warnings;
 use strict;
 use Getopt::Long;
 use Cwd qw(getcwd abs_path);
+use POSIX "WNOHANG";
+use constant {
+	OK => 0,
+	FAILED => 1,
+	SKIPPED => 2,
+	ABORT => 3,
+};
 
 $SIG{INT}=sub {
 	print STDERR "mr: interrupted\n";
@@ -267,6 +282,7 @@ my $directory=getcwd();
 my $verbose=0;
 my $stats=0;
 my $no_recurse=0;
+my $jobs=1;
 my %config;
 my %configfiles;
 my %knownactions;
@@ -279,6 +295,7 @@ my $result=GetOptions(
 	"v|verbose" => \$verbose,
 	"s|stats" => \$stats,
 	"n|no-recurse" => \$no_recurse,
+	"j|jobs=i" => \$jobs,
 );
 if (! $result || @ARGV < 1) {
 	die("Usage: mr [-d directory] action [params ...]\n".
@@ -292,16 +309,16 @@ if (! $result || @ARGV < 1) {
 if ($ENV{MR_CONFIG} !~ /^\//) {
 	$ENV{MR_CONFIG}=getcwd()."/".$ENV{MR_CONFIG};
 }
+# Try to set MR_PATH to the path to the program.
+eval {
+	use FindBin qw($Bin $Script);
+	$ENV{MR_PATH}=$Bin."/".$Script;
+};
 
 loadconfig(\*DATA);
 loadconfig($ENV{MR_CONFIG});
 #use Data::Dumper;
 #print Dumper(\%config);
-
-eval {
-	use FindBin qw($Bin $Script);
-	$ENV{MR_PATH}=$Bin."/".$Script;
-};
 
 # alias expansion and command stemming
 my $action=shift @ARGV;
@@ -418,122 +435,16 @@ if (! @repos) {
 	$nochdir=1;
 }
 
-my (@failed, @ok, @skipped);
-foreach my $repo (@repos) {
-	action($action, @$repo);
+# run the action on each repository and print stats
+my (@ok, @failed, @skipped);
+if ($jobs > 1) {
+	mrs(@repos);
 }
-
-sub action { #{{{
-	my ($action, $dir, $topdir, $subdir) = @_;
-
-	$ENV{MR_CONFIG}=$configfiles{$topdir};
-	my $lib=exists $config{$topdir}{$subdir}{lib} ?
-	               $config{$topdir}{$subdir}{lib}."\n" : "";
-
-	if ($action eq 'checkout') {
-		if (-d $dir) {
-			print "mr $action: $dir already exists, skipping checkout\n" if $verbose;
-			push @skipped, $dir;
-			return;
-		}
-
-		$dir=~s/^(.*)\/[^\/]+\/?$/$1/;
-
-		if (! -d $dir) {
-			print "mr $action: creating parent directory $dir\n" if $verbose;
-			my $ret=system("mkdir", "-p", $dir);
-		}
+else {
+	foreach my $repo (@repos) {
+		record($repo, action($action, @$repo));
 	}
-	elsif ($action eq 'update') {
-		if (! -d $dir) {
-			return action("checkout", $dir, $topdir, $subdir);
-		}
-	}
-	
-	$ENV{MR_REPO}=$dir;
-
-	if (exists $config{$topdir}{$subdir}{skip}) {
-		my $test="set -e;".$lib.
-			"my_action(){ $config{$topdir}{$subdir}{skip}\n }; my_action '$action'";
-		print "mr $action: running skip test >>$test<<\n" if $verbose;
-		my $ret=system($test);
-		if ($ret != 0) {
-			if (($? & 127) == 2) {
-				print STDERR "mr $action: interrupted\n";
-				exit 2;
-			}
-			elsif ($? & 127) {
-				print STDERR "mr $action: skip test received signal ".($? & 127)."\n";
-				exit 1;
-			}
-		}
-		if ($ret >> 8 == 0) {
-			print "mr $action: $dir skipped per config file\n" if $verbose;
-			push @skipped, $dir;
-			return;
-		}
-	}
-	
-	if (! $nochdir && ! chdir($dir)) {
-		print STDERR "mr $action: failed to chdir to $dir: $!\n";
-		push @failed, $dir;
-	}
-	elsif (! exists $config{$topdir}{$subdir}{$action}) {
-		print STDERR "mr $action: no defined $action command for $topdir$subdir, skipping\n";
-		push @skipped, $dir;
-	}
-	else {
-		if (! $nochdir) {
-			print "mr $action: $topdir$subdir\n";
-		}
-		else {
-			print "mr $action: $topdir$subdir (in subdir $directory)\n";
-		}
-		my $command="set -e; ".$lib.
-			"my_action(){ $config{$topdir}{$subdir}{$action}\n }; my_action ".
-			join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
-		print STDERR "mr $action: running >>$command<<\n" if $verbose;
-		my $ret=system($command);
-		if ($ret != 0) {
-			if (($? & 127) == 2) {
-				print STDERR "mr $action: interrupted\n";
-				exit 2;
-			}
-			elsif ($? & 127) {
-				print STDERR "mr $action: received signal ".($? & 127)."\n";
-			}
-			print STDERR "mr $action: failed ($ret)\n" if $verbose;
-			push @failed, $dir;
-			if ($ret >> 8 != 0) {
-				print STDERR "mr $action: command failed\n";
-			}
-			elsif ($ret != 0) {
-				print STDERR "mr $action: command died ($ret)\n";
-			}
-		}
-		else {
-			if ($action eq 'checkout' && ! -d $dir) {
-				print STDERR "mr $action: $dir missing after checkout\n";;
-				push @failed, $dir;
-				return;
-			}
-
-			push @ok, $dir;
-		}
-
-		print "\n";
-	}
-} #}}}
-
-sub showstat { #{{{
-	my $count=shift;
-	my $singular=shift;
-	my $plural=shift;
-	if ($count) {
-		return "$count ".($count > 1 ? $plural : $singular);
-	}
-	return;
-} #}}}
+}
 if (! @ok && ! @failed && ! @skipped) {
 	die "mr $action: no repositories found to work on\n";
 }
@@ -557,6 +468,194 @@ elsif (! @ok && @skipped) {
 	exit 1;
 }
 exit 0;
+
+sub action { #{{{
+	my ($action, $dir, $topdir, $subdir) = @_;
+
+	$ENV{MR_CONFIG}=$configfiles{$topdir};
+	my $lib=exists $config{$topdir}{$subdir}{lib} ?
+	               $config{$topdir}{$subdir}{lib}."\n" : "";
+
+	if ($action eq 'checkout') {
+		if (-d $dir) {
+			print "mr $action: $dir already exists, skipping checkout\n" if $verbose;
+			return SKIPPED;
+		}
+
+		$dir=~s/^(.*)\/[^\/]+\/?$/$1/;
+
+		if (! -d $dir) {
+			print "mr $action: creating parent directory $dir\n" if $verbose;
+			system("mkdir", "-p", $dir);
+		}
+	}
+	elsif ($action eq 'update') {
+		if (! -d $dir) {
+			return action("checkout", $dir, $topdir, $subdir);
+		}
+	}
+	
+	$ENV{MR_REPO}=$dir;
+
+	if (exists $config{$topdir}{$subdir}{skip}) {
+		my $test="set -e;".$lib.
+			"my_action(){ $config{$topdir}{$subdir}{skip}\n }; my_action '$action'";
+		print "mr $action: running skip test >>$test<<\n" if $verbose;
+		my $ret=system($test);
+		if ($ret != 0) {
+			if (($? & 127) == 2) {
+				print STDERR "mr $action: interrupted\n";
+				return ABORT;
+			}
+			elsif ($? & 127) {
+				print STDERR "mr $action: skip test received signal ".($? & 127)."\n";
+				return ABORT;
+			}
+		}
+		if ($ret >> 8 == 0) {
+			print "mr $action: $dir skipped per config file\n" if $verbose;
+			return SKIPPED;
+		}
+	}
+	
+	if (! $nochdir && ! chdir($dir)) {
+		print STDERR "mr $action: failed to chdir to $dir: $!\n";
+		return FAILED;
+	}
+	elsif (! exists $config{$topdir}{$subdir}{$action}) {
+		print STDERR "mr $action: no defined $action command for $topdir$subdir, skipping\n";
+		return SKIPPED;
+	}
+	else {
+		if (! $nochdir) {
+			print "mr $action: $topdir$subdir\n";
+		}
+		else {
+			print "mr $action: $topdir$subdir (in subdir $directory)\n";
+		}
+		my $command="set -e; ".$lib.
+			"my_action(){ $config{$topdir}{$subdir}{$action}\n }; my_action ".
+			join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
+		print STDERR "mr $action: running >>$command<<\n" if $verbose;
+		my $ret=system($command);
+		print "\n";
+		if ($ret != 0) {
+			if (($? & 127) == 2) {
+				print STDERR "mr $action: interrupted\n";
+				return ABORT;
+			}
+			elsif ($? & 127) {
+				print STDERR "mr $action: received signal ".($? & 127)."\n";
+				return ABORT;
+			}
+			print STDERR "mr $action: failed ($ret)\n" if $verbose;
+			if ($ret >> 8 != 0) {
+				print STDERR "mr $action: command failed\n";
+			}
+			elsif ($ret != 0) {
+				print STDERR "mr $action: command died ($ret)\n";
+			}
+			return FAILED;
+		}
+		else {
+			if ($action eq 'checkout' && ! -d $dir) {
+				print STDERR "mr $action: $dir missing after checkout\n";;
+				return FAILED;
+			}
+
+			return OK;
+		}
+	}
+} #}}}
+
+# run actions on multiple repos, in parallel
+my %jobs;
+sub mrs { #{{{
+	$| = 1;
+	my @fhs;
+	my @out;
+	my $running=0;
+	while (@fhs or @repos) {
+		while ($running < $jobs && @repos) {
+			$SIG{CHLD}='DEFAULT';
+			$running++;
+			my $repo = shift @repos;
+			my $pid = open(my $fh, "-|");
+			if (! $pid) {
+				open(STDERR, ">&STDOUT");
+				exit action($action, @$repo);
+			}
+			$jobs{$pid}=$repo;
+			push @fhs, $fh;
+			push @out, "";
+			reaper();
+			$SIG{CHLD}=\&reaper;
+		}
+		my ($rin, $rout) = ('','', '');
+		my $nfound;
+		foreach my $x (@fhs) {
+			next unless defined $x;
+			vec($rin, fileno($x), 1) = 1;
+		}
+		$nfound = select($rout=$rin, undef, undef, 1);
+		foreach my $i (0..$#fhs) {
+			my $fh = $fhs[$i];
+			next unless defined $fh;
+			if (vec($rout, fileno($fh), 1) == 1) {
+				my $r = '';
+				if (sysread($fh, $r, 1024) == 0) {
+					close($fh);
+					$fhs[$i] = undef;
+					$running--;
+					print $out[$i];
+					$out[$i]='';
+				}
+				$out[$i] .= $r;
+			}
+		}
+		while (@fhs and !defined $fhs[0]) {
+			shift @fhs;
+			shift @out;
+		}
+	}
+} #}}}
+
+sub reaper { #{{{
+	while ((my $pid = waitpid(-1, &WNOHANG)) > 0) {
+		record($jobs{$pid}, $? >> 8) if exists $jobs{$pid};
+	}
+} #}}}
+		
+sub record { #{{{
+	my $dir=shift()->[0];
+	my $ret=shift;
+
+	if ($ret == OK) {
+		push @ok, $dir;
+	}
+	elsif ($ret == FAILED) {
+		push @failed, $dir;
+	}
+	elsif ($ret == SKIPPED) {
+		push @skipped, $dir;
+	}
+	elsif ($ret == ABORT) {
+		exit 1;
+	}
+	else {
+		die "unknown exit status $ret";
+	}
+} #}}}
+
+sub showstat { #{{{
+	my $count=shift;
+	my $singular=shift;
+	my $plural=shift;
+	if ($count) {
+		return "$count ".($count > 1 ? $plural : $singular);
+	}
+	return;
+} #}}}
 
 my %loaded;
 sub loadconfig { #{{{

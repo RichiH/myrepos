@@ -13,7 +13,13 @@ mr (0.5) UNRELEASED; urgency=low
   [ Alexander Wirt ]
   * Add support for mercurial.
 
- -- Joey Hess <joeyh@debian.org>  Sat, 20 Oct 2007 13:24:15 -0400
+  [ Joey Hess ]
+  * Incorporate code from on Anthony Towns's mrs, to allow running
+    multiple jobs in parallel. The -j flag controls this.
+    This can produce enormous speedups. For me, mr update takes
+    12 minutes, while mr -j 10 update takes 1 minute!
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 20 Oct 2007 15:17:05 -0400
 
 mr (0.4) unstable; urgency=low
 

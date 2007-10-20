@@ -11,8 +11,3 @@
 
   Until this is fixed, checkouts and updates need to be manually repeated
   after mrconfig files have changes.
-
-* Ability to run commands in paralell? (-j n)
-
-  If done right, this could make an update of a lot of repos faster. If
-  done wrong, it could suck mightily. ;-)
