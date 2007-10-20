@@ -1,14 +1,14 @@
 # An example config file for the mr(1) command.
 
 [DEFAULT]
-# This hack is here because git-pull stupidly outputs tag info to stderr.
-# Shut it up but let real errors through, for use in cron.
-quietupdate = mr -n update 3>&1 1>/dev/null 2>&3 | egrep -v '(storing tag|tag: )'
 # Teach mr how to run svn cleanup.
 cleanup = if [ -d "$MR_REPO"/.svn ]; then svn cleanup ; fi
 # And how to run git gc and push.
 gc = if [ -d "$MR_REPO"/.git ]; then git gc; fi
 push = if [ -d "$MR_REPO"/.git ]; then git push; fi
+# This hack is here because git-pull stupidly outputs tag info to stderr.
+# Shut it up but let real errors through, for use in cron.
+quietupdate = mr -s -n update 3>&1 1>/dev/null 2>&3 | egrep -v '(storing tag|tag: )' || true
 # Tests used in the skips below.
 # - wantsrc checks whether I probably want a full source checkout (quite
 #   large)
