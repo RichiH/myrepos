@@ -588,7 +588,7 @@ sub mrs { #{{{
 			push @fhs, $fh;
 			push @out, "";
 		}
-		my ($rin, $rout) = ('','', '');
+		my ($rin, $rout) = ('','');
 		my $nfound;
 		foreach my $x (@fhs) {
 			next unless defined $x;
