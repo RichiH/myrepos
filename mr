@@ -588,8 +588,8 @@ sub mrs { #{{{
 			$jobs{$pid}=$repo;
 			push @fhs, $fh;
 			push @out, "";
-			reaper();
 			$SIG{CHLD}=\&reaper;
+			reaper();
 		}
 		my ($rin, $rout) = ('','', '');
 		my $nfound;
