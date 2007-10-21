@@ -2,8 +2,11 @@ mr (0.6) UNRELEASED; urgency=low
 
   * Add to the example mrconfig a "tags" command that lists tags.
     (Currently only for svn and git.)
+  * hours_since was broken by design, and fixing it involved changing
+    its calling convention. If you used the old version, you'll get errors
+    from the new old.
 
- -- Joey Hess <joeyh@debian.org>  Sun, 21 Oct 2007 01:49:03 -0400
+ -- Joey Hess <joeyh@debian.org>  Sun, 21 Oct 2007 13:58:30 -0400
 
 mr (0.5) unstable; urgency=low
 
