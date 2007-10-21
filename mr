@@ -239,8 +239,7 @@ repositories be processed earlier, and larger values to make repositories
 be processed later.
 
 Note that if a repository is located in a subdirectory of another
-repository, ordering it to be processed earlier is not recommended, as this
-can cause confusion during checkouts.
+repository, ordering it to be processed earlier is not recommended.
 
 =item chain
 
@@ -448,7 +447,7 @@ foreach my $repo (@list) {
 }
 if (! @repos) {
 	# fallback to find a leaf repo
-	foreach my $repo (@list) {
+	foreach my $repo (reverse @list) {
 		my $topdir=$repo->{topdir};
 		my $subdir=$repo->{subdir};
 		
