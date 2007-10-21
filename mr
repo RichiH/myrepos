@@ -488,7 +488,7 @@ sub action { #{{{
 			system("mkdir", "-p", $dir);
 		}
 	}
-	elsif ($action eq 'update') {
+	elsif ($action =~ /update/) {
 		if (! -d $dir) {
 			return action("checkout", $dir, $topdir, $subdir);
 		}
