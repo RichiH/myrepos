@@ -1,0 +1,112 @@
+# An example config file for the mr(1) command.
+#
+# This is fairly close to the config file used by the author
+# although slightly cut down.
+
+[DEFAULT]
+# Teach mr how to run svn cleanup.
+cleanup = if [ -d "$MR_REPO"/.svn ]; then svn cleanup ; fi
+# And how to run git gc and push.
+gc = if [ -d "$MR_REPO"/.git ]; then git gc; fi
+push = if [ -d "$MR_REPO"/.git ]; then git push; fi
+# And how to list tags for git and svn.
+tag = 
+	if [ -d "$MR_REPO"/.svn ]; then
+		git tag
+	elsif [ -d "$MR_REPO"/.git ]; then
+		url=$(LANG=C svn info . | grep -i ^URL: | cut -d ' ' -f 2)
+		svn ls "$(echo '$url' | sed -e 's/trunk/tags/')"
+	else
+		error "unknown repo type"
+	fi
+# This hack is here because git-pull stupidly outputs tag info to stderr.
+# Shut it up but let real errors through, for use in cron.
+quietupdate = mr -s -n update 3>&1 1>/dev/null 2>&3 | egrep -v '(storing tag|tag: )' || true
+# Tests used in the skips below.
+# - wantsrc checks whether I probably want a full source checkout (quite
+#   large)
+# - wantmedia checks whether I probably want various large media files
+#   here.
+# - private are hosts I trust private data to
+# - mylaptop only succeeds if it's on my main development laptop, which 
+#   gets lots of extra cruft
+# - kite only succeeds on kite
+lib =
+	wantsrc() {
+		test "$(whoami)" = joey
+	}
+	wantmedia() {
+		if [ "$(whoami)" = joey ]; then
+			case "$(hostname)" in
+				kodama|dragon|dodo)
+					return 0
+			;;
+			esac
+		fi
+		return 1
+	}
+	private() {
+		if [ "$(whoami)" = joey ]; then
+			case "$(hostname)" in
+			wren|kodama|dragon|dodo|bluebird)
+				return 0
+			;;
+			esac
+		fi
+		return 1
+	}
+	mylaptop() {
+		test "$(hostname)" = kodama
+	}
+	kite() {
+		test "$(hostname)" = wren
+	}
+
+[src/mr]
+checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/mr
+skip = ! wantsrc
+
+[src/linux-2.6]
+checkout = git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+skip = ! mylaptop || ! wantsrc ||
+	([ "$1" = update ] && [ $(hours_since "$1") -lt 12 ])
+
+[src/dpkg]
+# A merge of the upstream dpkg git repo and my own personal branch.
+checkout =
+	git clone git://git.debian.org/git/dpkg/dpkg.git &&
+	cd dpkg &&
+	git remote add kite ssh://git.kitenet.net/srv/git/kitenet.net/dpkg &&
+	git fetch kite &&
+	git checkout -b sourcev3 kite/sourcev3
+update = git pull origin master && git pull kite sourcev3
+commit = git push kite
+skip = ! wantsrc
+
+[html/www.debian.org]
+# Still in CVS..urk!
+checkout =
+	CVSROOT=:ext:joeyh@cvs.debian.org:/cvs/webwml
+	cvs co -d www.debian.org webwml
+# cvs sucks sufficiently that I prefer to run these commands by hand,
+# and only rarely
+update = echo "skipping cvs update (too slow)"
+status = echo "skipping cvs status (too ugly)"
+skip = ! mylaptop || ! wantsrc
+
+# My home directory, which I keep in svn.
+[]
+checkout = svn co svn+ssh://svn.kitenet.net/srv/svn/joey/trunk/home-$(hostname) joey
+# run svnfix after each update
+update = svn update && svnfix
+
+[mail]
+checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/joey/private/mail
+skip = ! private
+
+# Example of how to remember to delete a repo, when one mrconfig file is
+# used on multiple systems. If you're feeling brave, use rm -rf $MR_REPO
+# instead. This approach can also be used for renames.
+[foo]
+update = error "$MR_REPO is no longer used and should be deleted"
+skip = ! test -d "$MR_REPO"
