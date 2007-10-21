@@ -580,9 +580,9 @@ sub mrs { #{{{
 			pipe(my $outfh, CHILD_STDOUT);
 			pipe(my $errfh, CHILD_STDERR);
 			unless (my $pid = fork) {
-				die "cannot fork: $!" unless defined $pid;
-				open(STDOUT, ">&CHILD_STDOUT") || die "reopen stdout: $!";
-				open(STDERR, ">&CHILD_STDERR") || die "reopen stderr: $!";
+				die "mr $action: cannot fork: $!" unless defined $pid;
+				open(STDOUT, ">&CHILD_STDOUT") || die "mr $action cannot reopen stdout: $!";
+				open(STDERR, ">&CHILD_STDERR") || die "mr $action cannot reopen stderr: $!";
 				close CHILD_STDOUT;
 				close CHILD_STDERR;
 				close $outfh;
