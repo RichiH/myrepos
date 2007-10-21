@@ -231,6 +231,17 @@ been at least 12 hours since the last update.
   skip = test $(whoami) != joey
   skip = [ "$1" = update ] && ! hours_since "$1" 12
 
+=item order
+
+The "order" parameter can be used to override the default ordering of
+repositories. The default order value is 10. Use smaller values to make
+repositories be processed earlier, and larger values to make repositories
+be processed later.
+
+Note that if a repository is located in a subdirectory of another
+repository, ordering it to be processed earlier is not recommended, as this
+can cause confusion during checkouts.
+
 =item chain
 
 If the "chain" parameter is set and its command returns true, then B<mr>
@@ -400,34 +411,55 @@ elsif ($action eq 'register') {
 	exec($command) || die "exec: $!";
 }
 
+# an ordered list of repos
+my @list;
+foreach my $topdir (sort keys %config) {
+	foreach my $subdir (sort keys %{$config{$topdir}}) {
+		push @list, {
+			topdir => $topdir,
+			subdir => $subdir,
+			order => $config{$topdir}{$subdir}{order},
+		};
+	}
+}
+@list = sort {
+		$a->{order}  <=> $b->{order}
+		             ||
+		$a->{topdir} cmp $b->{topdir}
+		             ||
+		$a->{subdir} cmp $b->{subdir}
+	} @list;
+
 # work out what repos to act on
 my @repos;
 my $nochdir=0;
-foreach my $topdir (sort keys %config) {
-	foreach my $subdir (sort keys %{$config{$topdir}}) {
+foreach my $repo (@list) {
+	my $topdir=$repo->{topdir};
+	my $subdir=$repo->{subdir};
+
+	next if $subdir eq 'DEFAULT';
+	my $dir=($subdir =~/^\//) ? $subdir : $topdir.$subdir;
+	my $d=$directory;
+	$dir.="/" unless $dir=~/\/$/;
+	$d.="/" unless $d=~/\/$/;
+	next if $no_recurse && $d ne $dir;
+	next if $dir ne $d && $dir !~ /^\Q$d\E/;
+	push @repos, [$dir, $topdir, $subdir];
+}
+if (! @repos) {
+	# fallback to find a leaf repo
+	foreach my $repo (@list) {
+		my $topdir=$repo->{topdir};
+		my $subdir=$repo->{subdir};
+		
 		next if $subdir eq 'DEFAULT';
 		my $dir=($subdir =~/^\//) ? $subdir : $topdir.$subdir;
 		my $d=$directory;
 		$dir.="/" unless $dir=~/\/$/;
 		$d.="/" unless $d=~/\/$/;
-		next if $no_recurse && $d ne $dir;
-		next if $dir ne $d && $dir !~ /^\Q$d\E/;
-		push @repos, [$dir, $topdir, $subdir];
-	}
-}
-if (! @repos) {
-	# fallback to find a leaf repo
-	LEAF: foreach my $topdir (reverse sort keys %config) {
-		foreach my $subdir (reverse sort keys %{$config{$topdir}}) {
-			next if $subdir eq 'DEFAULT';
-			my $dir=($subdir =~/^\//) ? $subdir : $topdir.$subdir;
-			my $d=$directory;
-			$dir.="/" unless $dir=~/\/$/;
-			$d.="/" unless $d=~/\/$/;
-			if ($d=~/^\Q$dir\E/) {
-				push @repos, [$dir, $topdir, $subdir];
-				last LEAF;
-			}
+		if ($d=~/^\Q$dir\E/) {
+			push @repos, [$dir, $topdir, $subdir];
+			last;
 		}
 	}
 	$nochdir=1;
@@ -893,6 +925,7 @@ ci = commit
 ls = list
 
 [DEFAULT]
+order = 10
 lib =
 	error() {
 		echo "mr: $@" >&2

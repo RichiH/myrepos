@@ -104,6 +104,16 @@ update = svn update && svnfix
 checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/joey/private/mail
 skip = ! private
 
+# I don't keep my music in revision control, but mr can be taught to use
+# unison to synchronise it.
+[sound]
+checkout = unison -batch sound
+update = unison -batch sound
+commit = unison sound
+skip = ! wantmedia
+# Update this last of all.
+order = 100
+
 # Example of how to remember to delete a repo, when one mrconfig file is
 # used on multiple systems. If you're feeling brave, use rm -rf $MR_REPO
 # instead. This approach can also be used for renames.
