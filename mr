@@ -579,7 +579,8 @@ sub mrs { #{{{
 			my $repo = shift @repos;
 			pipe(my $outfh, CHILD_STDOUT);
 			pipe(my $errfh, CHILD_STDERR);
-			unless (my $pid = fork) {
+			my $pid;
+			unless ($pid = fork) {
 				die "mr $action: cannot fork: $!" unless defined $pid;
 				open(STDOUT, ">&CHILD_STDOUT") || die "mr $action cannot reopen stdout: $!";
 				open(STDERR, ">&CHILD_STDERR") || die "mr $action cannot reopen stderr: $!";
@@ -591,7 +592,7 @@ sub mrs { #{{{
 			}
 			close CHILD_STDOUT;
 			close CHILD_STDERR;
-			push @active, $repo;
+			push @active, [$pid, $repo];
 			push @fhs, [$outfh, $errfh];
 			push @out, ['',     ''];
 		}
@@ -615,10 +616,11 @@ sub mrs { #{{{
 						$fhs[$i][$channel] = undef;
 						if (! defined $fhs[$i][0] &&
 						    ! defined $fhs[$i][1]) {
+						    	waitpid($active[$i][0], 0);
 							print STDOUT $out[$i][0];
 							print STDERR $out[$i][1];
 							print "\n";
-							record($active[$i], $? >> 8);
+							record($active[$i][1], $? >> 8);
 						    	splice(@fhs, $i, 1);
 						    	splice(@active, $i, 1);
 						    	splice(@out, $i, 1);
