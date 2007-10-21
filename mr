@@ -160,10 +160,8 @@ recurse into deeper repositories.
 =item -j number
 
 Run the specified number of jobs in parallel. This can greatly speed up
-operations such as updates.
-
-Note that in -j mode, all output of the jobs goes to standard output, even
-output that would normally go to standard error.
+operations such as updates. It is not recommended for interactive
+operations.
 
 =back
 
@@ -443,6 +441,7 @@ if ($jobs > 1) {
 else {
 	foreach my $repo (@repos) {
 		record($repo, action($action, @$repo));
+		print "\n";
 	}
 }
 if (! @ok && ! @failed && ! @skipped) {
@@ -538,7 +537,6 @@ sub action { #{{{
 			join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
 		print STDERR "mr $action: running >>$command<<\n" if $verbose;
 		my $ret=system($command);
-		print "\n";
 		if ($ret != 0) {
 			if (($? & 127) == 2) {
 				print STDERR "mr $action: interrupted\n";
@@ -579,42 +577,57 @@ sub mrs { #{{{
 		while ($running < $jobs && @repos) {
 			$running++;
 			my $repo = shift @repos;
-			my $pid = open(my $fh, "-|");
-			if (! $pid) {
-				open(STDERR, ">&STDOUT");
+			pipe(my $outfh, CHILD_STDOUT);
+			pipe(my $errfh, CHILD_STDERR);
+			unless (my $pid = fork) {
+				die "cannot fork: $!" unless defined $pid;
+				open(STDOUT, ">&CHILD_STDOUT") || die "reopen stdout: $!";
+				open(STDERR, ">&CHILD_STDERR") || die "reopen stderr: $!";
+				close CHILD_STDOUT;
+				close CHILD_STDERR;
+				close $outfh;
+				close $errfh;
 				exit action($action, @$repo);
 			}
+			close CHILD_STDOUT;
+			close CHILD_STDERR;
 			push @active, $repo;
-			push @fhs, $fh;
-			push @out, "";
+			push @fhs, [$outfh, $errfh];
+			push @out, ['',     ''];
 		}
 		my ($rin, $rout) = ('','');
 		my $nfound;
-		foreach my $x (@fhs) {
-			next unless defined $x;
-			vec($rin, fileno($x), 1) = 1;
+		foreach my $fh (@fhs) {
+			next unless defined $fh;
+			vec($rin, fileno($fh->[0]), 1) = 1 if defined $fh->[0];
+			vec($rin, fileno($fh->[1]), 1) = 1 if defined $fh->[1];
 		}
 		$nfound = select($rout=$rin, undef, undef, 1);
-		foreach my $i (0..$#fhs) {
-			my $fh = $fhs[$i];
-			next unless defined $fh;
-			if (vec($rout, fileno($fh), 1) == 1) {
-				my $r = '';
-				if (sysread($fh, $r, 1024) == 0) {
-					close($fh);
-					record($active[$i], $? >> 8);
-					$fhs[$i] = undef;
-					$running--;
-					print $out[$i];
-					$out[$i]='';
+		foreach my $channel (0, 1) {
+			foreach my $i (0..$#fhs) {
+				next unless defined $fhs[$i];
+				my $fh = $fhs[$i][$channel];
+				next unless defined $fh;
+				if (vec($rout, fileno($fh), 1) == 1) {
+					my $r = '';
+					if (sysread($fh, $r, 1024) == 0) {
+						close($fh);
+						$fhs[$i][$channel] = undef;
+						if (! defined $fhs[$i][0] &&
+						    ! defined $fhs[$i][1]) {
+							print STDOUT $out[$i][0];
+							print STDERR $out[$i][1];
+							print "\n";
+							record($active[$i], $? >> 8);
+						    	splice(@fhs, $i, 1);
+						    	splice(@active, $i, 1);
+						    	splice(@out, $i, 1);
+							$running--;
+						}
+					}
+					$out[$i][$channel] .= $r;
 				}
-				$out[$i] .= $r;
 			}
-		}
-		while (@fhs and !defined $fhs[0]) {
-			shift @active;
-			shift @fhs;
-			shift @out;
 		}
 	}
 } #}}}
