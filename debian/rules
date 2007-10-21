@@ -2,7 +2,7 @@
 
 build:
 	pod2man -c mr mr > mr.1
-	./mr right >/dev/null # check syntax
+	./mr ed | grep -q "horse"
 
 clean:
 	dh_testdir
