@@ -1,3 +1,9 @@
+mr (0.7) UNRELEASED; urgency=low
+
+  * Fix inverted tests in tags command. (madduck)
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 22 Oct 2007 12:28:44 -0400
+
 mr (0.6) unstable; urgency=low
 
   * Add to the example mrconfig a "tags" command that lists tags.
