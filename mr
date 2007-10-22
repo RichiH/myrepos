@@ -286,7 +286,6 @@ $SIG{INT}=sub {
 
 $ENV{MR_CONFIG}="$ENV{HOME}/.mrconfig";
 my $config_overridden=0;
-my $directory=getcwd();
 my $verbose=0;
 my $stats=0;
 my $no_recurse=0;
@@ -295,6 +294,7 @@ my %config;
 my %configfiles;
 my %knownactions;
 my %alias;
+my $directory=getcwd();
 
 Getopt::Long::Configure("no_permute");
 my $result=GetOptions(
@@ -309,6 +309,9 @@ if (! $result || @ARGV < 1) {
 	die("Usage: mr [-d directory] action [params ...]\n".
 	    "(Use mr help for man page.)\n");
 
+}
+if (! defined $directory) {
+	die("mr: failed to determine working directory\n");
 }
 
 # Make sure MR_CONFIG is an absolute path, but don't use abs_path since
