@@ -12,7 +12,7 @@ push = if [ -d "$MR_REPO"/.git ]; then git push; fi
 # And how to list tags for git and svn.
 tag = 
 	if [ -d "$MR_REPO"/.git ]; then
-		git tag
+		git tag -l
 	elsif [ -d "$MR_REPO"/.svn ]; then
 		url=$(LANG=C svn info . | grep -i ^URL: | cut -d ' ' -f 2)
 		svn ls "$(echo '$url' | sed -e 's/trunk/tags/')"
