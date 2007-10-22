@@ -11,9 +11,9 @@ gc = if [ -d "$MR_REPO"/.git ]; then git gc; fi
 push = if [ -d "$MR_REPO"/.git ]; then git push; fi
 # And how to list tags for git and svn.
 tag = 
-	if [ -d "$MR_REPO"/.svn ]; then
+	if [ -d "$MR_REPO"/.git ]; then
 		git tag
-	elsif [ -d "$MR_REPO"/.git ]; then
+	elsif [ -d "$MR_REPO"/.svn ]; then
 		url=$(LANG=C svn info . | grep -i ^URL: | cut -d ' ' -f 2)
 		svn ls "$(echo '$url' | sed -e 's/trunk/tags/')"
 	else
