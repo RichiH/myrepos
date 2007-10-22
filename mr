@@ -475,7 +475,6 @@ if ($jobs > 1) {
 else {
 	foreach my $repo (@repos) {
 		record($repo, action($action, @$repo));
-		print "\n";
 	}
 }
 if (! @ok && ! @failed && ! @skipped) {
@@ -653,7 +652,6 @@ sub mrs { #{{{
 						    	waitpid($active[$i][0], 0);
 							print STDOUT $out[$i][0];
 							print STDERR $out[$i][1];
-							print "\n";
 							record($active[$i][1], $? >> 8);
 						    	splice(@fhs, $i, 1);
 						    	splice(@active, $i, 1);
@@ -674,9 +672,11 @@ sub record { #{{{
 
 	if ($ret == OK) {
 		push @ok, $dir;
+		print "\n";
 	}
 	elsif ($ret == FAILED) {
 		push @failed, $dir;
+		print "\n";
 	}
 	elsif ($ret == SKIPPED) {
 		push @skipped, $dir;
