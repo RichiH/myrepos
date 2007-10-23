@@ -30,9 +30,9 @@ B<mr> [options] action [params ...]
 
 B<mr> is a Multiple Repository management tool. It can checkout, update, or
 perform other actions on a set of repositories as if they were one combined
-respository. It supports any combination of subversion, git, cvs, mecurial and
-bzr repositories, and support for other revision control systems can easily be
-added.
+respository. It supports any combination of subversion, git, cvs, mecurial,
+bzr and darcs repositories, and support for other revision control systems can
+easily be added.
 
 B<mr> cds into and operates on all registered repositories at or below your
 working directory. Or, if you are in a subdirectory of a repository that
@@ -937,7 +937,7 @@ lib =
 		if [ -z "$1" ] || [ -z "$2" ]; then
 			error "mr: usage: hours_since action num"
 		fi
-		for dir in .git .svn .bzr CVS .hg; do
+		for dir in .git .svn .bzr CVS .hg _darcs; do
 			if [ -e "$MR_REPO/$dir" ]; then
 				flagfile="$MR_REPO/$dir/.mr_last$1"
 				break
@@ -970,6 +970,8 @@ update =
 		cvs update "$@"
 	elif [ -d "$MR_REPO"/.hg ]; then
 		hg pull "$@" && hg update "$@"
+	elif [ -d "$MR_REPO"/_darcs ]; then
+		darcs pull "$@"
 	else
 		error "unknown repo type"
 	fi
@@ -984,6 +986,8 @@ status =
 		cvs status "$@"
 	elif [ -d "$MR_REPO"/.hg ]; then
 		hg status "$@"
+	elif [ -d "$MR_REPO"/_darcs ]; then
+		darcs whatsnew -ls "$@"
 	else
 		error "unknown repo type"
 	fi
@@ -998,6 +1002,8 @@ commit =
 		cvs commit "$@"
 	elif [ -d "$MR_REPO"/.hg ]; then
 		hg commit -m "$@" && hg push
+	elif [ -d "$MR_REPO"/_darcs ]; then
+		darcs commit -m "$@" && darcs push
 	else
 		error "unknown repo type"
 	fi
@@ -1012,6 +1018,8 @@ diff =
 		cvs diff "$@"
 	elif [ -d "$MR_REPO"/.hg ]; then
 		hg diff "$@"
+	elif [ -d "$MR_REPO"/_darcs ]; then
+		darcs diff "$@"
 	else
 		error "unknown repo type"
 	fi
@@ -1026,6 +1034,8 @@ log =
 		cvs log "$@"
 	elif [ -d "$MR_REPO"/.hg ]; then
 		hg log "$@"
+	elif [ -d "$MR_REPO"/_darcs ]; then
+		darcs changes "$@"
 	else
 		error "unknown repo type"
 	fi
@@ -1069,6 +1079,11 @@ register =
 		echo "Registering mercurial repo url: $url in $MR_CONFIG"
 		mr -c "$MR_CONFIG" config "$(pwd)" \
 			checkout="hg clone $url $basedir"
+	elif [ -d _darcs ]; then
+		url=$(cat _darcs/prefs/defaultrepo)
+		echo "Registering darcs repository $url in $MR_CONFIG"
+		mr -c "$MR_CONFIG" config "$(pwd)" \
+			checkout="darcs get $url $basedir"
 	else
 		error "unable to register this repo type"
 	fi

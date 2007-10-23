@@ -11,13 +11,13 @@ Package: mr
 Architecture: all
 Section: utils
 Depends: 
-Suggests: subversion, git-core, cvs, bzr, mercurial
+Suggests: subversion, git-core, cvs, bzr, mercurial, darcs
 Description: a Multiple Repository management tool
  The mr(1) command can checkout, update, or perform other actions on
  a set of repositories as if they were one combined respository. It
- supports any combination of subversion, git, cvs, bzr, and mercurial
- repositories, and support for other revision control systems can easily
- be added.
+ supports any combination of subversion, git, cvs, mecurial,
+ bzr and darcs repositories, and support for other revision control systems
+ can easily be added.
  .
  It is extremely configurable via simple shell scripting. Some examples
  of things it can do include:
