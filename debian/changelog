@@ -1,3 +1,9 @@
+mr (0.8) UNRELEASED; urgency=low
+
+  * Improve "in subdir" message.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 24 Oct 2007 18:17:45 -0400
+
 mr (0.7) unstable; urgency=low
 
   * Fix inverted tests in tags command. (madduck)

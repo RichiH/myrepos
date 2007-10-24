@@ -563,7 +563,9 @@ sub action { #{{{
 			print "mr $action: $topdir$subdir\n";
 		}
 		else {
-			print "mr $action: $topdir$subdir (in subdir $directory)\n";
+			my $s=$directory;
+			$s=~s/^\Q$topdir$subdir\E\/?//;
+			print "mr $action: $topdir$subdir (in subdir $s)\n";
 		}
 		my $command="set -e; ".$lib.
 			"my_action(){ $config{$topdir}{$subdir}{$action}\n }; my_action ".
