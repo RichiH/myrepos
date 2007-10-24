@@ -1,10 +1,10 @@
-mr (0.7) UNRELEASED; urgency=low
+mr (0.7) unstable; urgency=low
 
   * Fix inverted tests in tags command. (madduck)
   * Patch from Simon McVittie, adding support for darcs repositories.
     Closes: #447729
 
- -- Joey Hess <joeyh@debian.org>  Tue, 23 Oct 2007 12:46:18 -0400
+ -- Joey Hess <joeyh@debian.org>  Wed, 24 Oct 2007 01:18:27 -0400
 
 mr (0.6) unstable; urgency=low
 
