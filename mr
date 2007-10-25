@@ -960,12 +960,15 @@ lib =
 update =
 	if [ -d "$MR_REPO"/.svn ]; then
 		svn update "$@"
-	elif [ -d "$MR_REPO"/.git ]; then
+	elif [ -d "$MR_REPO"/.git ] || [ "${MR_REPO%.git/}" != "$MR_REPO" ]; then
+		# this is a bug in git-fetch, which requires GIT_DIR set
+		[ "${MR_REPO%.git/}" != "$MR_REPO" ] && GIT_DIR="$MR_REPO" && export GIT_DIR
 		if [ -z "$@" ]; then
 			git pull -t origin master
 		else
 			git pull "$@"
 		fi
+		unset GIT_DIR
 	elif [ -d "$MR_REPO"/.bzr ]; then
 		bzr merge "$@"
 	elif [ -d "$MR_REPO"/CVS ]; then
@@ -980,7 +983,7 @@ update =
 status =
 	if [ -d "$MR_REPO"/.svn ]; then
 		svn status "$@"
-	elif [ -d "$MR_REPO"/.git ]; then
+	elif [ -d "$MR_REPO"/.git ] || [ "${MR_REPO%.git/}" != "$MR_REPO" ]; then
 		git status "$@" || true
 	elif [ -d "$MR_REPO"/.bzr ]; then
 		bzr status "$@"
@@ -998,6 +1001,8 @@ commit =
 		svn commit "$@"
 	elif [ -d "$MR_REPO"/.git ]; then
 		git commit -a "$@" && git push --all
+	elif [ "${MR_REPO%.git/}" != "$MR_REPO" ]; then
+		error "commit does not work for fake bare git repositories (yet)."
 	elif [ -d "$MR_REPO"/.bzr ]; then
 		bzr commit "$@" && bzr push
 	elif [ -d "$MR_REPO"/CVS ]; then
@@ -1014,6 +1019,8 @@ diff =
 		svn diff "$@"
 	elif [ -d "$MR_REPO"/.git ]; then
 		git diff "$@"
+	elif [ "${MR_REPO%.git/}" != "$MR_REPO" ]; then
+		error "commit does not work for fake bare git repositories (yet)."
 	elif [ -d "$MR_REPO"/.bzr ]; then
 		bzr diff "$@"
 	elif [ -d "$MR_REPO"/CVS ]; then
@@ -1028,7 +1035,7 @@ diff =
 log =
 	if [ -d "$MR_REPO"/.svn ]; then
 		svn log"$@"
-	elif [ -d "$MR_REPO"/.git ]; then
+	elif [ -d "$MR_REPO"/.git ] || [ "${MR_REPO%.git/}" != "$MR_REPO" ]; then
 		git log "$@"
 	elif [ -d "$MR_REPO"/.bzr ]; then
 		bzr log "$@"
@@ -1053,12 +1060,37 @@ register =
 		fi
 		echo "Registering svn url: $url in $MR_CONFIG"
 		mr -c "$MR_CONFIG" config "$(pwd)" checkout="svn co $url $basedir"
-	elif [ -d .git ]; then
-		url=$(LANG=C git-config --get remote.origin.url)
+	elif [ -d .git ] || [ "${basedir%.git}" != "$basedir" ]; then
+		GIT_CONFIG=.git/config
+		[ ! -f $GIT_CONFIG ] && GIT_CONFIG=config
+		export GIT_CONFIG
+		url="$(LANG=C git-config --get remote.origin.url)"
 		if [ -z "$url" ]; then
 			error "cannot determine git url"
 		fi
-		echo "Registering git url: $url in $MR_CONFIG"
+		if [ $GIT_CONFIG = config ]; then
+			# this seems like a bare repo as it has no worktree.
+			# mr needs a worktree and cannot work with bare
+			# repositories, so ensure that it's "fake bare" and
+			# has a worktree configured.
+			case "$(git-config --get core.bare)" in
+				true) error "cannot register a bare git repository";;
+			esac
+			GIT_WORK_TREE="$(git-config --get core.worktree)" || :
+			case "$GIT_WORK_TREE" in
+				'') error "cannot register a fake bare git repository without core.worktree";;
+				*)
+					if [ ! -d "$GIT_WORK_TREE" ]; then
+						error "git worktree $GIT_WORK_TREE does not exist"
+					fi;;
+			esac
+			suffix=" (with worktree $GIT_WORK_TREE)"
+			mr -c "$MR_CONFIG" config "$(pwd)" \
+				lib="GIT_WORK_TREE=$GIT_WORK_TREE; export GIT_WORK_TREE"
+			unset GIT_WORK_TREE
+		fi
+		echo "Registering git url: $url in $MR_CONFIG${suffix:-}"
+		unset GIT_CONFIG
 		mr -c "$MR_CONFIG" config "$(pwd)" checkout="git clone $url $basedir"
 	elif [ -d .bzr ]; then
 		url=$(cat .bzr/branch/parent)
