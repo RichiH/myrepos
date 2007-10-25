@@ -931,6 +931,7 @@ ls = list
 [DEFAULT]
 order = 10
 lib =
+	PWD="$pwd"
 	error() {
 		echo "mr: $@" >&2
 		exit 1
@@ -1076,7 +1077,7 @@ register =
 	if [ -n "$1" ]; then
 		cd "$1"
 	fi
-	basedir="$(basename $(pwd))"
+	basedir="$(basename $PWD)"
 	case "$(get_repo_type .)" in
 	svn)
 		url=$(LANG=C svn info . | grep -i ^URL: | cut -d ' ' -f 2)
@@ -1084,7 +1085,7 @@ register =
 			error "cannot determine svn url"
 		fi
 		echo "Registering svn url: $url in $MR_CONFIG"
-		mr -c "$MR_CONFIG" config "$(pwd)" checkout="svn co $url $basedir"
+		mr -c "$MR_CONFIG" config "$PWD" checkout="svn co $url $basedir"
 		;;
 	git)
 		local repo_type; repo_type="$(get_git_repo_type .)"
@@ -1107,12 +1108,12 @@ register =
 					error "git worktree $work_tree does not exist"
 				fi
 				suffix=" (with worktree $work_tree)"
-				mr -c "$MR_CONFIG" config "$(pwd)" \
+				mr -c "$MR_CONFIG" config "$PWD" \
 					lib="GIT_WORK_TREE=$work_tree; export GIT_WORK_TREE"
 				;;
 		esac
 		echo "Registering git url: $url in $MR_CONFIG${suffix:-}"
-		mr -c "$MR_CONFIG" config "$(pwd)" checkout="git clone $url $basedir"
+		mr -c "$MR_CONFIG" config "$PWD" checkout="git clone $url $basedir"
 		;;
 	bzr)
 		url=$(cat .bzr/branch/parent)
@@ -1120,7 +1121,7 @@ register =
 			error "cannot determine bzr url"
 		fi
 		echo "Registering bzr url: $url in $MR_CONFIG"
-		mr -c "$MR_CONFIG" config "$(pwd)" checkout="bzr clone $url $basedir"
+		mr -c "$MR_CONFIG" config "$PWD" checkout="bzr clone $url $basedir"
 		;;
 	CVS)
 		repo=$(cat CVS/Repository)
@@ -1129,19 +1130,19 @@ register =
 			error "cannot determine cvs root"
 		fi
 		echo "Registering cvs repository $repo at root $root"
-		mr -c "$MR_CONFIG" config "$(pwd)" \
+		mr -c "$MR_CONFIG" config "$PWD" \
 			checkout="cvs -d '$root' co -d $basedir $repo"
 		;;
 	hg)
 		url=$(hg showconfig paths.default)
 		echo "Registering mercurial repo url: $url in $MR_CONFIG"
-		mr -c "$MR_CONFIG" config "$(pwd)" \
+		mr -c "$MR_CONFIG" config "$PWD" \
 			checkout="hg clone $url $basedir"
 		;;
 	darcs)
 		url=$(cat _darcs/prefs/defaultrepo)
 		echo "Registering darcs repository $url in $MR_CONFIG"
-		mr -c "$MR_CONFIG" config "$(pwd)" \
+		mr -c "$MR_CONFIG" config "$PWD" \
 			checkout="darcs get $url $basedir"
 		;;
 	*) error "unable to register this repo type";;
