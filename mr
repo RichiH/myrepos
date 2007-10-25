@@ -978,11 +978,28 @@ lib =
 	is_git_repo() {
 		get_git_repo_type "$1" >/dev/null
 	}
+	get_repo_type() {
+		if [ -d "$1"/.svn ]; then
+			echo svn
+		elif is_git_repo "$1"; then
+			echo git
+		elif [ -d "$1"/.bzr ]; then
+			echo bzr
+		elif [ -d "$1"/CVS ]; then
+			echo CVS
+		elif [ -d "$1"/.hg ]; then
+			echo hg
+		elif [ -d "$1"/_darcs ]; then
+			echo darcs
+		else
+			echo unknown
+		fi
+	}
 
 update =
-	if [ -d "$MR_REPO"/.svn ]; then
-		svn update "$@"
-	elif is_git_repo "$MR_REPO"; then
+	case "$(get_repo_type "$MR_REPO")" in
+	svn) svn update "$@";;
+	git)
 		# all this is because of a bug in git-fetch, which requires GIT_DIR set
 		local git_dir_override; git_dir_override=.git
 		case "$(get_git_repo_type "$MR_REPO")" in
@@ -991,108 +1008,90 @@ update =
 		args="$@"
 		[ -z "$args" ] && args="-t origin master"
 		eval GIT_DIR="$git_dir_override" git pull "$args"
-	elif [ -d "$MR_REPO"/.bzr ]; then
-		bzr merge "$@"
-	elif [ -d "$MR_REPO"/CVS ]; then
-		cvs update "$@"
-	elif [ -d "$MR_REPO"/.hg ]; then
-		hg pull "$@" && hg update "$@"
-	elif [ -d "$MR_REPO"/_darcs ]; then
-		darcs pull -a "$@"
-	else
-		error "unknown repo type"
-	fi
+		;;
+	bzr) bzr merge "$@";;
+	CVS) cvs update "$@";;
+	hg) hg pull "$@" && hg update "$@";;
+	darcs) darcs pull -a "$@";;
+	*) error "unknown repo type";;
+	esac
+
 status =
-	if [ -d "$MR_REPO"/.svn ]; then
-		svn status "$@"
-	elif is_git_repo "$MR_REPO"; then
-		git status "$@" || true
-	elif [ -d "$MR_REPO"/.bzr ]; then
-		bzr status "$@"
-	elif [ -d "$MR_REPO"/CVS ]; then
-		cvs status "$@"
-	elif [ -d "$MR_REPO"/.hg ]; then
-		hg status "$@"
-	elif [ -d "$MR_REPO"/_darcs ]; then
-		darcs whatsnew -ls "$@"
-	else
-		error "unknown repo type"
-	fi
+	case "$(get_repo_type "$MR_REPO")" in
+	svn) svn status "$@";;
+	git) git status "$@" || :;;
+	bzr) bzr status "$@";;
+	CVS) cvs status "$@";;
+	hg) hg status "$@";;
+	darcs) darcs whatsnew -ls "$@";;
+	*) error "unknown repo type";;
+	esac
+
 commit =
-	if [ -d "$MR_REPO"/.svn ]; then
-		svn commit "$@"
-	elif is_git_repo "$MR_REPO"; then
+	case "$(get_repo_type "$MR_REPO")" in
+	svn) svn commit "$@";;
+	git)
 		case "$(get_git_repo_type "$MR_REPO")" in
 			bare) error "cannot commit to bare git repositories";;
 			fake-bare) error "commit does not work for fake bare git repositories (yet).";;
 		esac
 		git commit -a "$@" && git push --all
-	elif [ -d "$MR_REPO"/.bzr ]; then
-		bzr commit "$@" && bzr push
-	elif [ -d "$MR_REPO"/CVS ]; then
-		cvs commit "$@"
-	elif [ -d "$MR_REPO"/.hg ]; then
-		hg commit -m "$@" && hg push
-	elif [ -d "$MR_REPO"/_darcs ]; then
-		darcs commit -a -m "$@" && darcs push -a
-	else
-		error "unknown repo type"
-	fi
+		;;
+	bzr) bzr commit "$@" && bzr push;;
+	CVS) cvs commit "$@";;
+	hg) hg commit -m "$@" && hg push;;
+	darcs) darcs commit -a -m "$@" && darcs push -a;;
+	*) error "unknown repo type";;
+	esac
+
 diff =
-	if [ -d "$MR_REPO"/.svn ]; then
-		svn diff "$@"
-	elif is_git_repo "$MR_REPO"; then
+	case "$(get_repo_type "$MR_REPO")" in
+	svn) svn diff "$@";;
+	git)
 		case "$(get_git_repo_type "$MR_REPO")" in
 			bare) error "cannot diff in bare git repositories";;
 			fake-bare) error "diff does not work for fake bare git repositories (yet).";;
 		esac
 		git diff "$@"
-	elif [ -d "$MR_REPO"/.bzr ]; then
-		bzr diff "$@"
-	elif [ -d "$MR_REPO"/CVS ]; then
-		cvs diff "$@"
-	elif [ -d "$MR_REPO"/.hg ]; then
-		hg diff "$@"
-	elif [ -d "$MR_REPO"/_darcs ]; then
-		darcs diff "$@"
-	else
-		error "unknown repo type"
-	fi
+		;;
+	bzr) bzr diff "$@";;
+	CVS) cvs diff "$@";;
+	hg) hg diff "$@";;
+	darcs) darcs diff "$@";;
+	*) error "unknown repo type";;
+	esac
+
 log =
-	if [ -d "$MR_REPO"/.svn ]; then
-		svn log"$@"
-	elif is_git_repo "$MR_REPO"; then
-		git log "$@"
-	elif [ -d "$MR_REPO"/.bzr ]; then
-		bzr log "$@"
-	elif [ -d "$MR_REPO"/CVS ]; then
-		cvs log "$@"
-	elif [ -d "$MR_REPO"/.hg ]; then
-		hg log "$@"
-	elif [ -d "$MR_REPO"/_darcs ]; then
-		darcs changes "$@"
-	else
-		error "unknown repo type"
-	fi
+	case "$(get_repo_type "$MR_REPO")" in
+	svn) svn log"$@";;
+	git) git log "$@";;
+	bzr) bzr log "$@";;
+	CVS) cvs log "$@";;
+	hg) hg log "$@";;
+	darcs) darcs changes "$@";;
+	*) error "unknown repo type";;
+	esac
+
 register =
 	if [ -n "$1" ]; then
 		cd "$1"
 	fi
 	basedir="$(basename $(pwd))"
-	if [ -d .svn ]; then
+	case "$(get_repo_type .)" in
+	svn)
 		url=$(LANG=C svn info . | grep -i ^URL: | cut -d ' ' -f 2)
 		if [ -z "$url" ]; then
 			error "cannot determine svn url"
 		fi
 		echo "Registering svn url: $url in $MR_CONFIG"
 		mr -c "$MR_CONFIG" config "$(pwd)" checkout="svn co $url $basedir"
-	elif is_git_repo .; then
+		;;
+	git)
 		local repo_type; repo_type="$(get_git_repo_type .)"
 		local config;
 		case "$repo_type" in
 			non-bare) config=.git/config;;
 			bare|fake-bare) config=config;;
-			*) error "unknown git repository type: $repo_type"
 		esac
 		url="$(LANG=C GIT_CONFIG="$config" git-config --get remote.origin.url)"
 		if [ -z "$url" ]; then
@@ -1114,14 +1113,16 @@ register =
 		esac
 		echo "Registering git url: $url in $MR_CONFIG${suffix:-}"
 		mr -c "$MR_CONFIG" config "$(pwd)" checkout="git clone $url $basedir"
-	elif [ -d .bzr ]; then
+		;;
+	bzr)
 		url=$(cat .bzr/branch/parent)
 		if [ -z "$url" ]; then
 			error "cannot determine bzr url"
 		fi
 		echo "Registering bzr url: $url in $MR_CONFIG"
 		mr -c "$MR_CONFIG" config "$(pwd)" checkout="bzr clone $url $basedir"
-	elif [ -d CVS ]; then
+		;;
+	CVS)
 		repo=$(cat CVS/Repository)
 		root=$(cat CVS/Root)
 		if [ -z "$root" ]; then
@@ -1130,19 +1131,22 @@ register =
 		echo "Registering cvs repository $repo at root $root"
 		mr -c "$MR_CONFIG" config "$(pwd)" \
 			checkout="cvs -d '$root' co -d $basedir $repo"
-	elif [ -d .hg ]; then
+		;;
+	hg)
 		url=$(hg showconfig paths.default)
 		echo "Registering mercurial repo url: $url in $MR_CONFIG"
 		mr -c "$MR_CONFIG" config "$(pwd)" \
 			checkout="hg clone $url $basedir"
-	elif [ -d _darcs ]; then
+		;;
+	darcs)
 		url=$(cat _darcs/prefs/defaultrepo)
 		echo "Registering darcs repository $url in $MR_CONFIG"
 		mr -c "$MR_CONFIG" config "$(pwd)" \
 			checkout="darcs get $url $basedir"
-	else
-		error "unable to register this repo type"
-	fi
+		;;
+	*) error "unable to register this repo type";;
+	esac
+
 help =
 	if [ ! -e "$MR_PATH" ]; then
 		error "cannot find program path"
