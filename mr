@@ -1100,7 +1100,7 @@ register =
 			non-bare) config=.git/config;;
 			bare|fake-bare) config=config;;
 		esac
-		url="$(LANG=C GIT_CONFIG="$config" git-config --get remote.origin.url)"
+		url="$(LANG=C GIT_CONFIG="$config" git-config --get remote.origin.url)" || :
 		if [ -z "$url" ]; then
 			error "cannot determine git url"
 		fi
