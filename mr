@@ -973,7 +973,7 @@ update =
 	elif [ -d "$MR_REPO"/.hg ]; then
 		hg pull "$@" && hg update "$@"
 	elif [ -d "$MR_REPO"/_darcs ]; then
-		darcs pull "$@"
+		darcs pull -a "$@"
 	else
 		error "unknown repo type"
 	fi
@@ -1005,7 +1005,7 @@ commit =
 	elif [ -d "$MR_REPO"/.hg ]; then
 		hg commit -m "$@" && hg push
 	elif [ -d "$MR_REPO"/_darcs ]; then
-		darcs commit -m "$@" && darcs push
+		darcs commit -a -m "$@" && darcs push -a
 	else
 		error "unknown repo type"
 	fi
