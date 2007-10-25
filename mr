@@ -856,7 +856,7 @@ sub loadconfig { #{{{
 			}
 			else {
 				$config{$dir}{$section}{$parameter}=$value;
-				$knownactions{$parameter}=1;
+				$knownactions{$parameter}=1 if $parameter !~ /_/;
 				if ($parameter eq 'chain' &&
 				    length $dir && $section ne "DEFAULT" &&
 				    -e $dir.$section."/.mrconfig") {
