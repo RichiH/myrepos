@@ -1104,22 +1104,30 @@ register =
 		if [ -z "$url" ]; then
 			error "cannot determine git url"
 		fi
+		local clone_opts add_cmd work_tree suffix
 		case "$repo_type" in
-			bare|fake-bare)
-				# this seems like a bare repo as it has no
-				# worktree.
-				local work_tree
+			fake-bare)
+				# this seems like a fake bare repo and needs a worktree
 				work_tree="$(git-config --get core.worktree)" || :
+				work_tree="${work_tree%%/}/"
 				if [ ! -d "$work_tree" ]; then
-					error "git worktree $work_tree does not exist"
+					error "git worktree '$work_tree' does not exist"
 				fi
+				clone_opts=" --no-checkout"
+				add_cmd="$add_cmd && cd $basedir"
+				add_cmd="$add_cmd && git read-tree HEAD"
+				add_cmd="$add_cmd && git checkout-index -a --prefix='$work_tree' || :"
+				add_cmd="$add_cmd; git config core.worktree '$work_tree'"
+				add_cmd="$add_cmd && mv .git/* . && rmdir .git"
 				suffix=" (with worktree $work_tree)"
-				mr -c "$MR_CONFIG" config "$PWD" \
-					lib="GIT_WORK_TREE=$work_tree; export GIT_WORK_TREE"
+				;;
+			bare)
+				clone_opts=" --bare"
+				suffix=" (bare repository)"
 				;;
 		esac
 		echo "Registering git url: $url in $MR_CONFIG${suffix:-}"
-		mr -c "$MR_CONFIG" config "$PWD" checkout="git clone $url $basedir"
+		mr -c "$MR_CONFIG" config "$PWD" checkout="git clone${clone_opts:-} $url $basedir${add_cmd:-}"
 		;;
 	bzr)
 		url=$(cat .bzr/branch/parent)
