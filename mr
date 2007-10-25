@@ -936,6 +936,12 @@ lib =
 		echo "mr: $@" >&2
 		exit 1
 	}
+	warning() {
+		echo "mr (warning): $@" >&2
+	}
+	info() {
+		echo "mr: $@" >&2
+	}
 	hours_since() {
 		if [ -z "$1" ] || [ -z "$2" ]; then
 			error "mr: usage: hours_since action num"
