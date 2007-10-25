@@ -1101,3 +1101,5 @@ ed = echo "A horse is a horse, of course, of course.."
 T = echo "I pity the fool."
 right = echo "Not found."
 #}}}
+
+# vim:sw=8:sts=0:ts=8:noet
