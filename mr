@@ -255,6 +255,18 @@ to use.
 
 =back
 
+When looking for a command to run for a given action, mr first looks for
+a parameter with the same name as the action. If that is not found, it
+looks for a parameter named "rcs_action" (substituting in the name of the
+revision control system and the action). The name of the revision control
+system is itself determined by running each defined "rcs_test" action,
+until one succeeds.
+
+Internally, mr has settings for "git_update", "svn_update", etc. To change
+the action that is performed for a given revision control system, you can
+override these rcs specific actions. To add a new revision control system,
+you can just add rcs specific actions for it.
+
 =head1 AUTHOR
 
 Copyright 2007 Joey Hess <joey@kitenet.net>
@@ -501,6 +513,48 @@ elsif (! @ok && @skipped) {
 }
 exit 0;
 
+sub rcs_test { #{{{
+	my ($action, $dir, $topdir, $subdir) = @_;
+
+	my $test="set -e\n";
+	foreach my $rcs_test (grep { /_test/ } keys %{$config{$topdir}{$subdir}}) {
+		my ($rcs)=$rcs_test=~/(.*)_test/;
+		$test="my_$rcs_test(){ $config{$topdir}{$subdir}{$rcs_test}\n }\n".$test;
+		$test.="if my_$rcs_test; then echo $rcs; fi\n";
+	}
+	$test=$config{$topdir}{$subdir}{lib}."\n".$test
+		if exists $config{$topdir}{$subdir}{lib};
+	
+	print "mr $action: running rcs test >>$test<<\n" if $verbose;
+	$ENV{MR_REPO}=$dir;
+	$ENV{MR_CONFIG}=$configfiles{$topdir};
+	my $rcs=`$test`;
+	chomp $rcs;
+	if (! length $rcs) {
+		return undef;
+	}
+	else {
+		return $rcs;
+	}
+} #}}}
+	
+sub findcommand { #{{{
+	my ($action, $dir, $topdir, $subdir) = @_;
+
+	my $rcs=rcs_test(@_);
+
+	if (defined $rcs && 
+	    exists $config{$topdir}{$subdir}{$rcs."_".$action}) {
+		return $config{$topdir}{$subdir}{$rcs."_".$action};
+	}
+	elsif (exists $config{$topdir}{$subdir}{$action}) {
+		return $config{$topdir}{$subdir}{$action};
+	}
+	else {
+		return undef;
+	}
+} #}}}
+
 sub action { #{{{
 	my ($action, $dir, $topdir, $subdir) = @_;
 
@@ -526,12 +580,15 @@ sub action { #{{{
 			return action("checkout", $dir, $topdir, $subdir);
 		}
 	}
-	
+
 	$ENV{MR_REPO}=$dir;
 
-	if (exists $config{$topdir}{$subdir}{skip}) {
+	my $skiptest=findcommand("skip", $dir, $topdir, $subdir);
+	my $command=findcommand($action, $dir, $topdir, $subdir);
+
+	if (defined $skiptest) {
 		my $test="set -e;".$lib.
-			"my_action(){ $config{$topdir}{$subdir}{skip}\n }; my_action '$action'";
+			"my_action(){ $skiptest\n }; my_action '$action'";
 		print "mr $action: running skip test >>$test<<\n" if $verbose;
 		my $ret=system($test);
 		if ($ret != 0) {
@@ -554,9 +611,16 @@ sub action { #{{{
 		print STDERR "mr $action: failed to chdir to $dir: $!\n";
 		return FAILED;
 	}
-	elsif (! exists $config{$topdir}{$subdir}{$action}) {
-		print STDERR "mr $action: no defined $action command for $topdir$subdir, skipping\n";
-		return SKIPPED;
+	elsif (! defined $command) {
+		my $rcs=rcs_test(@_);
+		if (! defined $rcs) {
+			print STDERR "mr $action: unknown repository type and no defined $action command for $topdir$subdir\n";
+			return FAILED;
+		}
+		else {
+			print STDERR "mr $action: no defined $action command for $rcs repository $topdir$subdir, skipping\n";
+			return SKIPPED;
+		}
 	}
 	else {
 		if (! $nochdir) {
@@ -567,8 +631,8 @@ sub action { #{{{
 			$s=~s/^\Q$topdir$subdir\E\/?//;
 			print "mr $action: $topdir$subdir (in subdir $s)\n";
 		}
-		my $command="set -e; ".$lib.
-			"my_action(){ $config{$topdir}{$subdir}{$action}\n }; my_action ".
+		$command="set -e; ".$lib.
+			"my_action(){ $command\n }; my_action ".
 			join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
 		print STDERR "mr $action: running >>$command<<\n" if $verbose;
 		my $ret=system($command);
@@ -982,177 +1046,151 @@ lib =
 			return 1
 		fi
 	}
-	is_git_repo() {
-		get_git_repo_type "$1" >/dev/null
-	}
-	get_repo_type() {
-		if [ -d "$1"/.svn ]; then
-			echo svn
-		elif is_git_repo "$1"; then
-			echo git
-		elif [ -d "$1"/.bzr ]; then
-			echo bzr
-		elif [ -d "$1"/CVS ]; then
-			echo CVS
-		elif [ -d "$1"/.hg ]; then
-			echo hg
-		elif [ -d "$1"/_darcs ]; then
-			echo darcs
-		else
-			echo unknown
-		fi
-	}
 
-update =
-	case "$(get_repo_type "$MR_REPO")" in
-	svn) svn update "$@";;
-	git)
-		# all this is because of a bug in git-fetch, which requires GIT_DIR set
-		local git_dir_override; git_dir_override=.git
-		case "$(get_git_repo_type "$MR_REPO")" in
-			fake-bare) git_dir_override="$MR_REPO";;
-		esac
-		args="$@"
-		[ -z "$args" ] && args="-t origin master"
-		eval GIT_DIR="$git_dir_override" git pull "$args"
-		;;
-	bzr) bzr merge "$@";;
-	CVS) cvs update "$@";;
-	hg) hg pull "$@" && hg update "$@";;
-	darcs) darcs pull -a "$@";;
-	*) error "unknown repo type";;
+svn_test = test -d "$MR_REPO"/.svn
+git_test = test -d "$MR_REPO"/.git
+bzr_test = test -d "$MR_REPO"/.bzr
+cvs_test = test -d "$MR_REPO"/CVS
+hg_test  = test -d "$MR_REPO"/.hg
+darcs_test = test -d "$MR_REPO"/_darcs
+
+svn_update = svn update "$@"
+git_update = 
+	# all this is because of a bug in git-fetch, which requires GIT_DIR set
+	local git_dir_override; git_dir_override=.git
+	case "$(get_git_repo_type "$MR_REPO")" in
+		fake-bare) git_dir_override="$MR_REPO";;
 	esac
+	args="$@"
+	[ -z "$args" ] && args="-t origin master"
+	eval GIT_DIR="$git_dir_override" git pull "$args"
+bzr_update = bzr merge "$@"
+cvs_update = cvs update "$@"
+hg_update  = hg pull "$@" && hg update "$@"
+darcs_update = darcs pull -a "$@"
 
-status =
-	case "$(get_repo_type "$MR_REPO")" in
-	svn) svn status "$@";;
-	git) git status "$@" || :;;
-	bzr) bzr status "$@";;
-	CVS) cvs status "$@";;
-	hg) hg status "$@";;
-	darcs) darcs whatsnew -ls "$@";;
-	*) error "unknown repo type";;
+svn_status = svn status "$@"
+git_status = git status "$@" || true
+bzr_status = bzr status "$@"
+cvs_status = cvs status "$@"
+hg_status  = hg status "$@"
+darcs_status = darcs whatsnew -ls "$@"
+
+svn_commit = svn commit "$@"
+git_commit = 
+	case "$(get_git_repo_type "$MR_REPO")" in
+		bare) error "cannot commit to bare git repositories";;
+		fake-bare) error "commit does not work for fake bare git repositories (yet).";;
 	esac
+	git commit -a "$@" && git push --all
+bzr_commit = bzr commit "$@" && bzr push
+cvs_commit = cvs commit "$@"
+hg_commit  = hg commit -m "$@" && hg push
+darcs_commit = darcs commit -a -m "$@" && darcs push -a
 
-commit =
-	case "$(get_repo_type "$MR_REPO")" in
-	svn) svn commit "$@";;
-	git)
-		case "$(get_git_repo_type "$MR_REPO")" in
-			bare) error "cannot commit to bare git repositories";;
-			fake-bare) error "commit does not work for fake bare git repositories (yet).";;
-		esac
-		git commit -a "$@" && git push --all
-		;;
-	bzr) bzr commit "$@" && bzr push;;
-	CVS) cvs commit "$@";;
-	hg) hg commit -m "$@" && hg push;;
-	darcs) darcs commit -a -m "$@" && darcs push -a;;
-	*) error "unknown repo type";;
+svn_diff = svn diff "$@"
+git_diff = 
+	case "$(get_git_repo_type "$MR_REPO")" in
+		bare) error "cannot diff in bare git repositories";;
+		fake-bare) error "diff does not work for fake bare git repositories (yet).";;
 	esac
+	git diff "$@"
+bzr_diff = bzr diff "$@"
+cvs_diff = cvs diff "$@"
+hg_diff  = hg diff "$@"
+darcs_diff = darcs diff "$@"
 
-diff =
-	case "$(get_repo_type "$MR_REPO")" in
-	svn) svn diff "$@";;
-	git)
-		case "$(get_git_repo_type "$MR_REPO")" in
-			bare) error "cannot diff in bare git repositories";;
-			fake-bare) error "diff does not work for fake bare git repositories (yet).";;
-		esac
-		git diff "$@"
-		;;
-	bzr) bzr diff "$@";;
-	CVS) cvs diff "$@";;
-	hg) hg diff "$@";;
-	darcs) darcs diff "$@";;
-	*) error "unknown repo type";;
-	esac
+svn_log = svn log "$@"
+git_log = git log "$@"
+bzr_log = bzr log "$@"
+cvs_log = cvs log "$@"
+hg_log  = hg log "$@"
+darcs_log = darcs changes "$@"
 
-log =
-	case "$(get_repo_type "$MR_REPO")" in
-	svn) svn log"$@";;
-	git) git log "$@";;
-	bzr) bzr log "$@";;
-	CVS) cvs log "$@";;
-	hg) hg log "$@";;
-	darcs) darcs changes "$@";;
-	*) error "unknown repo type";;
-	esac
-
-register =
+svn_register =
 	if [ -n "$1" ]; then
 		cd "$1"
 	fi
 	basedir="${PWD##*/}"
-	case "$(get_repo_type .)" in
-	svn)
-		url=$(LANG=C svn info . | grep -i ^URL: | cut -d ' ' -f 2)
-		if [ -z "$url" ]; then
-			error "cannot determine svn url"
-		fi
-		echo "Registering svn url: $url in $MR_CONFIG"
-		mr -c "$MR_CONFIG" config "$PWD" checkout="svn co $url $basedir"
-		;;
-	git)
-		local repo_type; repo_type="$(get_git_repo_type .)"
-		local config;
-		case "$repo_type" in
-			non-bare) config=.git/config;;
-			bare|fake-bare) config=config;;
-		esac
-		url="$(LANG=C GIT_CONFIG="$config" git-config --get remote.origin.url)"
-		if [ -z "$url" ]; then
-			error "cannot determine git url"
-		fi
-		case "$repo_type" in
-			bare|fake-bare)
-				# this seems like a bare repo as it has no
-				# worktree.
-				local work_tree
-				work_tree="$(git-config --get core.worktree)" || :
-				if [ ! -d "$work_tree" ]; then
-					error "git worktree $work_tree does not exist"
-				fi
-				suffix=" (with worktree $work_tree)"
-				mr -c "$MR_CONFIG" config "$PWD" \
-					lib="GIT_WORK_TREE=$work_tree; export GIT_WORK_TREE"
-				;;
-		esac
-		echo "Registering git url: $url in $MR_CONFIG${suffix:-}"
-		mr -c "$MR_CONFIG" config "$PWD" checkout="git clone $url $basedir"
-		;;
-	bzr)
-		url=$(cat .bzr/branch/parent)
-		if [ -z "$url" ]; then
-			error "cannot determine bzr url"
-		fi
-		echo "Registering bzr url: $url in $MR_CONFIG"
-		mr -c "$MR_CONFIG" config "$PWD" checkout="bzr clone $url $basedir"
-		;;
-	CVS)
-		repo=$(cat CVS/Repository)
-		root=$(cat CVS/Root)
-		if [ -z "$root" ]; then
-			error "cannot determine cvs root"
-		fi
-		echo "Registering cvs repository $repo at root $root"
-		mr -c "$MR_CONFIG" config "$PWD" \
-			checkout="cvs -d '$root' co -d $basedir $repo"
-		;;
-	hg)
-		url=$(hg showconfig paths.default)
-		echo "Registering mercurial repo url: $url in $MR_CONFIG"
-		mr -c "$MR_CONFIG" config "$PWD" \
-			checkout="hg clone $url $basedir"
-		;;
-	darcs)
-		url=$(cat _darcs/prefs/defaultrepo)
-		echo "Registering darcs repository $url in $MR_CONFIG"
-		mr -c "$MR_CONFIG" config "$PWD" \
-			checkout="darcs get $url $basedir"
-		;;
-	*) error "unable to register this repo type";;
+	url=$(LANG=C svn info . | grep -i ^URL: | cut -d ' ' -f 2)
+	if [ -z "$url" ]; then
+		error "cannot determine svn url"
+	fi
+	echo "Registering svn url: $url in $MR_CONFIG"
+	mr -c "$MR_CONFIG" config "$PWD" checkout="svn co $url $basedir"
+git_register = 
+	if [ -n "$1" ]; then
+		cd "$1"
+	fi
+	basedir="${PWD##*/}"
+	local repo_type; repo_type="$(get_git_repo_type .)"
+	local config;
+	case "$repo_type" in
+		non-bare) config=.git/config;;
+		bare|fake-bare) config=config;;
 	esac
+	url="$(LANG=C GIT_CONFIG="$config" git-config --get remote.origin.url)"
+	if [ -z "$url" ]; then
+		error "cannot determine git url"
+	fi
+	case "$repo_type" in
+		bare|fake-bare)
+			# this seems like a bare repo as it has no
+			# worktree.
+			local work_tree
+			work_tree="$(git-config --get core.worktree)" || :
+			if [ ! -d "$work_tree" ]; then
+				error "git worktree $work_tree does not exist"
+			fi
+			suffix=" (with worktree $work_tree)"
+			mr -c "$MR_CONFIG" config "$PWD" \
+				lib="GIT_WORK_TREE=$work_tree; export GIT_WORK_TREE"
+			;;
+	esac
+	echo "Registering git url: $url in $MR_CONFIG${suffix:-}"
+	mr -c "$MR_CONFIG" config "$PWD" checkout="git clone $url $basedir"
+bzr_register =
+	if [ -n "$1" ]; then
+		cd "$1"
+	fi
+	basedir="${PWD##*/}"
+	url=$(cat .bzr/branch/parent)
+	if [ -z "$url" ]; then
+		error "cannot determine bzr url"
+	fi
+	echo "Registering bzr url: $url in $MR_CONFIG"
+	mr -c "$MR_CONFIG" config "$PWD" checkout="bzr clone $url $basedir"
+cvs_register =
+	if [ -n "$1" ]; then
+		cd "$1"
+	fi
+	basedir="${PWD##*/}"
+	repo=$(cat CVS/Repository)
+	root=$(cat CVS/Root)
+	if [ -z "$root" ]; then
+		error "cannot determine cvs root"
+		fi
+	echo "Registering cvs repository $repo at root $root"
+	mr -c "$MR_CONFIG" config "$PWD" \
+		checkout="cvs -d '$root' co -d $basedir $repo"
+hg_register = 
+	if [ -n "$1" ]; then
+		cd "$1"
+	fi
+	basedir="${PWD##*/}"
+	url=$(hg showconfig paths.default)
+	echo "Registering mercurial repo url: $url in $MR_CONFIG"
+	mr -c "$MR_CONFIG" config "$PWD" \
+		checkout="hg clone $url $basedir"
+darcs_register = 
+	if [ -n "$1" ]; then
+		cd "$1"
+	fi
+	basedir="${PWD##*/}"
+	url=$(cat _darcs/prefs/defaultrepo)
+	echo "Registering darcs repository $url in $MR_CONFIG"
+	mr -c "$MR_CONFIG" config "$PWD" \
+		checkout="darcs get $url $basedir"
 
 help =
 	if [ ! -e "$MR_PATH" ]; then
