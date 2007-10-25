@@ -1083,7 +1083,7 @@ register =
 	if [ -n "$1" ]; then
 		cd "$1"
 	fi
-	basedir="$(basename $PWD)"
+	basedir="${PWD##*/}"
 	case "$(get_repo_type .)" in
 	svn)
 		url=$(LANG=C svn info . | grep -i ^URL: | cut -d ' ' -f 2)
