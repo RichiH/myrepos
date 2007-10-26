@@ -356,126 +356,23 @@ loadconfig($ENV{MR_CONFIG});
 #use Data::Dumper;
 #print Dumper(\%config);
 
-# alias expansion and command stemming
-my $action=shift @ARGV;
-if (exists $alias{$action}) {
-	$action=$alias{$action};
-}
-if (! exists $knownactions{$action}) {
-	my @matches = grep { /^\Q$action\E/ }
-		keys %knownactions, keys %alias;
-	if (@matches == 1) {
-		$action=$matches[0];
-	}
-	elsif (@matches == 0) {
-		die "mr: unknown action \"$action\" (known actions: ".
-			join(", ", sort keys %knownactions).")\n";
-	}
-	else {
-		die "mr: ambiguous action \"$action\" (matches: ".
-			join(", ", @matches).")\n";
-	}
-}
+my $action=expandaction(shift @ARGV);
 
 # commands that do not operate on all repos
 if ($action eq 'help') {
-	exec($config{''}{DEFAULT}{$action}) || die "exec: $!";
+	help(@ARGV);
 }
 elsif ($action eq 'config') {
-	if (@ARGV < 2) {
-		die "mr config: not enough parameters\n";
-	}
-	my $section=shift;
-	if ($section=~/^\//) {
-		# try to convert to a path relative to the config file
-		my ($dir)=$ENV{MR_CONFIG}=~/^(.*\/)[^\/]+$/;
-		$dir=abs_path($dir);
-		$dir.="/" unless $dir=~/\/$/;
-		if ($section=~/^\Q$dir\E(.*)/) {
-			$section=$1;
-		}
-	}
-	my %changefields;
-	foreach (@ARGV) {
-		if (/^([^=]+)=(.*)$/) {
-			$changefields{$1}=$2;
-		}
-		else {
-			my $found=0;
-			foreach my $topdir (sort keys %config) {
-				if (exists $config{$topdir}{$section} &&
-				    exists $config{$topdir}{$section}{$_}) {
-					print $config{$topdir}{$section}{$_}."\n";
-					$found=1;
-					last if $section eq 'DEFAULT';
-				}
-			}
-			if (! $found) {
-				die "mr $action: $section $_ not set\n";
-			}
-		}
-	}
-	modifyconfig($ENV{MR_CONFIG}, $section, %changefields) if %changefields;
-	exit 0;
+	config(@ARGV);
 }
 elsif ($action eq 'register') {
-	if (! $config_overridden) {
-		# Find the closest known mrconfig file to the current
-		# directory.
-		$directory.="/" unless $directory=~/\/$/;
-		foreach my $topdir (reverse sort keys %config) {
-			next unless length $topdir;
-			if ($directory=~/^\Q$topdir\E/) {
-				$ENV{MR_CONFIG}=$configfiles{$topdir};
-				$directory=$topdir;
-				last;
-			}
-		}
-	}
-	if (@ARGV) {
-		my $subdir=shift @ARGV;
-		if (! chdir($subdir)) {
-			print STDERR "mr $action: failed to chdir to $subdir: $!\n";
-		}
-	}
-
-	$ENV{MR_REPO}=getcwd();
-	my $command=findcommand("register", $ENV{MR_REPO}, $directory, 'DEFAULT');
-	if (! defined $command) {
-		die "mr $action: unknown repository type\n";
-	}
-
-	$ENV{MR_REPO}=~s/.*\/(.*)/$1/;
-	$command="set -e; ".$config{$directory}{DEFAULT}{lib}."\n".
-		"my_action(){ $command\n }; my_action ".
-		join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
-	print "mr $action: running >>$command<<\n" if $verbose;
-	exec($command) || die "exec: $!";
+	register(@ARGV);
 }
-
-# an ordered list of repos
-my @list;
-foreach my $topdir (sort keys %config) {
-	foreach my $subdir (sort keys %{$config{$topdir}}) {
-		push @list, {
-			topdir => $topdir,
-			subdir => $subdir,
-			order => $config{$topdir}{$subdir}{order},
-		};
-	}
-}
-@list = sort {
-		$a->{order}  <=> $b->{order}
-		             ||
-		$a->{topdir} cmp $b->{topdir}
-		             ||
-		$a->{subdir} cmp $b->{subdir}
-	} @list;
 
 # work out what repos to act on
 my @repos;
 my $nochdir=0;
-foreach my $repo (@list) {
+foreach my $repo (repolist()) {
 	my $topdir=$repo->{topdir};
 	my $subdir=$repo->{subdir};
 
@@ -490,7 +387,7 @@ foreach my $repo (@list) {
 }
 if (! @repos) {
 	# fallback to find a leaf repo
-	foreach my $repo (reverse @list) {
+	foreach my $repo (reverse repolist()) {
 		my $topdir=$repo->{topdir};
 		my $subdir=$repo->{subdir};
 		
@@ -797,6 +694,27 @@ sub showstat { #{{{
 	return;
 } #}}}
 
+# an ordered list of repos
+sub repolist { #{{{
+	my @list;
+	foreach my $topdir (sort keys %config) {
+		foreach my $subdir (sort keys %{$config{$topdir}}) {
+			push @list, {
+				topdir => $topdir,
+				subdir => $subdir,
+				order => $config{$topdir}{$subdir}{order},
+			};
+		}
+	}
+	return sort {
+		$a->{order}  <=> $b->{order}
+		             ||
+		$a->{topdir} cmp $b->{topdir}
+		             ||
+		$a->{subdir} cmp $b->{subdir}
+	} @list;
+} #}}}
+
 my %loaded;
 sub loadconfig { #{{{
 	my $f=shift;
@@ -1025,6 +943,107 @@ sub modifyconfig { #{{{
 	print $out @out;
 	close $out;	
 } #}}}
+	
+sub help { #{{{
+	exec($config{''}{DEFAULT}{$action}) || die "exec: $!";
+} #}}}
+	
+sub config { #{{{
+	if (@_ < 2) {
+		die "mr config: not enough parameters\n";
+	}
+	my $section=shift;
+	if ($section=~/^\//) {
+		# try to convert to a path relative to the config file
+		my ($dir)=$ENV{MR_CONFIG}=~/^(.*\/)[^\/]+$/;
+		$dir=abs_path($dir);
+		$dir.="/" unless $dir=~/\/$/;
+		if ($section=~/^\Q$dir\E(.*)/) {
+			$section=$1;
+		}
+	}
+	my %changefields;
+	foreach (@_) {
+		if (/^([^=]+)=(.*)$/) {
+			$changefields{$1}=$2;
+		}
+		else {
+			my $found=0;
+			foreach my $topdir (sort keys %config) {
+				if (exists $config{$topdir}{$section} &&
+				    exists $config{$topdir}{$section}{$_}) {
+					print $config{$topdir}{$section}{$_}."\n";
+					$found=1;
+					last if $section eq 'DEFAULT';
+				}
+			}
+			if (! $found) {
+				die "mr $action: $section $_ not set\n";
+			}
+		}
+	}
+	modifyconfig($ENV{MR_CONFIG}, $section, %changefields) if %changefields;
+	exit 0;
+} #}}}
+
+sub register { #{{{
+	if (! $config_overridden) {
+		# Find the closest known mrconfig file to the current
+		# directory.
+		$directory.="/" unless $directory=~/\/$/;
+		foreach my $topdir (reverse sort keys %config) {
+			next unless length $topdir;
+			if ($directory=~/^\Q$topdir\E/) {
+				$ENV{MR_CONFIG}=$configfiles{$topdir};
+				$directory=$topdir;
+				last;
+			}
+		}
+	}
+	if (@ARGV) {
+		my $subdir=shift @ARGV;
+		if (! chdir($subdir)) {
+			print STDERR "mr $action: failed to chdir to $subdir: $!\n";
+		}
+	}
+
+	$ENV{MR_REPO}=getcwd();
+	my $command=findcommand("register", $ENV{MR_REPO}, $directory, 'DEFAULT');
+	if (! defined $command) {
+		die "mr $action: unknown repository type\n";
+	}
+
+	$ENV{MR_REPO}=~s/.*\/(.*)/$1/;
+	$command="set -e; ".$config{$directory}{DEFAULT}{lib}."\n".
+		"my_action(){ $command\n }; my_action ".
+		join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
+	print "mr $action: running >>$command<<\n" if $verbose;
+	exec($command) || die "exec: $!";
+} #}}}
+
+# alias expansion and command stemming
+sub expandaction { #{{{
+	my $action=shift;
+	if (exists $alias{$action}) {
+		$action=$alias{$action};
+	}
+	if (! exists $knownactions{$action}) {
+		my @matches = grep { /^\Q$action\E/ }
+			keys %knownactions, keys %alias;
+		if (@matches == 1) {
+			$action=$matches[0];
+		}
+		elsif (@matches == 0) {
+			die "mr: unknown action \"$action\" (known actions: ".
+				join(", ", sort keys %knownactions).")\n";
+		}
+		else {
+			die "mr: ambiguous action \"$action\" (matches: ".
+				join(", ", @matches).")\n";
+		}
+	}
+	return $action;
+}
 
 # Finally, some useful actions that mr knows about by default.
 # These can be overridden in ~/.mrconfig.
