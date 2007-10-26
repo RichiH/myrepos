@@ -10,25 +10,21 @@
 
 # And an example repo using it would look something like:
 #[.dotfiles]
-#lib = git_fake_bare_worktree $HOME
-#checkout = git_fake_bare_checkout git://... .dotfiles
+#checkout = git_fake_bare_checkout git://... .dotfiles <worktree, eg. ..>
 
 lib =
-	# called to tell git where the worktree is
-	git_fake_bare_worktree() {
-		GIT_WORK_TREE="$1"; export GIT_WORK_TREE
-	}
 	# git doesn't have an easy way to check out such a repo, so
 	# do it by hand
 	git_fake_bare_checkout() {
 		url="$1"
 		repo="$2"
-		GIT_WORK_TREE= git clone --no-checkout "$url" "$repo"
+		worktree="$3"
+		git clone --no-checkout "$url" "$repo"
 		cd "$repo"
-		mkdir -p "$GIT_WORK_TREE"
+		mkdir -p "$worktree"
 		git read-tree HEAD
-		git config core.worktree "$GIT_WORK_TREE"
 		git checkout-index -a --prefix="$worktree" || true
+		git config core.worktree "$worktree"
 		mv .git/* .
 		rmdir .git
 	}
@@ -69,6 +65,8 @@ git_fake_bare_register =
 	if [ ! -d "$worktree" ]; then
 		error "git worktree $worktree does not exist"
 	fi
-	mr -c "$MR_CONFIG" config "`pwd`" lib="git_fake_bare_worktree '$worktree'"
 	echo "Registering git url: $url in $MR_CONFIG (with worktree $worktree)"
-	mr -c "$MR_CONFIG" config "`pwd`" checkout="git_fake_bare_checkout '$url' '$MR_REPO'"
+	mr -c "$MR_CONFIG" config "$PWD" \
+		checkout="git_fake_bare_checkout '$url' '$MR_REPO' '$worktree'"
+
+# vim:sw=8:sts=0:ts=8:noet
