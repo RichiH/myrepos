@@ -3,11 +3,11 @@ mr (0.9) UNRELEASED; urgency=low
   * Split up actions, so each rcs has its own set of action commands,
     and mr tests to see what rcs is used by a repository, and dispatches
     the command.
-    .
+
     This will make it much easier to add new rcses, or modify just the
     command that mr uses for one command for one rcs, without duplicating a
     lot of code, and without needing to modify mr at all.
-    .
+
     The old style unsplit actions are still supported, and are what most
     mrconfig files will still use; this change is fully backwards compatible.
   * Changed some things in the enviroment for the register action.
