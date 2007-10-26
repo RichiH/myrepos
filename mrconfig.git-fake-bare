@@ -1,10 +1,29 @@
 # An example of how to add a new revision control system type to mr.
-# git fake bare repositories have a detached workspace. This file adds
+# git fake bare repositories have a detached workspace. One potential
+# application is storing dotfiles in git, keeping them checked out in
+# one $HOME, but checked into different git repositories. This file adds
 # support for them, separate from the normal git support.
 
 # To make mr use this file, add a line like this inside the [DEFAULT]
 # section of your ~/.mrconfig
 #include = cat /path/to/mrconfig.git-fake-bare
+
+lib =
+	# git doesn't have an easy way to check out such a repo, so
+	# do it by hand
+	git_fake_bare_checkout() {
+		set -x
+		url="$1"
+		repo="$2"
+		worktree="${3%%/}/"
+		git clone --no-checkout "$url" "$repo"
+		cd "$repo"
+		git read-tree HEAD
+		git config core.worktree "$worktree"
+		git checkout-index -a --prefix="$worktree" || true
+		mv .git/* .
+		rmdir .git
+	}
 
 git_fake_bare_test = 
 	test -d "$MR_REPO"/refs/heads && test -d "$MR_REPO"/refs/tags &&
@@ -45,12 +64,4 @@ git_fake_bare_register =
 	mr -c "$MR_CONFIG" config "`pwd`" \
 		lib="GIT_WORK_TREE=$work_tree; export GIT_WORK_TREE"
 	echo "Registering git url: $url in $MR_CONFIG (with worktree $worktree)"
-	mr -c "$MR_CONFIG" config "`pwd`" \
-	checkout=" \
-	git clone --no-checkout $url $MR_REPO && \
-	cd $MR_REPO && \
-	git read-tree HEAD && \
-	git checkout-index -a --prefix='$work_tree' || true; \
-	git config core.worktree '$worktree' && \
-	mv .git/* . && \
-	rmdir .git"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="git_fake_bare_checkout '$url' '$MR_REPO' '$worktree'"
