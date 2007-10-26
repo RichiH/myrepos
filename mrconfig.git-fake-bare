@@ -9,17 +9,21 @@
 #include = cat /path/to/mrconfig.git-fake-bare
 
 lib =
+	# called to tell git where the worktree is
+	git_fake_bare_worktree() {
+		GIT_WORK_TREE="$1"; export GIT_WORK_TREE
+	}
 	# git doesn't have an easy way to check out such a repo, so
 	# do it by hand
 	git_fake_bare_checkout() {
 		set -x
 		url="$1"
 		repo="$2"
-		worktree="${3%%/}/"
-		git clone --no-checkout "$url" "$repo"
+		GIT_WORK_TREE= git clone --no-checkout "$url" "$repo"
 		cd "$repo"
+		mkdir -p "$GIT_WORK_TREE"
 		git read-tree HEAD
-		git config core.worktree "$worktree"
+		git config core.worktree "$GIT_WORK_TREE"
 		git checkout-index -a --prefix="$worktree" || true
 		mv .git/* .
 		rmdir .git
@@ -61,7 +65,6 @@ git_fake_bare_register =
 	if [ ! -d "$worktree" ]; then
 		error "git worktree $worktree does not exist"
 	fi
-	mr -c "$MR_CONFIG" config "`pwd`" \
-		lib="GIT_WORK_TREE=$work_tree; export GIT_WORK_TREE"
+	mr -c "$MR_CONFIG" config "`pwd`" lib="git_fake_bare_worktree '$worktree'"
 	echo "Registering git url: $url in $MR_CONFIG (with worktree $worktree)"
-	mr -c "$MR_CONFIG" config "`pwd`" checkout="git_fake_bare_checkout '$url' '$MR_REPO' '$worktree'"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="git_fake_bare_checkout '$url' '$MR_REPO'"
