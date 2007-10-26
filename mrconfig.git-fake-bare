@@ -8,6 +8,11 @@
 # section of your ~/.mrconfig
 #include = cat /path/to/mrconfig.git-fake-bare
 
+# And an example repo using it would look something like:
+#[.dotfiles]
+#lib = git_fake_bare_worktree $HOME
+#checkout = git_fake_bare_checkout git://... .dotfiles
+
 lib =
 	# called to tell git where the worktree is
 	git_fake_bare_worktree() {
