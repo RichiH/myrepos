@@ -321,6 +321,7 @@ my %configfiles;
 my %knownactions;
 my %alias;
 my $directory=getcwd();
+my (@ok, @failed, @skipped);
 
 getopts();
 
@@ -347,29 +348,8 @@ loadconfig($ENV{MR_CONFIG});
 #print Dumper(\%config);
 
 my $action=expandaction(shift @ARGV);
-
-# actions that do not operate on all repos
-if ($action eq 'help') {
-	help(@ARGV);
-}
-elsif ($action eq 'config') {
-	config(@ARGV);
-}
-elsif ($action eq 'register') {
-	register(@ARGV);
-}
-
-my (@ok, @failed, @skipped);
-if ($jobs > 1) {
-	mrs(selectrepos());
-}
-else {
-	foreach my $repo (selectrepos()) {
-		record($repo, action($action, @$repo));
-	}
-}
-
-showstats();
+dispatch($action);
+showstats($action);
 
 if (@failed) {
 	exit 1;
@@ -377,7 +357,33 @@ if (@failed) {
 elsif (! @ok && @skipped) {
 	exit 1;
 }
-exit 0;
+else {
+	exit 0;
+}
+
+sub dispatch { #{{{
+	my $action=shift;
+
+	# actions that do not operate on all repos
+	if ($action eq 'help') {
+		help(@ARGV);
+	}
+	elsif ($action eq 'config') {
+		config(@ARGV);
+	}
+	elsif ($action eq 'register') {
+		register(@ARGV);
+	}
+
+	if ($jobs > 1) {
+		mrs($action, selectrepos());
+	}
+	else {
+		foreach my $repo (selectrepos()) {
+			record($repo, action($action, @$repo));
+		}
+	}
+} #}}}
 
 sub rcs_test { #{{{
 	my ($action, $dir, $topdir, $subdir) = @_;
@@ -537,6 +543,7 @@ sub action { #{{{
 
 # run actions on multiple repos, in parallel
 sub mrs { #{{{
+	my $action=shift;
 	my @repos=@_;
 
 	$| = 1;
