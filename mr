@@ -323,30 +323,6 @@ my (@ok, @failed, @skipped);
 
 main();
 
-sub dispatch { #{{{
-	my $action=shift;
-
-	# actions that do not operate on all repos
-	if ($action eq 'help') {
-		help(@ARGV);
-	}
-	elsif ($action eq 'config') {
-		config(@ARGV);
-	}
-	elsif ($action eq 'register') {
-		register(@ARGV);
-	}
-
-	if ($jobs > 1) {
-		mrs($action, selectrepos());
-	}
-	else {
-		foreach my $repo (selectrepos()) {
-			record($repo, action($action, @$repo));
-		}
-	}
-} #}}}
-
 sub rcs_test { #{{{
 	my ($action, $dir, $topdir, $subdir) = @_;
 
@@ -912,7 +888,31 @@ sub modifyconfig { #{{{
 	print $out @out;
 	close $out;	
 } #}}}
-	
+
+sub dispatch { #{{{
+	my $action=shift;
+
+	# actions that do not operate on all repos
+	if ($action eq 'help') {
+		help(@ARGV);
+	}
+	elsif ($action eq 'config') {
+		config(@ARGV);
+	}
+	elsif ($action eq 'register') {
+		register(@ARGV);
+	}
+
+	if ($jobs > 1) {
+		mrs($action, selectrepos());
+	}
+	else {
+		foreach my $repo (selectrepos()) {
+			record($repo, action($action, @$repo));
+		}
+	}
+} #}}}
+
 sub help { #{{{
 	exec($config{''}{DEFAULT}{help}) || die "exec: $!";
 } #}}}
