@@ -20,8 +20,15 @@ mr (0.9) UNRELEASED; urgency=low
     bare and fake bare (non-bare with a detached worktree) git repositories.
     (Diff and commit do not work yet to fake bare repos). (madduck)
   * Add a vim modeline to preserve joey's tabbing prefs. (madduck)
+  * Add support for including one mrconfig file from another. Unlike chaining,
+    this doesn't change the paths, and is not tied to a particular
+    subdirectory. It's useful for loading up library mrconfig files.
+  * Split git fake-bare support out into a mrconfig.git-fake-bare.
+    Partly because it's a good example of how to add a new revision control
+    type, and partly because it's currently too ugly to be in mr itself
+    due to bugs and limitations in git.
 
- -- Joey Hess <joeyh@debian.org>  Thu, 25 Oct 2007 20:41:15 -0400
+ -- Joey Hess <joeyh@debian.org>  Thu, 25 Oct 2007 21:43:36 -0400
 
 mr (0.8) unstable; urgency=low
 

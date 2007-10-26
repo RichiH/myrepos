@@ -251,6 +251,15 @@ If the "chain" parameter is set and its command returns true, then B<mr>
 will try to load a .mrconfig file from the root of the repository. (You
 should avoid chaining from repositories with untrusted committers.)
 
+=item include
+
+If the "include" parameter is set, its command is ran, and should output
+additional mrconfig file content. The content is included as if it were
+part of the including file.
+
+Unlike all other parameters, this parameter does not need to be placed
+within a section.
+
 =item lib
 
 The "lib" parameter can specify some shell code that will be run before each
@@ -439,7 +448,7 @@ elsif ($action eq 'register') {
 	$command="set -e; ".$config{''}{DEFAULT}{lib}."\n".
 		"my_action(){ $command\n }; my_action ".
 		join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
-	print STDERR "mr $action: running >>$command<<\n" if $verbose;
+	print "mr $action: running >>$command<<\n" if $verbose;
 	exec($command) || die "exec: $!";
 }
 
@@ -655,7 +664,7 @@ sub action { #{{{
 		$command="set -e; ".$lib.
 			"my_action(){ $command\n }; my_action ".
 			join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
-		print STDERR "mr $action: running >>$command<<\n" if $verbose;
+		print "mr $action: running >>$command<<\n" if $verbose;
 		my $ret=system($command);
 		if ($ret != 0) {
 			if (($? & 127) == 2) {
@@ -858,6 +867,12 @@ sub loadconfig { #{{{
 				$line++;
 				$value.="\n$1";
 				chomp $value;
+			}
+
+			if ($parameter eq "include") {
+				print "mr: including output of \"$value\"\n" if $verbose;
+				unshift @lines, `$value`;
+				next;
 			}
 
 			if (! defined $section) {
@@ -1063,10 +1078,6 @@ git_bare_test =
 	test -d "$MR_REPO"/refs/heads && test -d "$MR_REPO"/refs/tags &&
 	test -d "$MR_REPO"/objects && test -f "$MR_REPO"/config &&
 	test "$(GIT_CONFIG="$MR_REPO"/config git-config --get core.bare)" = true
-git_fake_bare_test = 
-	test -d "$MR_REPO"/refs/heads && test -d "$MR_REPO"/refs/tags &&
-	test -d "$MR_REPO"/objects && test -f "$MR_REPO"/config &&
-	test "$(GIT_CONFIG="$MR_REPO"/config git-config --get core.bare)" = false
 
 svn_update = svn update "$@"
 git_update = if [ "$@" ]; then git pull "$@"; else git pull -t origin master; fi
@@ -1074,15 +1085,6 @@ bzr_update = bzr merge "$@"
 cvs_update = cvs update "$@"
 hg_update  = hg pull "$@" && hg update "$@"
 darcs_update = darcs pull -a "$@"
-git_fake_bare_update =
-	# all this is because of a bug in git-fetch, which requires GIT_DIR set
-	local git_dir_override; git_dir_override=.git
-	case "$(get_git_repo_type "$MR_REPO")" in
-		fake-bare) git_dir_override="$MR_REPO";;
-	esac
-	args="$@"
-	[ -z "$args" ] && args="-t origin master"
-	eval GIT_DIR="$git_dir_override" git pull "$args"
 
 svn_status = svn status "$@"
 git_status = git status "$@" || true
@@ -1090,7 +1092,6 @@ bzr_status = bzr status "$@"
 cvs_status = cvs status "$@"
 hg_status  = hg status "$@"
 darcs_status = darcs whatsnew -ls "$@"
-git_fake_bare_status = git status "$@" || true
 
 svn_commit = svn commit "$@"
 git_commit = git commit -a "$@" && git push --all
@@ -1098,7 +1099,6 @@ bzr_commit = bzr commit "$@" && bzr push
 cvs_commit = cvs commit "$@"
 hg_commit  = hg commit -m "$@" && hg push
 darcs_commit = darcs commit -a -m "$@" && darcs push -a
-git_fake_bare_commit = error "commit does not work for fake bare git repositories (yet)."
 
 svn_diff = svn diff "$@"
 git_diff = git diff "$@"
@@ -1106,7 +1106,6 @@ bzr_diff = bzr diff "$@"
 cvs_diff = cvs diff "$@"
 hg_diff  = hg diff "$@"
 darcs_diff = darcs diff "$@"
-git_fake_bare_diff = error "diff does not work for fake bare git repositories (yet)."
 
 svn_log = svn log "$@"
 git_log = git log "$@"
@@ -1115,7 +1114,6 @@ cvs_log = cvs log "$@"
 hg_log  = hg log "$@"
 darcs_log = darcs changes "$@"
 git_bare_log = git log "$@"
-git_fake_bare_log = git log "$@"
 
 svn_register =
 	url=$(LANG=C svn info . | grep -i ^URL: | cut -d ' ' -f 2)
@@ -1161,31 +1159,6 @@ git_bare_register =
 	fi
 	echo "Registering git url: $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone --bare $url $MR_REPO"
-git_fake_bare_register = 
-	url="$(LANG=C GIT_CONFIG=config git-config --get remote.origin.url)" || true
-	if [ -z "$url" ]; then
-		error "cannot determine git url"
-	fi
-	worktree="$(git-config --get core.worktree)" || true
-	if [ -z "$worktree" ]; then
-		error "git worktree is not set"
-	fi
-	worktree="${worktree%%/}/"
-	if [ ! -d "$worktree" ]; then
-		error "git worktree $worktree does not exist"
-	fi
-	mr -c "$MR_CONFIG" config "`pwd`" \
-		lib="GIT_WORK_TREE=$work_tree; export GIT_WORK_TREE"
-	echo "Registering git url: $url in $MR_CONFIG (with worktree $worktree)"
-	mr -c "$MR_CONFIG" config "`pwd`" \
-	checkout=" \
-	git clone --no-checkout $url $MR_REPO && \
-	cd $MR_REPO && \
-	git read-tree HEAD && \
-	git checkout-index -a --prefix='$work_tree' || true; \
-	git config core.worktree '$worktree' && \
-	mv .git/* . && \
-	rmdir .git"
 
 help =
 	if [ ! -e "$MR_PATH" ]; then

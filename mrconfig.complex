@@ -4,6 +4,7 @@
 # although slightly cut down.
 
 [DEFAULT]
+#include = cat $HOME/src/mr/mrconfig.git-fake-bare
 # Teach mr to run a few git and svn specific commands.
 svn_cleanup = svn cleanup "$@"
 git_gc = git gc "$@"
