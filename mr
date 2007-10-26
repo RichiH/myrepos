@@ -570,15 +570,16 @@ sub rcs_test { #{{{
 	
 sub findcommand { #{{{
 	my ($action, $dir, $topdir, $subdir) = @_;
+	
+	if (exists $config{$topdir}{$subdir}{$action}) {
+		return $config{$topdir}{$subdir}{$action};
+	}
 
 	my $rcs=rcs_test(@_);
 
 	if (defined $rcs && 
 	    exists $config{$topdir}{$subdir}{$rcs."_".$action}) {
 		return $config{$topdir}{$subdir}{$rcs."_".$action};
-	}
-	elsif (exists $config{$topdir}{$subdir}{$action}) {
-		return $config{$topdir}{$subdir}{$action};
 	}
 	else {
 		return undef;
