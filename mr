@@ -314,6 +314,7 @@ my $config_overridden=0;
 my $verbose=0;
 my $stats=0;
 my $no_recurse=0;
+my $no_chdir=0;
 my $jobs=1;
 my %config;
 my %configfiles;
@@ -321,24 +322,13 @@ my %knownactions;
 my %alias;
 my $directory=getcwd();
 
-Getopt::Long::Configure("no_permute");
-my $result=GetOptions(
-	"d|directory=s" => sub { $directory=abs_path($_[1]) },
-	"c|config=s" => sub { $ENV{MR_CONFIG}=$_[1]; $config_overridden=1 },
-	"v|verbose" => \$verbose,
-	"s|stats" => \$stats,
-	"n|no-recurse" => \$no_recurse,
-	"j|jobs=i" => \$jobs,
-);
-if (! $result || @ARGV < 1) {
-	die("Usage: mr [-d directory] action [params ...]\n".
-	    "(Use mr help for man page.)\n");
+getopts();
 
-}
+# This can happen if it's run in a directory that was removed
+# or other strangeness.
 if (! defined $directory) {
 	die("mr: failed to determine working directory\n");
 }
-
 # Make sure MR_CONFIG is an absolute path, but don't use abs_path since
 # the config file might be a symlink to elsewhere, and the directory it's
 # in is significant.
@@ -358,7 +348,7 @@ loadconfig($ENV{MR_CONFIG});
 
 my $action=expandaction(shift @ARGV);
 
-# commands that do not operate on all repos
+# actions that do not operate on all repos
 if ($action eq 'help') {
 	help(@ARGV);
 }
@@ -369,67 +359,18 @@ elsif ($action eq 'register') {
 	register(@ARGV);
 }
 
-# work out what repos to act on
-my @repos;
-my $nochdir=0;
-foreach my $repo (repolist()) {
-	my $topdir=$repo->{topdir};
-	my $subdir=$repo->{subdir};
-
-	next if $subdir eq 'DEFAULT';
-	my $dir=($subdir =~/^\//) ? $subdir : $topdir.$subdir;
-	my $d=$directory;
-	$dir.="/" unless $dir=~/\/$/;
-	$d.="/" unless $d=~/\/$/;
-	next if $no_recurse && $d ne $dir;
-	next if $dir ne $d && $dir !~ /^\Q$d\E/;
-	push @repos, [$dir, $topdir, $subdir];
-}
-if (! @repos) {
-	# fallback to find a leaf repo
-	foreach my $repo (reverse repolist()) {
-		my $topdir=$repo->{topdir};
-		my $subdir=$repo->{subdir};
-		
-		next if $subdir eq 'DEFAULT';
-		my $dir=($subdir =~/^\//) ? $subdir : $topdir.$subdir;
-		my $d=$directory;
-		$dir.="/" unless $dir=~/\/$/;
-		$d.="/" unless $d=~/\/$/;
-		if ($d=~/^\Q$dir\E/) {
-			push @repos, [$dir, $topdir, $subdir];
-			last;
-		}
-	}
-	$nochdir=1;
-}
-
-# run the action on each repository and print stats
 my (@ok, @failed, @skipped);
 if ($jobs > 1) {
-	mrs(@repos);
+	mrs(selectrepos());
 }
 else {
-	foreach my $repo (@repos) {
+	foreach my $repo (selectrepos()) {
 		record($repo, action($action, @$repo));
 	}
 }
-if (! @ok && ! @failed && ! @skipped) {
-	die "mr $action: no repositories found to work on\n";
-}
-print "mr $action: finished (".join("; ",
-	showstat($#ok+1, "ok", "ok"),
-	showstat($#failed+1, "failed", "failed"),
-	showstat($#skipped+1, "skipped", "skipped"),
-).")\n";
-if ($stats) {
-	if (@skipped) {
-		print "mr $action: (skipped: ".join(" ", @skipped).")\n";
-	}
-	if (@failed) {
-		print STDERR "mr $action: (failed: ".join(" ", @failed).")\n";
-	}
-}
+
+showstats();
+
 if (@failed) {
 	exit 1;
 }
@@ -536,7 +477,7 @@ sub action { #{{{
 		}
 	}
 	
-	if (! $nochdir && ! chdir($dir)) {
+	if (! $no_chdir && ! chdir($dir)) {
 		print STDERR "mr $action: failed to chdir to $dir: $!\n";
 		return FAILED;
 	}
@@ -552,7 +493,7 @@ sub action { #{{{
 		}
 	}
 	else {
-		if (! $nochdir) {
+		if (! $no_chdir) {
 			print "mr $action: $topdir$subdir\n";
 		}
 		else {
@@ -596,6 +537,8 @@ sub action { #{{{
 
 # run actions on multiple repos, in parallel
 sub mrs { #{{{
+	my @repos=@_;
+
 	$| = 1;
 	my @active;
 	my @fhs;
@@ -684,6 +627,25 @@ sub record { #{{{
 	}
 } #}}}
 
+sub showstats { #{{{
+	if (! @ok && ! @failed && ! @skipped) {
+		die "mr $action: no repositories found to work on\n";
+	}
+	print "mr $action: finished (".join("; ",
+		showstat($#ok+1, "ok", "ok"),
+		showstat($#failed+1, "failed", "failed"),
+		showstat($#skipped+1, "skipped", "skipped"),
+	).")\n";
+	if ($stats) {
+		if (@skipped) {
+			print "mr $action: (skipped: ".join(" ", @skipped).")\n";
+		}
+		if (@failed) {
+			print STDERR "mr $action: (failed: ".join(" ", @failed).")\n";
+		}
+	}
+} #}}}
+
 sub showstat { #{{{
 	my $count=shift;
 	my $singular=shift;
@@ -713,6 +675,43 @@ sub repolist { #{{{
 		             ||
 		$a->{subdir} cmp $b->{subdir}
 	} @list;
+} #}}}
+
+# figure out which repos to act on
+sub selectrepos { #{{{
+	my @repos;
+	foreach my $repo (repolist()) {
+		my $topdir=$repo->{topdir};
+		my $subdir=$repo->{subdir};
+
+		next if $subdir eq 'DEFAULT';
+		my $dir=($subdir =~/^\//) ? $subdir : $topdir.$subdir;
+		my $d=$directory;
+		$dir.="/" unless $dir=~/\/$/;
+		$d.="/" unless $d=~/\/$/;
+		next if $no_recurse && $d ne $dir;
+		next if $dir ne $d && $dir !~ /^\Q$d\E/;
+		push @repos, [$dir, $topdir, $subdir];
+	}
+	if (! @repos) {
+		# fallback to find a leaf repo
+		foreach my $repo (reverse repolist()) {
+			my $topdir=$repo->{topdir};
+			my $subdir=$repo->{subdir};
+			
+			next if $subdir eq 'DEFAULT';
+			my $dir=($subdir =~/^\//) ? $subdir : $topdir.$subdir;
+			my $d=$directory;
+			$dir.="/" unless $dir=~/\/$/;
+			$d.="/" unless $d=~/\/$/;
+			if ($d=~/^\Q$dir\E/) {
+				push @repos, [$dir, $topdir, $subdir];
+				last;
+			}
+		}
+		$no_chdir=1;
+	}
+	return @repos;
 } #}}}
 
 my %loaded;
@@ -1043,7 +1042,23 @@ sub expandaction { #{{{
 		}
 	}
 	return $action;
-}
+} #}}}
+
+sub getopts { #{{{
+	Getopt::Long::Configure("no_permute");
+	my $result=GetOptions(
+		"d|directory=s" => sub { $directory=abs_path($_[1]) },
+		"c|config=s" => sub { $ENV{MR_CONFIG}=$_[1]; $config_overridden=1 },
+		"v|verbose" => \$verbose,
+		"s|stats" => \$stats,
+		"n|no-recurse" => \$no_recurse,
+		"j|jobs=i" => \$jobs,
+	);
+	if (! $result || @ARGV < 1) {
+		die("Usage: mr [-d directory] action [params ...]\n".
+		    "(Use mr help for man page.)\n");
+	}
+} #}}}
 
 # Finally, some useful actions that mr knows about by default.
 # These can be overridden in ~/.mrconfig.
