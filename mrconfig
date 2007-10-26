@@ -7,7 +7,7 @@ skip = ! wantsrc
 [linux-2.6]
 checkout = git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
 # only update once every 12 hours
-skip = ([ "$1" = update ] && [ $(hours_since "$1") -lt 12 ])
+skip = ([ "$1" = update ] && ! hours_since "$1" 12)
 
 [debian-cd]
 checkout = svn co svn://svn.debian.org/debian-cd/trunk debian-cd
