@@ -66,7 +66,7 @@ git_fake_bare_register =
 		error "git worktree $worktree does not exist"
 	fi
 	echo "Registering git url: $url in $MR_CONFIG (with worktree $worktree)"
-	mr -c "$MR_CONFIG" config "`pwd`" \
+	mr -c "$MR_CONFIG" config "$PWD" \
 		checkout="git_fake_bare_checkout '$url' '$MR_REPO' '$worktree'"
 
 # vim:sw=8:sts=0:ts=8:noet
