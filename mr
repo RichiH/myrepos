@@ -296,7 +296,8 @@ use warnings;
 use strict;
 use Getopt::Long;
 use Cwd qw(getcwd abs_path);
-use POSIX "WNOHANG";
+
+# things that can happen when mr runs a command
 use constant {
 	OK => 0,
 	FAILED => 1,
@@ -304,6 +305,7 @@ use constant {
 	ABORT => 3,
 };
 
+# configurables
 my $config_overridden=0;
 my $verbose=0;
 my $stats=0;
@@ -312,6 +314,7 @@ my $no_chdir=0;
 my $jobs=1;
 my $directory=getcwd();
 
+# globals :-(
 my %config;
 my %configfiles;
 my %knownactions;
