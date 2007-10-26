@@ -1,3 +1,23 @@
+mr (0.9) UNRELEASED; urgency=low
+
+  * Split up actions, so each rcs has its own set of action commands,
+    and mr tests to see what rcs is used by a repository, and dispatches
+    the command.
+    .
+    This will make it much easier to add new rcses, or modify just the
+    command that mr uses for one command for one rcs, without duplicating a
+    lot of code, and without needing to modify mr at all.
+    .
+    The old style unsplit actions are still supported, and are what most
+    mrconfig files will still use; this change is fully backwards compatible.
+  * Changed some things in the enviroment for the register action.
+    It's now run in the directory that the user specifies, and MR_REPO
+    is set to contain the basename of the directory that the checkout
+    command should check out. These changes should be backware compatible
+    to existing register actions.
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 25 Oct 2007 20:41:15 -0400
+
 mr (0.8) unstable; urgency=low
 
   * Improve "in subdir" message.

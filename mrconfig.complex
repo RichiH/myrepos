@@ -4,15 +4,12 @@
 # although slightly cut down.
 
 [DEFAULT]
-# Teach mr how to run svn cleanup.
-cleanup = if [ -d "$MR_REPO"/.svn ]; then svn cleanup ; fi
-# And how to run git gc and push.
-gc = if [ -d "$MR_REPO"/.git ]; then git gc; fi
-push = if [ -d "$MR_REPO"/.git ]; then git push; fi
-# And how to list tags for git and svn.
+# Teach mr to run a few git and svn specific commands.
+svn_cleanup = svn cleanup "$@"
+git_gc = git gc "$@"
+git_push = git push "$@"
 git_tag = git tag -l
-svn_tag =
-	svn ls "$(LANG=C svn info . | grep -i ^URL: | cut -d ' ' -f 2 | sed -e 's/trunk/tags/')"
+svn_tag = svn ls "$(LANG=C svn info . | grep -i ^URL: | cut -d ' ' -f 2 | sed -e 's/trunk/tags/')"
 # This hack is here because git-pull stupidly outputs tag info to stderr.
 # Shut it up but let real errors through, for use in cron.
 quietupdate = mr -s -n update 3>&1 1>/dev/null 2>&3 | egrep -v '(storing tag|tag: )' || true

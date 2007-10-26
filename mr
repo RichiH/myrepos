@@ -209,7 +209,11 @@ directory, since the repository isn't checked out yet. All other commands
 are run inside the repository, though not necessarily at the top of it.
 
 The "MR_REPO" environment variable is set to the path to the top of the
-repository. The "MR_CONFIG" environment variable is set to the .mrconfig file
+repository. (For the "register" action, "MR_REPO" is instead set to the 
+basename of the directory that should be created when checking the
+repository out.)
+
+The "MR_CONFIG" environment variable is set to the .mrconfig file
 that defines the repo being acted on, or, if the repo is not yet in a config
 file, the .mrconfig file that should be modified to register the repo.
 
@@ -418,8 +422,22 @@ elsif ($action eq 'register') {
 			}
 		}
 	}
-	my $command="set -e; ".$config{''}{DEFAULT}{lib}."\n".
-		"my_action(){ $config{''}{DEFAULT}{$action}\n }; my_action ".
+	if (@ARGV) {
+		my $subdir=shift @ARGV;
+		if (! chdir($subdir)) {
+			print STDERR "mr $action: failed to chdir to $subdir: $!\n";
+		}
+	}
+
+	$ENV{MR_REPO}=getcwd();
+	my $command=findcommand("register", '', '', 'DEFAULT');
+	if (! defined $command) {
+		die "mr $action: unknown repository type\n";
+	}
+
+	$ENV{MR_REPO}=~s/.*\/(.*)/$1/;
+	$command="set -e; ".$config{''}{DEFAULT}{lib}."\n".
+		"my_action(){ $command\n }; my_action ".
 		join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
 	print STDERR "mr $action: running >>$command<<\n" if $verbose;
 	exec($command) || die "exec: $!";
@@ -517,17 +535,20 @@ sub rcs_test { #{{{
 	my ($action, $dir, $topdir, $subdir) = @_;
 
 	my $test="set -e\n";
-	foreach my $rcs_test (grep { /_test/ } keys %{$config{$topdir}{$subdir}}) {
+	foreach my $rcs_test (
+			sort {
+				length $a <=> length $b 
+				          ||
+				       $a cmp $b
+			} grep { /_test/ } keys %{$config{$topdir}{$subdir}}) {
 		my ($rcs)=$rcs_test=~/(.*)_test/;
-		$test="my_$rcs_test(){ $config{$topdir}{$subdir}{$rcs_test}\n }\n".$test;
+		$test="my_$rcs_test() {\n$config{$topdir}{$subdir}{$rcs_test}\n}\n".$test;
 		$test.="if my_$rcs_test; then echo $rcs; fi\n";
 	}
 	$test=$config{$topdir}{$subdir}{lib}."\n".$test
 		if exists $config{$topdir}{$subdir}{lib};
 	
 	print "mr $action: running rcs test >>$test<<\n" if $verbose;
-	$ENV{MR_REPO}=$dir;
-	$ENV{MR_CONFIG}=$configfiles{$topdir};
 	my $rcs=`$test`;
 	chomp $rcs;
 	if (! length $rcs) {
@@ -856,7 +877,12 @@ sub loadconfig { #{{{
 			}
 			else {
 				$config{$dir}{$section}{$parameter}=$value;
-				$knownactions{$parameter}=1 if $parameter !~ /_/;
+				if ($parameter =~ /.*_(.*)/) {
+					$knownactions{$1}=1;
+				}
+				else {
+					$knownactions{$parameter}=1;
+				}
 				if ($parameter eq 'chain' &&
 				    length $dir && $section ne "DEFAULT" &&
 				    -e $dir.$section."/.mrconfig") {
@@ -995,7 +1021,6 @@ ls = list
 [DEFAULT]
 order = 10
 lib =
-	PWD="$pwd"
 	error() {
 		echo "mr: $@" >&2
 		exit 1
@@ -1027,25 +1052,6 @@ lib =
 			exit 1
 		fi
 	}
-	get_git_repo_type()
-	{
-		if [ -d "$1"/.git ] && [ -d "$1"/.git/refs/heads ] &&
-			[ -d "$1"/.git/objects ] && [ -f "$1"/.git/config ];
-			then
-			echo non-bare
-		elif [ -d "$1"/refs/heads ] && [ -d "$1"/refs/tags ] &&
-			[ -d "$1"/objects ] && [ -f "$1"/config ]; then
-			local bare
-			bare="$(GIT_CONFIG="$1"/config git-config --get core.bare)"
-			case "$bare" in
-				true) echo bare;;
-				false) echo fake-bare;;
-				*) return 255;;
-			esac
-		else
-			return 1
-		fi
-	}
 
 svn_test = test -d "$MR_REPO"/.svn
 git_test = test -d "$MR_REPO"/.git
@@ -1053,9 +1059,22 @@ bzr_test = test -d "$MR_REPO"/.bzr
 cvs_test = test -d "$MR_REPO"/CVS
 hg_test  = test -d "$MR_REPO"/.hg
 darcs_test = test -d "$MR_REPO"/_darcs
+git_bare_test =
+	test -d "$MR_REPO"/refs/heads && test -d "$MR_REPO"/refs/tags &&
+	test -d "$MR_REPO"/objects && test -f "$MR_REPO"/config &&
+	test "$(GIT_CONFIG="$MR_REPO"/config git-config --get core.bare)" = true
+git_fake_bare_test = 
+	test -d "$MR_REPO"/refs/heads && test -d "$MR_REPO"/refs/tags &&
+	test -d "$MR_REPO"/objects && test -f "$MR_REPO"/config &&
+	test "$(GIT_CONFIG="$MR_REPO"/config git-config --get core.bare)" = false
 
 svn_update = svn update "$@"
-git_update = 
+git_update = if [ "$@" ]; then git pull "$@"; else git pull -t origin master; fi
+bzr_update = bzr merge "$@"
+cvs_update = cvs update "$@"
+hg_update  = hg pull "$@" && hg update "$@"
+darcs_update = darcs pull -a "$@"
+git_fake_bare_update =
 	# all this is because of a bug in git-fetch, which requires GIT_DIR set
 	local git_dir_override; git_dir_override=.git
 	case "$(get_git_repo_type "$MR_REPO")" in
@@ -1064,10 +1083,6 @@ git_update =
 	args="$@"
 	[ -z "$args" ] && args="-t origin master"
 	eval GIT_DIR="$git_dir_override" git pull "$args"
-bzr_update = bzr merge "$@"
-cvs_update = cvs update "$@"
-hg_update  = hg pull "$@" && hg update "$@"
-darcs_update = darcs pull -a "$@"
 
 svn_status = svn status "$@"
 git_status = git status "$@" || true
@@ -1075,30 +1090,23 @@ bzr_status = bzr status "$@"
 cvs_status = cvs status "$@"
 hg_status  = hg status "$@"
 darcs_status = darcs whatsnew -ls "$@"
+git_fake_bare_status = git status "$@" || true
 
 svn_commit = svn commit "$@"
-git_commit = 
-	case "$(get_git_repo_type "$MR_REPO")" in
-		bare) error "cannot commit to bare git repositories";;
-		fake-bare) error "commit does not work for fake bare git repositories (yet).";;
-	esac
-	git commit -a "$@" && git push --all
+git_commit = git commit -a "$@" && git push --all
 bzr_commit = bzr commit "$@" && bzr push
 cvs_commit = cvs commit "$@"
 hg_commit  = hg commit -m "$@" && hg push
 darcs_commit = darcs commit -a -m "$@" && darcs push -a
+git_fake_bare_commit = error "commit does not work for fake bare git repositories (yet)."
 
 svn_diff = svn diff "$@"
-git_diff = 
-	case "$(get_git_repo_type "$MR_REPO")" in
-		bare) error "cannot diff in bare git repositories";;
-		fake-bare) error "diff does not work for fake bare git repositories (yet).";;
-	esac
-	git diff "$@"
+git_diff = git diff "$@"
 bzr_diff = bzr diff "$@"
 cvs_diff = cvs diff "$@"
 hg_diff  = hg diff "$@"
 darcs_diff = darcs diff "$@"
+git_fake_bare_diff = error "diff does not work for fake bare git repositories (yet)."
 
 svn_log = svn log "$@"
 git_log = git log "$@"
@@ -1106,91 +1114,68 @@ bzr_log = bzr log "$@"
 cvs_log = cvs log "$@"
 hg_log  = hg log "$@"
 darcs_log = darcs changes "$@"
+git_bare_log = git log "$@"
+git_fake_bare_log = git log "$@"
 
 svn_register =
-	if [ -n "$1" ]; then
-		cd "$1"
-	fi
-	basedir="${PWD##*/}"
 	url=$(LANG=C svn info . | grep -i ^URL: | cut -d ' ' -f 2)
 	if [ -z "$url" ]; then
 		error "cannot determine svn url"
 	fi
 	echo "Registering svn url: $url in $MR_CONFIG"
-	mr -c "$MR_CONFIG" config "$PWD" checkout="svn co $url $basedir"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="svn co $url $MR_REPO"
 git_register = 
-	if [ -n "$1" ]; then
-		cd "$1"
-	fi
-	basedir="${PWD##*/}"
-	local repo_type; repo_type="$(get_git_repo_type .)"
-	local config;
-	case "$repo_type" in
-		non-bare) config=.git/config;;
-		bare|fake-bare) config=config;;
-	esac
-	url="$(LANG=C GIT_CONFIG="$config" git-config --get remote.origin.url)"
+	url="$(LANG=C git-config --get remote.origin.url)"
 	if [ -z "$url" ]; then
 		error "cannot determine git url"
 	fi
-	case "$repo_type" in
-		bare|fake-bare)
-			# this seems like a bare repo as it has no
-			# worktree.
-			local work_tree
-			work_tree="$(git-config --get core.worktree)" || :
-			if [ ! -d "$work_tree" ]; then
-				error "git worktree $work_tree does not exist"
-			fi
-			suffix=" (with worktree $work_tree)"
-			mr -c "$MR_CONFIG" config "$PWD" \
-				lib="GIT_WORK_TREE=$work_tree; export GIT_WORK_TREE"
-			;;
-	esac
-	echo "Registering git url: $url in $MR_CONFIG${suffix:-}"
-	mr -c "$MR_CONFIG" config "$PWD" checkout="git clone $url $basedir"
+	echo "Registering git url: $url in $MR_CONFIG"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone $url $MR_REPO"
 bzr_register =
-	if [ -n "$1" ]; then
-		cd "$1"
-	fi
-	basedir="${PWD##*/}"
 	url=$(cat .bzr/branch/parent)
 	if [ -z "$url" ]; then
 		error "cannot determine bzr url"
 	fi
 	echo "Registering bzr url: $url in $MR_CONFIG"
-	mr -c "$MR_CONFIG" config "$PWD" checkout="bzr clone $url $basedir"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="bzr clone $url $MR_REPO"
 cvs_register =
-	if [ -n "$1" ]; then
-		cd "$1"
-	fi
-	basedir="${PWD##*/}"
 	repo=$(cat CVS/Repository)
 	root=$(cat CVS/Root)
 	if [ -z "$root" ]; then
 		error "cannot determine cvs root"
 		fi
 	echo "Registering cvs repository $repo at root $root"
-	mr -c "$MR_CONFIG" config "$PWD" \
-		checkout="cvs -d '$root' co -d $basedir $repo"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="cvs -d '$root' co -d $MR_REPO $repo"
 hg_register = 
-	if [ -n "$1" ]; then
-		cd "$1"
-	fi
-	basedir="${PWD##*/}"
 	url=$(hg showconfig paths.default)
 	echo "Registering mercurial repo url: $url in $MR_CONFIG"
-	mr -c "$MR_CONFIG" config "$PWD" \
-		checkout="hg clone $url $basedir"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="hg clone $url $MR_REPO"
 darcs_register = 
-	if [ -n "$1" ]; then
-		cd "$1"
-	fi
-	basedir="${PWD##*/}"
 	url=$(cat _darcs/prefs/defaultrepo)
 	echo "Registering darcs repository $url in $MR_CONFIG"
-	mr -c "$MR_CONFIG" config "$PWD" \
-		checkout="darcs get $url $basedir"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="darcs get $url $MR_REPO"
+git_bare_register = 
+	url="$(LANG=C GIT_CONFIG=config git-config --get remote.origin.url)"
+	if [ -z "$url" ]; then
+		error "cannot determine git url"
+	fi
+	mr -c "$MR_CONFIG" config "`pwd`" \
+		lib="GIT_WORK_TREE=$work_tree; export GIT_WORK_TREE"
+	echo "Registering git url: $url in $MR_CONFIG"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone $url $MR_REPO"
+git_fake_bare_register = 
+	url="$(LANG=C GIT_CONFIG=config git-config --get remote.origin.url)"
+	if [ -z "$url" ]; then
+		error "cannot determine git url"
+	fi
+	worktree="$(git-config --get core.worktree)" || true
+	if [ ! -d "$worktree" ]; then
+		error "git worktree $worktree does not exist"
+	fi
+	mr -c "$MR_CONFIG" config "`pwd`" \
+		lib="GIT_WORK_TREE=$work_tree; export GIT_WORK_TREE"
+	echo "Registering git url: $url in $MR_CONFIG (with worktree $worktree)"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone $url $MR_REPO"
 
 help =
 	if [ ! -e "$MR_PATH" ]; then
