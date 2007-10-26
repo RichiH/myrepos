@@ -304,62 +304,21 @@ use constant {
 	ABORT => 3,
 };
 
-$SIG{INT}=sub {
-	print STDERR "mr: interrupted\n";
-	exit 2;
-};
-
-$ENV{MR_CONFIG}="$ENV{HOME}/.mrconfig";
 my $config_overridden=0;
 my $verbose=0;
 my $stats=0;
 my $no_recurse=0;
 my $no_chdir=0;
 my $jobs=1;
+my $directory=getcwd();
+
 my %config;
 my %configfiles;
 my %knownactions;
 my %alias;
-my $directory=getcwd();
 my (@ok, @failed, @skipped);
 
-getopts();
-
-# This can happen if it's run in a directory that was removed
-# or other strangeness.
-if (! defined $directory) {
-	die("mr: failed to determine working directory\n");
-}
-# Make sure MR_CONFIG is an absolute path, but don't use abs_path since
-# the config file might be a symlink to elsewhere, and the directory it's
-# in is significant.
-if ($ENV{MR_CONFIG} !~ /^\//) {
-	$ENV{MR_CONFIG}=getcwd()."/".$ENV{MR_CONFIG};
-}
-# Try to set MR_PATH to the path to the program.
-eval {
-	use FindBin qw($Bin $Script);
-	$ENV{MR_PATH}=$Bin."/".$Script;
-};
-
-loadconfig(\*DATA);
-loadconfig($ENV{MR_CONFIG});
-#use Data::Dumper;
-#print Dumper(\%config);
-
-my $action=expandaction(shift @ARGV);
-dispatch($action);
-showstats($action);
-
-if (@failed) {
-	exit 1;
-}
-elsif (! @ok && @skipped) {
-	exit 1;
-}
-else {
-	exit 0;
-}
+main();
 
 sub dispatch { #{{{
 	my $action=shift;
@@ -635,6 +594,7 @@ sub record { #{{{
 } #}}}
 
 sub showstats { #{{{
+	my $action=shift;
 	if (! @ok && ! @failed && ! @skipped) {
 		die "mr $action: no repositories found to work on\n";
 	}
@@ -830,11 +790,11 @@ sub loadconfig { #{{{
 					my $ret=system($value);
 					if ($ret != 0) {
 						if (($? & 127) == 2) {
-							print STDERR "mr $action: chain test interrupted\n";
+							print STDERR "mr: chain test interrupted\n";
 							exit 2;
 						}
 						elsif ($? & 127) {
-							print STDERR "mr $action: chain test received signal ".($? & 127)."\n";
+							print STDERR "mr: chain test received signal ".($? & 127)."\n";
 						}
 					}
 					else {
@@ -951,7 +911,7 @@ sub modifyconfig { #{{{
 } #}}}
 	
 sub help { #{{{
-	exec($config{''}{DEFAULT}{$action}) || die "exec: $!";
+	exec($config{''}{DEFAULT}{help}) || die "exec: $!";
 } #}}}
 	
 sub config { #{{{
@@ -984,7 +944,7 @@ sub config { #{{{
 				}
 			}
 			if (! $found) {
-				die "mr $action: $section $_ not set\n";
+				die "mr config: $section $_ not set\n";
 			}
 		}
 	}
@@ -1009,21 +969,21 @@ sub register { #{{{
 	if (@ARGV) {
 		my $subdir=shift @ARGV;
 		if (! chdir($subdir)) {
-			print STDERR "mr $action: failed to chdir to $subdir: $!\n";
+			print STDERR "mr register: failed to chdir to $subdir: $!\n";
 		}
 	}
 
 	$ENV{MR_REPO}=getcwd();
 	my $command=findcommand("register", $ENV{MR_REPO}, $directory, 'DEFAULT');
 	if (! defined $command) {
-		die "mr $action: unknown repository type\n";
+		die "mr register: unknown repository type\n";
 	}
 
 	$ENV{MR_REPO}=~s/.*\/(.*)/$1/;
 	$command="set -e; ".$config{$directory}{DEFAULT}{lib}."\n".
 		"my_action(){ $command\n }; my_action ".
 		join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
-	print "mr $action: running >>$command<<\n" if $verbose;
+	print "mr register: running >>$command<<\n" if $verbose;
 	exec($command) || die "exec: $!";
 } #}}}
 
@@ -1064,6 +1024,54 @@ sub getopts { #{{{
 	if (! $result || @ARGV < 1) {
 		die("Usage: mr [-d directory] action [params ...]\n".
 		    "(Use mr help for man page.)\n");
+	}
+} #}}}
+
+sub init { #{{{
+	$SIG{INT}=sub {
+		print STDERR "mr: interrupted\n";
+		exit 2;
+	};
+	
+	$ENV{MR_CONFIG}="$ENV{HOME}/.mrconfig";
+
+	# This can happen if it's run in a directory that was removed
+	# or other strangeness.
+	if (! defined $directory) {
+		die("mr: failed to determine working directory\n");
+	}
+	# Make sure MR_CONFIG is an absolute path, but don't use abs_path since
+	# the config file might be a symlink to elsewhere, and the directory it's
+	# in is significant.
+	if ($ENV{MR_CONFIG} !~ /^\//) {
+		$ENV{MR_CONFIG}=getcwd()."/".$ENV{MR_CONFIG};
+	}
+	# Try to set MR_PATH to the path to the program.
+	eval {
+		use FindBin qw($Bin $Script);
+		$ENV{MR_PATH}=$Bin."/".$Script;
+	};
+} #}}}
+
+sub main { #{{{
+	getopts();
+	init();
+	loadconfig(\*DATA);
+	loadconfig($ENV{MR_CONFIG});
+	#use Data::Dumper; print Dumper(\%config);
+
+	my $action=expandaction(shift @ARGV);
+	dispatch($action);
+	showstats($action);
+
+	if (@failed) {
+		exit 1;
+	}
+	elsif (! @ok && @skipped) {
+		exit 1;
+	}
+	else {
+		exit 0;
 	}
 } #}}}
 
