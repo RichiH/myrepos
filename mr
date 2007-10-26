@@ -1123,21 +1123,21 @@ svn_register =
 		error "cannot determine svn url"
 	fi
 	echo "Registering svn url: $url in $MR_CONFIG"
-	mr -c "$MR_CONFIG" config "`pwd`" checkout="svn co $url $MR_REPO"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="svn co '$url' '$MR_REPO'"
 git_register = 
 	url="$(LANG=C git-config --get remote.origin.url)" || true
 	if [ -z "$url" ]; then
 		error "cannot determine git url"
 	fi
 	echo "Registering git url: $url in $MR_CONFIG"
-	mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone $url $MR_REPO"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone '$url' '$MR_REPO'"
 bzr_register =
 	url=$(cat .bzr/branch/parent)
 	if [ -z "$url" ]; then
 		error "cannot determine bzr url"
 	fi
 	echo "Registering bzr url: $url in $MR_CONFIG"
-	mr -c "$MR_CONFIG" config "`pwd`" checkout="bzr clone $url $MR_REPO"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="bzr clone '$url' '$MR_REPO'"
 cvs_register =
 	repo=$(cat CVS/Repository)
 	root=$(cat CVS/Root)
@@ -1145,22 +1145,22 @@ cvs_register =
 		error "cannot determine cvs root"
 		fi
 	echo "Registering cvs repository $repo at root $root"
-	mr -c "$MR_CONFIG" config "`pwd`" checkout="cvs -d '$root' co -d $MR_REPO $repo"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="cvs -d '$root' co -d '$MR_REPO' '$repo'"
 hg_register = 
 	url=$(hg showconfig paths.default)
 	echo "Registering mercurial repo url: $url in $MR_CONFIG"
-	mr -c "$MR_CONFIG" config "`pwd`" checkout="hg clone $url $MR_REPO"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="hg clone '$url' '$MR_REPO'"
 darcs_register = 
 	url=$(cat _darcs/prefs/defaultrepo)
 	echo "Registering darcs repository $url in $MR_CONFIG"
-	mr -c "$MR_CONFIG" config "`pwd`" checkout="darcs get $url $MR_REPO"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="darcs get '$url'p '$MR_REPO'"
 git_bare_register = 
 	url="$(LANG=C GIT_CONFIG=config git-config --get remote.origin.url)" || true
 	if [ -z "$url" ]; then
 		error "cannot determine git url"
 	fi
 	echo "Registering git url: $url in $MR_CONFIG"
-	mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone --bare $url $MR_REPO"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone --bare '$url' '$MR_REPO'"
 
 help =
 	if [ ! -e "$MR_PATH" ]; then
