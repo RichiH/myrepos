@@ -23,7 +23,7 @@ mr (0.9) UNRELEASED; urgency=low
   * Add support for including one mrconfig file from another. Unlike chaining,
     this doesn't change the paths, and is not tied to a particular
     subdirectory. It's useful for loading up library mrconfig files.
-  * Split git fake-bare support out into a mrconfig.git-fake-bare.
+  * Split git fake-bare support out into a lib/git-fake-bare.
     Partly because it's a good example of how to add a new revision control
     type and use includes, and partly because it's currently too ugly to be
     in mr itself due to bugs and limitations in git.

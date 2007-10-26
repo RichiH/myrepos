@@ -19,7 +19,8 @@ binary-indep: build
 	dh_clean -k
 	dh_install mr usr/bin
 	dh_installdocs README TODO
-	dh_installexamples mrconfig mrconfig.*
+	dh_installexamples mrconfig mrconfig.complex
+	dh_install lib/* usr/share/mr
 	dh_installman *.1
 	dh_installchangelogs
 	dh_compress
