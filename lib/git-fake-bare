@@ -35,14 +35,9 @@ git_fake_bare_test =
 	test "$(GIT_CONFIG="$MR_REPO"/config git-config --get core.bare)" = false
 
 git_fake_bare_update =
-	# all this is because of a bug in git-fetch, which requires GIT_DIR set
-	local git_dir_override; git_dir_override=.git
-	case "$(get_git_repo_type "$MR_REPO")" in
-		fake-bare) git_dir_override="$MR_REPO";;
-	esac
 	args="$@"
 	[ -z "$args" ] && args="-t origin master"
-	eval GIT_DIR="$git_dir_override" git pull "$args"
+	eval GIT_DIR="$MR_REPO" git pull "$args"
 
 git_fake_bare_status = git status "$@" || true
 
