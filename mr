@@ -427,6 +427,7 @@ elsif ($action eq 'register') {
 			next unless length $topdir;
 			if ($directory=~/^\Q$topdir\E/) {
 				$ENV{MR_CONFIG}=$configfiles{$topdir};
+				$directory=$topdir;
 				last;
 			}
 		}
@@ -439,13 +440,13 @@ elsif ($action eq 'register') {
 	}
 
 	$ENV{MR_REPO}=getcwd();
-	my $command=findcommand("register", '', '', 'DEFAULT');
+	my $command=findcommand("register", $ENV{MR_CONFIG}, $directory, 'DEFAULT');
 	if (! defined $command) {
 		die "mr $action: unknown repository type\n";
 	}
 
 	$ENV{MR_REPO}=~s/.*\/(.*)/$1/;
-	$command="set -e; ".$config{''}{DEFAULT}{lib}."\n".
+	$command="set -e; ".$config{$ENV{MR_CONFIG}}{$directory}{lib}."\n".
 		"my_action(){ $command\n }; my_action ".
 		join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
 	print "mr $action: running >>$command<<\n" if $verbose;
@@ -549,7 +550,7 @@ sub rcs_test { #{{{
 				length $a <=> length $b 
 				          ||
 				       $a cmp $b
-			} grep { /_test/ } keys %{$config{$topdir}{$subdir}}) {
+			} grep { /_test$/ } keys %{$config{$topdir}{$subdir}}) {
 		my ($rcs)=$rcs_test=~/(.*)_test/;
 		$test="my_$rcs_test() {\n$config{$topdir}{$subdir}{$rcs_test}\n}\n".$test;
 		$test.="if my_$rcs_test; then echo $rcs; fi\n";
