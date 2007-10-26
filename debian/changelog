@@ -25,8 +25,8 @@ mr (0.9) UNRELEASED; urgency=low
     subdirectory. It's useful for loading up library mrconfig files.
   * Split git fake-bare support out into a mrconfig.git-fake-bare.
     Partly because it's a good example of how to add a new revision control
-    type, and partly because it's currently too ugly to be in mr itself
-    due to bugs and limitations in git.
+    type and use includes, and partly because it's currently too ugly to be
+    in mr itself due to bugs and limitations in git.
 
  -- Joey Hess <joeyh@debian.org>  Thu, 25 Oct 2007 21:43:36 -0400
 
