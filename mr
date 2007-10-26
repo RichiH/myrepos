@@ -440,13 +440,13 @@ elsif ($action eq 'register') {
 	}
 
 	$ENV{MR_REPO}=getcwd();
-	my $command=findcommand("register", $ENV{MR_CONFIG}, $directory, 'DEFAULT');
+	my $command=findcommand("register", $ENV{MR_REPO}, $directory, 'DEFAULT');
 	if (! defined $command) {
 		die "mr $action: unknown repository type\n";
 	}
 
 	$ENV{MR_REPO}=~s/.*\/(.*)/$1/;
-	$command="set -e; ".$config{$ENV{MR_CONFIG}}{$directory}{lib}."\n".
+	$command="set -e; ".$config{$directory}{DEFAULT}{lib}."\n".
 		"my_action(){ $command\n }; my_action ".
 		join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
 	print "mr $action: running >>$command<<\n" if $verbose;
