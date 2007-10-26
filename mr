@@ -1104,7 +1104,6 @@ register =
 		if [ -z "$url" ]; then
 			error "cannot determine git url"
 		fi
-		set -x
 		local clone_opts add_cmd work_tree suffix
 		case "$repo_type" in
 			fake-bare)
