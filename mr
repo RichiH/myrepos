@@ -1162,20 +1162,28 @@ git_bare_register =
 	mr -c "$MR_CONFIG" config "`pwd`" \
 		lib="GIT_WORK_TREE=$work_tree; export GIT_WORK_TREE"
 	echo "Registering git url: $url in $MR_CONFIG"
-	mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone $url $MR_REPO"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone --bare $url $MR_REPO"
 git_fake_bare_register = 
 	url="$(LANG=C GIT_CONFIG=config git-config --get remote.origin.url)" || true
 	if [ -z "$url" ]; then
 		error "cannot determine git url"
 	fi
 	worktree="$(git-config --get core.worktree)" || true
+	worktree="${worktree%%/}/"
 	if [ ! -d "$worktree" ]; then
 		error "git worktree $worktree does not exist"
 	fi
 	mr -c "$MR_CONFIG" config "`pwd`" \
 		lib="GIT_WORK_TREE=$work_tree; export GIT_WORK_TREE"
 	echo "Registering git url: $url in $MR_CONFIG (with worktree $worktree)"
-	mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone $url $MR_REPO"
+	mr -c "$MR_CONFIG" config "`pwd`" \
+	checkout="
+	git clone --no-checkout $url $MR_REPO
+	cd $MR_REPO
+	git read-tree HEAD
+	git checkout-index -a --prefix='$work_tree' || true
+	git config core.worktree '$worktree'"
+	mv .git/* . && rmdir .git"
 
 help =
 	if [ ! -e "$MR_PATH" ]; then
