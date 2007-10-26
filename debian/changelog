@@ -15,6 +15,11 @@ mr (0.9) UNRELEASED; urgency=low
     is set to contain the basename of the directory that the checkout
     command should check out. These changes should be backware compatible
     to existing register actions.
+  * Add info and warning functions to the shell library. (madduck)
+  * Add git_bare and git_fake_bare rcs types to handle
+    bare and fake bare (non-bare with a detached worktree) git repositories.
+    (Diff and commit do not work yet to fake bare repos). (madduck)
+  * Add a vim modeline to preserve joey's tabbing prefs. (madduck)
 
  -- Joey Hess <joeyh@debian.org>  Thu, 25 Oct 2007 20:41:15 -0400
 
