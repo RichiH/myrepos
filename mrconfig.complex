@@ -4,6 +4,8 @@
 # although slightly cut down.
 
 [DEFAULT]
+# Include all available libs.
+include = cat /usr/share/mr/* 2>/dev/null || true
 #include = cat $HOME/src/mr/mrconfig.git-fake-bare
 # Teach mr to run a few git and svn specific commands.
 svn_cleanup = svn cleanup "$@"
