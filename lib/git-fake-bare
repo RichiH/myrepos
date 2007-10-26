@@ -72,3 +72,5 @@ git_fake_bare_register =
 	mr -c "$MR_CONFIG" config "`pwd`" lib="git_fake_bare_worktree '$worktree'"
 	echo "Registering git url: $url in $MR_CONFIG (with worktree $worktree)"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="git_fake_bare_checkout '$url' '$MR_REPO'"
+
+# vim:sw=8:sts=0:ts=8:noet
