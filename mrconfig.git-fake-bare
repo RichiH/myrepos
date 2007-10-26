@@ -21,7 +21,6 @@ lib =
 	# git doesn't have an easy way to check out such a repo, so
 	# do it by hand
 	git_fake_bare_checkout() {
-		set -x
 		url="$1"
 		repo="$2"
 		GIT_WORK_TREE= git clone --no-checkout "$url" "$repo"
