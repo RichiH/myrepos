@@ -1,0 +1,31 @@
+# This allows using unison as a "revison control system" with mr.
+# 
+# You need to configure unison by setting up files in ~/.unison named
+# the same as the basenames of the directories you want to sync, and
+# containing unison configuration to sync them.
+#
+# By default commit will be interactive; you can set batch mode in the
+# config file to disable this. All other commands use batch mode by
+# default.
+
+# To make mr use this file, add a line like this inside the [DEFAULT]
+# section of your ~/.mrconfig
+#include = cat /usr/share/mr/unison
+
+# And an example repo using it would look something like:
+#[music]
+#unison_test = true
+
+lib =
+	# The name of the directory containing the repo is assumed to
+	# match that of a unison config file.
+	unison_config() {
+		basename "$MR_REPO"
+	}
+
+unison_checkout = unison -batch $(unison_config)
+unison_update   = unison -batch $(unison_config)
+unison_push     = unison -batch $(unison_config)
+unison_commit   = unison $(unison_config)
+
+# vim:sw=8:sts=0:ts=8:noet

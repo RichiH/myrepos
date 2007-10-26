@@ -1,3 +1,9 @@
+mr (0.10) UNRELEASED; urgency=low
+
+  * Add a lib file for using unison with mr.
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 26 Oct 2007 03:57:51 -0400
+
 mr (0.9) unstable; urgency=low
 
   * Split up actions, so each rcs has its own set of action commands,
