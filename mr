@@ -960,13 +960,18 @@ sub register { #{{{
 		# Find the closest known mrconfig file to the current
 		# directory.
 		$directory.="/" unless $directory=~/\/$/;
+		my $foundconfig=0;
 		foreach my $topdir (reverse sort keys %config) {
 			next unless length $topdir;
 			if ($directory=~/^\Q$topdir\E/) {
 				$ENV{MR_CONFIG}=$configfiles{$topdir};
 				$directory=$topdir;
+				$foundconfig=1;
 				last;
 			}
+		}
+		if (! $foundconfig) {
+			$directory=""; # no config file, use builtin
 		}
 	}
 	if (@ARGV) {
