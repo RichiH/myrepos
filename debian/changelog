@@ -1,9 +1,9 @@
-mr (0.10) UNRELEASED; urgency=low
+mr (0.10) unstable; urgency=low
 
   * Add a lib file for using unison with mr.
   * Make registration work when no config file yet exists. Closes: #448422
 
- -- Joey Hess <joeyh@debian.org>  Sun, 28 Oct 2007 19:54:31 -0400
+ -- Joey Hess <joeyh@debian.org>  Sun, 28 Oct 2007 19:55:03 -0400
 
 mr (0.9) unstable; urgency=low
 
