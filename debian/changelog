@@ -1,3 +1,10 @@
+mr (0.11) UNRELEASED; urgency=low
+
+  * Avoid using commands like git-config and instead use "git config".
+    In some configurations, only the main git command is in the path.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 30 Oct 2007 16:08:31 -0400
+
 mr (0.10) unstable; urgency=low
 
   * Add a lib file for using unison with mr.

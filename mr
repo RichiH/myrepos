@@ -1136,7 +1136,7 @@ darcs_test = test -d "$MR_REPO"/_darcs
 git_bare_test =
 	test -d "$MR_REPO"/refs/heads && test -d "$MR_REPO"/refs/tags &&
 	test -d "$MR_REPO"/objects && test -f "$MR_REPO"/config &&
-	test "$(GIT_CONFIG="$MR_REPO"/config git-config --get core.bare)" = true
+	test "$(GIT_CONFIG="$MR_REPO"/config git config --get core.bare)" = true
 
 svn_update = svn update "$@"
 git_update = if [ "$@" ]; then git pull "$@"; else git pull -t origin master; fi
@@ -1182,7 +1182,7 @@ svn_register =
 	echo "Registering svn url: $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="svn co '$url' '$MR_REPO'"
 git_register = 
-	url="$(LANG=C git-config --get remote.origin.url)" || true
+	url="$(LANG=C git config --get remote.origin.url)" || true
 	if [ -z "$url" ]; then
 		error "cannot determine git url"
 	fi
@@ -1212,7 +1212,7 @@ darcs_register =
 	echo "Registering darcs repository $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="darcs get '$url'p '$MR_REPO'"
 git_bare_register = 
-	url="$(LANG=C GIT_CONFIG=config git-config --get remote.origin.url)" || true
+	url="$(LANG=C GIT_CONFIG=config git config --get remote.origin.url)" || true
 	if [ -z "$url" ]; then
 		error "cannot determine git url"
 	fi
