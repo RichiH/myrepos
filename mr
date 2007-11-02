@@ -1020,7 +1020,7 @@ sub expandaction { #{{{
 } #}}}
 
 sub getopts { #{{{
-	Getopt::Long::Configure("no_permute");
+	Getopt::Long::Configure("bundling", "no_permute");
 	my $result=GetOptions(
 		"d|directory=s" => sub { $directory=abs_path($_[1]) },
 		"c|config=s" => sub { $ENV{MR_CONFIG}=$_[1]; $config_overridden=1 },
