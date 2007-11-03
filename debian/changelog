@@ -1,3 +1,10 @@
+mr (0.12) UNRELEASED; urgency=low
+
+  * Avoid creating parent directory for a checkout that will ultimately be
+    skipped.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 03 Nov 2007 13:58:39 -0400
+
 mr (0.11) unstable; urgency=low
 
   * Avoid using commands like git-config and instead use "git config".

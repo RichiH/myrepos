@@ -388,11 +388,6 @@ sub action { #{{{
 		}
 
 		$dir=~s/^(.*)\/[^\/]+\/?$/$1/;
-
-		if (! -d $dir) {
-			print "mr $action: creating parent directory $dir\n" if $verbose;
-			system("mkdir", "-p", $dir);
-		}
 	}
 	elsif ($action =~ /update/) {
 		if (! -d $dir) {
@@ -401,7 +396,6 @@ sub action { #{{{
 	}
 
 	$ENV{MR_REPO}=$dir;
-
 	my $skiptest=findcommand("skip", $dir, $topdir, $subdir);
 	my $command=findcommand($action, $dir, $topdir, $subdir);
 
@@ -425,7 +419,12 @@ sub action { #{{{
 			return SKIPPED;
 		}
 	}
-	
+
+	if ($action eq 'checkout' && ! -d $dir) {
+		print "mr $action: creating parent directory $dir\n" if $verbose;
+		system("mkdir", "-p", $dir);
+	}
+
 	if (! $no_chdir && ! chdir($dir)) {
 		print STDERR "mr $action: failed to chdir to $dir: $!\n";
 		return FAILED;
