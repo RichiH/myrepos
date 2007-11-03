@@ -6,27 +6,31 @@
 [DEFAULT]
 # Include all available libs.
 include = cat /usr/share/mr/* 2>/dev/null || true
-#include = cat $HOME/src/mr/mrconfig.git-fake-bare
 # Teach mr to run a few git and svn specific commands.
 svn_cleanup = svn cleanup "$@"
 git_gc = git gc "$@"
 git_push = git push "$@"
 git_tag = git tag -l
 svn_tag = svn ls "$(LANG=C svn info . | grep -i ^URL: | cut -d ' ' -f 2 | sed -e 's/trunk/tags/')"
-# This hack is here because git pull stupidly outputs tag info to stderr.
+# This hack is here because git-pull stupidly outputs tag info to stderr.
 # Shut it up but let real errors through, for use in cron.
 quietupdate = mr -s -n update 3>&1 1>/dev/null 2>&3 | egrep -v '(storing tag|tag: )' || true
-# Tests used in the skips below.
-# - wantsrc checks whether I probably want a full source checkout (quite
-#   large)
+# Tests used below.
+# - anon checks whether this is an anonymous checkout, by testing what url
+#   $HOME uses
+# - full checks whether I probably want a full checkout (quite large),
+#   if not, the checkout is minimal
 # - wantmedia checks whether I probably want various large media files
 #   here.
 # - private are hosts I trust private data to
 # - mylaptop only succeeds if it's on my main development laptop, which 
 #   gets lots of extra cruft
 # - kite only succeeds on kite
-lib =
-	wantsrc() {
+lib = 
+	anon() {
+		expr $(GIT_CONFIG=$HOME/.git/config git config remote.origin.url) : 'git://' >/dev/null
+	}
+	full() {
 		test "$(whoami)" = joey
 	}
 	wantmedia() {
@@ -42,7 +46,7 @@ lib =
 	private() {
 		if [ "$(whoami)" = joey ]; then
 			case "$(hostname)" in
-			wren|kodama|dragon|dodo|bluebird)
+			wren|kodama|dragon|dodo|bluebird|slug)
 				return 0
 			;;
 			esac
@@ -56,61 +60,68 @@ lib =
 		test "$(hostname)" = wren
 	}
 
-[src/mr]
-checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/mr
-skip = ! wantsrc
-
-[src/linux-2.6]
-checkout = git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
-skip = ! mylaptop || ! wantsrc ||
-	([ "$1" = update ] && ! hours_since "$1" 12)
-
-[src/dpkg]
-# A merge of the upstream dpkg git repo and my own personal branch.
+# The root of my home directory.
+[]
 checkout =
+	if anon; then
+		git clone git://git.kitenet.net/joey/home joey
+	else
+		git clone ssh://git.kitenet.net/srv/git/kitenet.net/joey/home joey
+	fi
+
+# This is a dummy target, all it does is run fixups at the end of
+# an update.
+[tmp]
+update = fixups
+checkout = fixups
+status = :
+order = 25
+
+[.etc]
+checkout = 
+	if anon; then
+		git clone git://git.kitenet.net/joey/home-etc .etc
+	else
+		git clone ssh://git.kitenet.net/srv/git/kitenet.net/joey/home-etc .etc
+	fi
+
+[.cron]
+checkout =
+	if anon; then
+		git clone git://git.kitenet.net/joey/cron .cron
+	else
+		git clone ssh://git.kitenet.net/srv/git/kitenet.net/joey/cron .cron
+	fi
+
+[packages/perl]
+order = 30
+checkout = svn co svn+ssh://joeyh@svn.debian.org/svn/pkg-perl/trunk perl
+skip = ! mylaptop || ([ "$1" = update ] && ! hours_since "$1" 12)
+
+[linux-2.6]
+order = 20
+checkout = git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+skip = ! mylaptop || ([ "$1" = update ] && ! hours_since "$1" 12)
+push = error "as if!"
+
+[dpkg]
+# A merge of the upstream dpkg git repo and my own personal branch.
+checkout = 
 	git clone git://git.debian.org/git/dpkg/dpkg.git &&
 	cd dpkg &&
 	git remote add kite ssh://git.kitenet.net/srv/git/kitenet.net/dpkg &&
 	git fetch kite &&
 	git checkout -b sourcev3 kite/sourcev3
 update = git pull origin master && git pull kite sourcev3
-commit = git push kite
-skip = ! wantsrc
+commit = git commit -a && git push kite
+push = git push kite
+skip = ! mylaptop
 
 [html/www.debian.org]
 # Still in CVS..urk!
-checkout =
-	CVSROOT=:ext:joeyh@cvs.debian.org:/cvs/webwml
-	cvs co -d www.debian.org webwml
+checkout = cvs -d ':ext:joeyh@cvs.debian.org:/cvs/webwml' co -d www.debian.org webwml
 # cvs sucks sufficiently that I prefer to run these commands by hand,
 # and only rarely
 update = echo "skipping cvs update (too slow)"
 status = echo "skipping cvs status (too ugly)"
-skip = ! mylaptop || ! wantsrc
-
-# My home directory, which I keep in svn.
-[]
-checkout = svn co svn+ssh://svn.kitenet.net/srv/svn/joey/trunk/home-$(hostname) joey
-# run svnfix after each update
-update = svn update && svnfix
-
-[mail]
-checkout = git clone ssh://git.kitenet.net/srv/git/kitenet.net/joey/private/mail
-skip = ! private
-
-# I don't keep my music in revision control, but mr can be taught to use
-# unison to synchronise it.
-[sound]
-checkout = unison -batch sound
-update = unison -batch sound
-commit = unison sound
-skip = ! wantmedia
-# Update this last of all.
-order = 100
-
-# Example of how to remember to delete a repo, when one mrconfig file is
-# used on multiple systems. If you're feeling brave, use rm -rf $MR_REPO
-# instead. This approach can also be used for renames.
-[foo]
-update = error "$MR_REPO is no longer used and should be deleted"
-skip = ! test -d "$MR_REPO"
+skip = ! mylaptop || ! full
