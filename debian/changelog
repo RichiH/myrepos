@@ -1,4 +1,4 @@
-mr (0.12) UNRELEASED; urgency=low
+mr (0.12) unstable; urgency=low
 
   * Avoid creating parent directory for a checkout that will ultimately be
     skipped.
@@ -6,7 +6,7 @@ mr (0.12) UNRELEASED; urgency=low
     since the repo isn't there yet. It was actually checking the repo type
     of the parent directory, which caused several unexpected behaviors.
 
- -- Joey Hess <joeyh@debian.org>  Sat, 03 Nov 2007 14:04:47 -0400
+ -- Joey Hess <joeyh@debian.org>  Sat, 03 Nov 2007 14:22:00 -0400
 
 mr (0.11) unstable; urgency=low
 
