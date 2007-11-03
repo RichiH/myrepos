@@ -3,8 +3,10 @@ mr (0.11) UNRELEASED; urgency=low
   * Avoid using commands like git-config and instead use "git config".
     In some configurations, only the main git command is in the path.
   * Allow option bundling, mostly so "-j2" will work.
+  * Better error message if more than one repo type test matches a single
+    directory.
 
- -- Joey Hess <joeyh@debian.org>  Thu, 01 Nov 2007 23:52:50 -0400
+ -- Joey Hess <joeyh@debian.org>  Fri, 02 Nov 2007 22:41:44 -0400
 
 mr (0.10) unstable; urgency=low
 

@@ -343,6 +343,11 @@ sub rcs_test { #{{{
 	print "mr $action: running rcs test >>$test<<\n" if $verbose;
 	my $rcs=`$test`;
 	chomp $rcs;
+	if ($rcs=~/\n/s) {
+		$rcs=~s/\n/, /g;
+		print STDERR "mr $action: found multiple possible repository types ($rcs) for $topdir$subdir\n";
+		return undef;
+	}
 	if (! length $rcs) {
 		return undef;
 	}
