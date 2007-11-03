@@ -357,10 +357,14 @@ sub rcs_test { #{{{
 } #}}}
 	
 sub findcommand { #{{{
-	my ($action, $dir, $topdir, $subdir) = @_;
+	my ($action, $dir, $topdir, $subdir, $is_checkout) = @_;
 	
 	if (exists $config{$topdir}{$subdir}{$action}) {
 		return $config{$topdir}{$subdir}{$action};
+	}
+
+	if ($is_checkout) {
+		return undef;
 	}
 
 	my $rcs=rcs_test(@_);
@@ -380,8 +384,9 @@ sub action { #{{{
 	$ENV{MR_CONFIG}=$configfiles{$topdir};
 	my $lib=exists $config{$topdir}{$subdir}{lib} ?
 	               $config{$topdir}{$subdir}{lib}."\n" : "";
+	my $is_checkout=($action eq 'checkout');
 
-	if ($action eq 'checkout') {
+	if ($is_checkout) {
 		if (-d $dir) {
 			print "mr $action: $dir already exists, skipping checkout\n" if $verbose;
 			return SKIPPED;
@@ -396,8 +401,9 @@ sub action { #{{{
 	}
 
 	$ENV{MR_REPO}=$dir;
-	my $skiptest=findcommand("skip", $dir, $topdir, $subdir);
-	my $command=findcommand($action, $dir, $topdir, $subdir);
+
+	my $skiptest=findcommand("skip", $dir, $topdir, $subdir, $is_checkout);
+	my $command=findcommand($action, $dir, $topdir, $subdir, $is_checkout);
 
 	if (defined $skiptest) {
 		my $test="set -e;".$lib.
@@ -420,7 +426,7 @@ sub action { #{{{
 		}
 	}
 
-	if ($action eq 'checkout' && ! -d $dir) {
+	if ($is_checkout && ! -d $dir) {
 		print "mr $action: creating parent directory $dir\n" if $verbose;
 		system("mkdir", "-p", $dir);
 	}
@@ -986,7 +992,7 @@ sub register { #{{{
 	}
 
 	$ENV{MR_REPO}=getcwd();
-	my $command=findcommand("register", $ENV{MR_REPO}, $directory, 'DEFAULT');
+	my $command=findcommand("register", $ENV{MR_REPO}, $directory, 'DEFAULT', 0);
 	if (! defined $command) {
 		die "mr register: unknown repository type\n";
 	}
