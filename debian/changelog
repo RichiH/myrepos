@@ -1,3 +1,9 @@
+mr (0.13) unstable; urgency=low
+
+  * -c was broken, fix. Closes: #449539
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 06 Nov 2007 11:39:04 -0500
+
 mr (0.12) unstable; urgency=low
 
   * Avoid creating parent directory for a checkout that will ultimately be

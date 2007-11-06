@@ -313,6 +313,7 @@ my $no_recurse=0;
 my $no_chdir=0;
 my $jobs=1;
 my $directory=getcwd();
+$ENV{MR_CONFIG}="$ENV{HOME}/.mrconfig";
 
 # globals :-(
 my %config;
@@ -1051,8 +1052,6 @@ sub init { #{{{
 		exit 2;
 	};
 	
-	$ENV{MR_CONFIG}="$ENV{HOME}/.mrconfig";
-
 	# This can happen if it's run in a directory that was removed
 	# or other strangeness.
 	if (! defined $directory) {
