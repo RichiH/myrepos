@@ -232,7 +232,7 @@ mr is run by joey. The second uses the hours_since function
 (included in mr's built-in library) to skip updating the repo unless it's
 been at least 12 hours since the last update.
 
-  skip = test $(whoami) != joey
+  skip = test `whoami` != joey
   skip = [ "$1" = update ] && ! hours_since "$1" 12
 
 =item order
@@ -1127,7 +1127,7 @@ lib =
 		if [ -z "$flagfile" ]; then
 			error "cannot determine flag filename"
 		fi
-		delta=$(perl -wle 'print -f shift() ? int((-M _) * 24) : 9999' "$flagfile")
+		delta=`perl -wle 'print -f shift() ? int((-M _) * 24) : 9999' "$flagfile"`
 		if [ "$delta" -lt "$2" ]; then
 			exit 0
 		else
@@ -1145,7 +1145,7 @@ darcs_test = test -d "$MR_REPO"/_darcs
 git_bare_test =
 	test -d "$MR_REPO"/refs/heads && test -d "$MR_REPO"/refs/tags &&
 	test -d "$MR_REPO"/objects && test -f "$MR_REPO"/config &&
-	test "$(GIT_CONFIG="$MR_REPO"/config git config --get core.bare)" = true
+	test "`GIT_CONFIG="$MR_REPO"/config git config --get core.bare`" = true
 
 svn_update = svn update "$@"
 git_update = if [ "$@" ]; then git pull "$@"; else git pull -t origin master; fi
@@ -1184,44 +1184,44 @@ darcs_log = darcs changes "$@"
 git_bare_log = git log "$@"
 
 svn_register =
-	url=$(LANG=C svn info . | grep -i ^URL: | cut -d ' ' -f 2)
+	url=`LANG=C svn info . | grep -i '^URL:' | cut -d ' ' -f 2`
 	if [ -z "$url" ]; then
 		error "cannot determine svn url"
 	fi
 	echo "Registering svn url: $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="svn co '$url' '$MR_REPO'"
 git_register = 
-	url="$(LANG=C git config --get remote.origin.url)" || true
+	url="`LANG=C git config --get remote.origin.url`" || true
 	if [ -z "$url" ]; then
 		error "cannot determine git url"
 	fi
 	echo "Registering git url: $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone '$url' '$MR_REPO'"
 bzr_register =
-	url=$(cat .bzr/branch/parent)
+	url=`cat .bzr/branch/parent`
 	if [ -z "$url" ]; then
 		error "cannot determine bzr url"
 	fi
 	echo "Registering bzr url: $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="bzr clone '$url' '$MR_REPO'"
 cvs_register =
-	repo=$(cat CVS/Repository)
-	root=$(cat CVS/Root)
+	repo=`cat CVS/Repository`
+	root=`cat CVS/Root`
 	if [ -z "$root" ]; then
 		error "cannot determine cvs root"
 		fi
 	echo "Registering cvs repository $repo at root $root"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="cvs -d '$root' co -d '$MR_REPO' '$repo'"
 hg_register = 
-	url=$(hg showconfig paths.default)
+	url=`hg showconfig paths.default`
 	echo "Registering mercurial repo url: $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="hg clone '$url' '$MR_REPO'"
 darcs_register = 
-	url=$(cat _darcs/prefs/defaultrepo)
+	url=`cat _darcs/prefs/defaultrepo`
 	echo "Registering darcs repository $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="darcs get '$url'p '$MR_REPO'"
 git_bare_register = 
-	url="$(LANG=C GIT_CONFIG=config git config --get remote.origin.url)" || true
+	url="`LANG=C GIT_CONFIG=config git config --get remote.origin.url`" || true
 	if [ -z "$url" ]; then
 		error "cannot determine git url"
 	fi
