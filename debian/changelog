@@ -2,8 +2,9 @@ mr (0.14) UNRELEASED; urgency=low
 
   * Portability fixes for the non-POSIX shell of SunOS 5. Patch from Ken
     Bloom. Closes: #449592
+  * Cut number of rcs tests run in half.
 
- -- Joey Hess <joeyh@debian.org>  Wed, 07 Nov 2007 11:54:29 -0500
+ -- Joey Hess <joeyh@debian.org>  Thu, 08 Nov 2007 21:29:44 -0500
 
 mr (0.13) unstable; urgency=low
 

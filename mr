@@ -324,8 +324,13 @@ my (@ok, @failed, @skipped);
 
 main();
 
+my %rcs;
 sub rcs_test { #{{{
 	my ($action, $dir, $topdir, $subdir) = @_;
+
+	if (exists $rcs{$dir}) {
+		return $rcs{$dir};
+	}
 
 	my $test="set -e\n";
 	foreach my $rcs_test (
@@ -350,10 +355,10 @@ sub rcs_test { #{{{
 		return undef;
 	}
 	if (! length $rcs) {
-		return undef;
+		return $rcs{$dir}=undef;
 	}
 	else {
-		return $rcs;
+		return $rcs{$dir}=$rcs;
 	}
 } #}}}
 	
