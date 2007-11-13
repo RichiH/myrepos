@@ -448,7 +448,7 @@ sub action { #{{{
 			return FAILED;
 		}
 		else {
-			print STDERR "mr $action: no defined $action command for $rcs repository $topdir$subdir, skipping\n";
+			print STDERR "mr $action: no defined action for $rcs repository $topdir$subdir, skipping\n";
 			return SKIPPED;
 		}
 	}
