@@ -1,7 +1,12 @@
 mr (0.15) UNRELEASED; urgency=low
-
+  
+  [ Joey Hess ]
   * Allow -n to be passed a number to specify how deep to go into
     subdirectories to find repositories to act on. Closes: #450621
+
+  [ Josh Triplett ]
+  * Make -j with no argument run unlimited jobs in parallel, like make -j
+    Closes: #452467
 
  -- Joey Hess <joeyh@debian.org>  Sun, 25 Nov 2007 12:02:40 -0500
 

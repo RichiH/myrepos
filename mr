@@ -161,11 +161,11 @@ If a number is specified, will recurse into repositories at most that many
 subdirectories deep. For example, with -n 2 it would recurse into ./src/foo,
 but not ./src/packages/bar.
 
-=item -j number
+=item -j [number]
 
-Run the specified number of jobs in parallel. This can greatly speed up
-operations such as updates. It is not recommended for interactive
-operations.
+Run the specified number of jobs in parallel, or an unlimited number of jobs
+with no number specified. This can greatly speed up operations such as updates.
+It is not recommended for interactive operations.
 
 =back
 
@@ -510,7 +510,7 @@ sub mrs { #{{{
 	my @out;
 	my $running=0;
 	while (@fhs or @repos) {
-		while ($running < $jobs && @repos) {
+		while ((!$jobs || $running < $jobs) && @repos) {
 			$running++;
 			my $repo = shift @repos;
 			pipe(my $outfh, CHILD_STDOUT);
@@ -928,7 +928,7 @@ sub dispatch { #{{{
 		register(@ARGV);
 	}
 
-	if ($jobs > 1) {
+	if (!$jobs || $jobs > 1) {
 		mrs($action, selectrepos());
 	}
 	else {
@@ -1052,7 +1052,7 @@ sub getopts { #{{{
 		"v|verbose" => \$verbose,
 		"s|stats" => \$stats,
 		"n|no-recurse:i" => \$max_depth,
-		"j|jobs=i" => \$jobs,
+		"j|jobs:i" => \$jobs,
 	);
 	if (! $result || @ARGV < 1) {
 		die("Usage: mr [-d directory] action [params ...]\n".
