@@ -167,6 +167,10 @@ Run the specified number of jobs in parallel, or an unlimited number of jobs
 with no number specified. This can greatly speed up operations such as updates.
 It is not recommended for interactive operations.
 
+Note that running more than 10 jobs at a time is likely to run afoul of
+ssh connection limits. Running between 3 and 5 jobs at a time will yeild
+a good speedup in updates without loading the machine too much.
+
 =back
 
 =head1 FILES
