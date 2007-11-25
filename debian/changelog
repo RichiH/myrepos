@@ -1,4 +1,4 @@
-mr (0.15) UNRELEASED; urgency=low
+mr (0.15) unstable; urgency=low
 
   [ Joey Hess ]
   * Allow -n to be passed a number to specify how deep to go into
@@ -11,7 +11,7 @@ mr (0.15) UNRELEASED; urgency=low
   [ Joey Hess ]
   * Add a warning about runing too many jobs at a time.
 
- -- Joey Hess <joeyh@debian.org>  Sun, 25 Nov 2007 12:02:40 -0500
+ -- Joey Hess <joeyh@debian.org>  Sun, 25 Nov 2007 13:13:47 -0500
 
 mr (0.14) unstable; urgency=low
 
