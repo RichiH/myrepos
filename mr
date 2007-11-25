@@ -152,10 +152,14 @@ Be verbose.
 Expand the statistics line displayed at the end to include information
 about exactly which repositories failed and were skipped, if any.
 
-=item -n
+=item -n [number]
 
-Just operate on the repository for the current directory, do not 
-recurse into deeper repositories.
+If no number if specified, just operate on the repository for the current
+directory, do not recurse into deeper repositories.
+
+If a number is specified, will recurse into repositories at most that many
+subdirectories deep. For example, with -n 2 it would recurse into ./src/foo,
+but not ./src/packages/bar.
 
 =item -j number
 
@@ -309,7 +313,7 @@ use constant {
 my $config_overridden=0;
 my $verbose=0;
 my $stats=0;
-my $no_recurse=0;
+my $max_depth;
 my $no_chdir=0;
 my $jobs=1;
 my $directory=getcwd();
@@ -651,8 +655,13 @@ sub selectrepos { #{{{
 		my $d=$directory;
 		$dir.="/" unless $dir=~/\/$/;
 		$d.="/" unless $d=~/\/$/;
-		next if $no_recurse && $d ne $dir;
 		next if $dir ne $d && $dir !~ /^\Q$d\E/;
+		if (defined $max_depth) {
+			my @a=split('/', $dir);
+			my @b=split('/', $d);
+			do { } while (@a && @b && shift(@a) eq shift(@b));
+			next if @a > $max_depth || @b > $max_depth;
+		}
 		push @repos, [$dir, $topdir, $subdir];
 	}
 	if (! @repos) {
@@ -1042,7 +1051,7 @@ sub getopts { #{{{
 		"c|config=s" => sub { $ENV{MR_CONFIG}=$_[1]; $config_overridden=1 },
 		"v|verbose" => \$verbose,
 		"s|stats" => \$stats,
-		"n|no-recurse" => \$no_recurse,
+		"n|no-recurse:i" => \$max_depth,
 		"j|jobs=i" => \$jobs,
 	);
 	if (! $result || @ARGV < 1) {
