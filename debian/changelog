@@ -1,7 +1,7 @@
 mr (0.15) UNRELEASED; urgency=low
 
   * Allow -n to be passed a number to specify how deep to go into
-    subdirectories to find repositories to act on.
+    subdirectories to find repositories to act on. Closes: #450621
 
  -- Joey Hess <joeyh@debian.org>  Sun, 25 Nov 2007 12:02:40 -0500
 
