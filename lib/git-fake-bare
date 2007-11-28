@@ -48,7 +48,7 @@ git_fake_bare_diff = error "diff does not work for fake bare git repositories (y
 git_fake_bare_log = git log "$@"
 
 git_fake_bare_register = 
-	url="$(LANG=C GIT_CONFIG=config git-config --get remote.origin.url)" || true
+	url="$(LC_MESSAGES=C GIT_CONFIG=config git-config --get remote.origin.url)" || true
 	if [ -z "$url" ]; then
 		error "cannot determine git url"
 	fi

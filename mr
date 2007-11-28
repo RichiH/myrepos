@@ -1202,14 +1202,14 @@ darcs_log = darcs changes "$@"
 git_bare_log = git log "$@"
 
 svn_register =
-	url=`LANG=C svn info . | grep -i '^URL:' | cut -d ' ' -f 2`
+	url=`LC_MESSAGES=C svn info . | grep -i '^URL:' | cut -d ' ' -f 2`
 	if [ -z "$url" ]; then
 		error "cannot determine svn url"
 	fi
 	echo "Registering svn url: $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="svn co '$url' '$MR_REPO'"
 git_register = 
-	url="`LANG=C git config --get remote.origin.url`" || true
+	url="`LC_MESSAGES=C git config --get remote.origin.url`" || true
 	if [ -z "$url" ]; then
 		error "cannot determine git url"
 	fi
@@ -1239,7 +1239,7 @@ darcs_register =
 	echo "Registering darcs repository $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="darcs get '$url'p '$MR_REPO'"
 git_bare_register = 
-	url="`LANG=C GIT_CONFIG=config git config --get remote.origin.url`" || true
+	url="`LC_MESSAGES=C GIT_CONFIG=config git config --get remote.origin.url`" || true
 	if [ -z "$url" ]; then
 		error "cannot determine git url"
 	fi
