@@ -1,3 +1,9 @@
+mr (0.17) unstable; urgency=low
+
+  * Even bigger hammer: Set LC_ALL. Closes: #453305
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 29 Nov 2007 11:18:40 -0500
+
 mr (0.16) unstable; urgency=low
 
   * Use LC_MESSAGES=C not LANG=C, as if the user has LC_MESSAGES set, LANG
