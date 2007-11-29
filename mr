@@ -1184,7 +1184,7 @@ git_commit = git commit -a "$@" && git push --all
 bzr_commit = bzr commit "$@" && bzr push
 cvs_commit = cvs commit "$@"
 hg_commit  = hg commit -m "$@" && hg push
-darcs_commit = darcs commit -a -m "$@" && darcs push -a
+darcs_commit = darcs record -a -m "$@" && darcs push -a
 
 svn_diff = svn diff "$@"
 git_diff = git diff "$@"
@@ -1237,7 +1237,7 @@ hg_register =
 darcs_register = 
 	url=`cat _darcs/prefs/defaultrepo`
 	echo "Registering darcs repository $url in $MR_CONFIG"
-	mr -c "$MR_CONFIG" config "`pwd`" checkout="darcs get '$url'p '$MR_REPO'"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="darcs get '$url' '$MR_REPO'"
 git_bare_register = 
 	url="`LC_ALL=C GIT_CONFIG=config git config --get remote.origin.url`" || true
 	if [ -z "$url" ]; then
