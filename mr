@@ -30,7 +30,7 @@ B<mr> [options] action [params ...]
 
 B<mr> is a Multiple Repository management tool. It can checkout, update, or
 perform other actions on a set of repositories as if they were one combined
-respository. It supports any combination of subversion, git, cvs, mecurial,
+repository. It supports any combination of subversion, git, cvs, mecurial,
 bzr and darcs repositories, and support for other revision control systems can
 easily be added.
 
@@ -121,8 +121,8 @@ Displays this help.
 
 =back
 
-Actions can be abbreviated to any unambiguous subsctring, so
-"mr st" is equivilant to "mr status", and "mr up" is equivilant to "mr
+Actions can be abbreviated to any unambiguous substring, so
+"mr st" is equivalent to "mr status", and "mr up" is equivalent to "mr
 update"
 
 Additional parameters can be passed to most commands, and are passed on
