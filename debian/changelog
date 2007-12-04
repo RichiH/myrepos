@@ -1,3 +1,9 @@
+mr (0.19) UNRELEASED; urgency=low
+
+  * Support versions of man that don't use -l.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 04 Dec 2007 15:13:26 -0500
+
 mr (0.18) unstable; urgency=low
 
   * darcs: Use record subcommand, there is no commit subcommand. Closes: #453501

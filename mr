@@ -1250,7 +1250,10 @@ help =
 	if [ ! -e "$MR_PATH" ]; then
 		error "cannot find program path"
 	fi
-	(pod2man -c mr "$MR_PATH" | man -l -) || error "pod2man or man failed"
+	tmp=$(mktemp -t mr.XXXXXXXXXX) || error "mktemp failed"
+	trap "rm -f $tmp" exit
+	pod2man -c mr "$MR_PATH" > "$tmp" || error "pod2man failed"
+	man -l "$tmp" || error "man failed"
 list = true
 config = 
 
