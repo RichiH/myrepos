@@ -1,4 +1,4 @@
-mr (0.19) UNRELEASED; urgency=low
+mr (0.19) unstable; urgency=low
 
   * Support versions of man that don't use -l.
   * Updating git repos no longer uses git-pull -t by default. Git makes it
@@ -9,7 +9,7 @@ mr (0.19) UNRELEASED; urgency=low
     about pulling down all tags. It's insane. Live with it, or configure your
     own update command.
 
- -- Joey Hess <joeyh@debian.org>  Tue, 04 Dec 2007 15:13:26 -0500
+ -- Joey Hess <joeyh@debian.org>  Wed, 12 Dec 2007 21:30:45 -0500
 
 mr (0.18) unstable; urgency=low
 
