@@ -1,6 +1,13 @@
 mr (0.19) UNRELEASED; urgency=low
 
   * Support versions of man that don't use -l.
+  * Updating git repos no longer uses git-pull -t by default. Git makes it
+    to much of a PITA to do this, since -t makes git-pull require the
+    repository and refspec be specified at the command line (which is a bug in
+    git (#456035). mr used to hardcode those to "origin" and "master", but
+    that's not always the right choice. So give up on forcing git to be sane
+    about pulling down all tags. It's insane. Live with it, or configure your
+    own update command.
 
  -- Joey Hess <joeyh@debian.org>  Tue, 04 Dec 2007 15:13:26 -0500
 
