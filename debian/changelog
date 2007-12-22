@@ -1,3 +1,10 @@
+mr (0.20) UNRELEASED; urgency=low
+
+  * Add -q flag.
+  * darcs: Add -u to diff to get a more usual unified diff.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 22 Dec 2007 13:53:31 -0500
+
 mr (0.19) unstable; urgency=low
 
   * Support versions of man that don't use -l.

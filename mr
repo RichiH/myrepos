@@ -1202,7 +1202,7 @@ git_diff = git diff "$@"
 bzr_diff = bzr diff "$@"
 cvs_diff = cvs diff "$@"
 hg_diff  = hg diff "$@"
-darcs_diff = darcs diff "$@"
+darcs_diff = darcs diff -u "$@"
 
 svn_log = svn log "$@"
 git_log = git log "$@"
