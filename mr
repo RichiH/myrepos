@@ -147,6 +147,10 @@ Use the specified mrconfig file. The default is B<~/.mrconfig>
 
 Be verbose.
 
+=item -q
+
+Be quiet.
+
 =item -s
 
 Expand the statistics line displayed at the end to include information
@@ -316,6 +320,7 @@ use constant {
 # configurables
 my $config_overridden=0;
 my $verbose=0;
+my $quiet=0;
 my $stats=0;
 my $max_depth;
 my $no_chdir=0;
@@ -462,12 +467,12 @@ sub action { #{{{
 	}
 	else {
 		if (! $no_chdir) {
-			print "mr $action: $topdir$subdir\n";
+			print "mr $action: $topdir$subdir\n" unless $quiet;
 		}
 		else {
 			my $s=$directory;
 			$s=~s/^\Q$topdir$subdir\E\/?//;
-			print "mr $action: $topdir$subdir (in subdir $s)\n";
+			print "mr $action: $topdir$subdir (in subdir $s)\n" unless $quiet;
 		}
 		$command="set -e; ".$lib.
 			"my_action(){ $command\n }; my_action ".
@@ -605,10 +610,10 @@ sub showstats { #{{{
 		showstat($#ok+1, "ok", "ok"),
 		showstat($#failed+1, "failed", "failed"),
 		showstat($#skipped+1, "skipped", "skipped"),
-	).")\n";
+	).")\n" unless $quiet;
 	if ($stats) {
 		if (@skipped) {
-			print "mr $action: (skipped: ".join(" ", @skipped).")\n";
+			print "mr $action: (skipped: ".join(" ", @skipped).")\n" unless $quiet;
 		}
 		if (@failed) {
 			print STDERR "mr $action: (failed: ".join(" ", @failed).")\n";
@@ -1054,6 +1059,7 @@ sub getopts { #{{{
 		"d|directory=s" => sub { $directory=abs_path($_[1]) },
 		"c|config=s" => sub { $ENV{MR_CONFIG}=$_[1]; $config_overridden=1 },
 		"v|verbose" => \$verbose,
+		"q|quiet" => \$quiet,
 		"s|stats" => \$stats,
 		"n|no-recurse:i" => \$max_depth,
 		"j|jobs:i" => \$jobs,
