@@ -1208,10 +1208,10 @@ cvs_commit = cvs commit "$@"
 hg_commit  = hg commit -m "$@" && hg push
 darcs_commit = darcs record -a -m "$@" && darcs push -a
 
-git_commit = git commit -a "$@"
-bzr_commit = bzr commit "$@"
-hg_commit  = hg commit -m "$@"
-darcs_commit = darcs record -a -m "$@"
+git_record = git commit -a "$@"
+bzr_record = bzr commit "$@"
+hg_record  = hg commit -m "$@"
+darcs_record = darcs record -a -m "$@"
 
 svn_diff = svn diff "$@"
 git_diff = git diff "$@"
