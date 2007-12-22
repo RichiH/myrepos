@@ -2,6 +2,8 @@ mr (0.20) UNRELEASED; urgency=low
 
   * Add -q flag.
   * darcs: Add -u to diff to get a more usual unified diff.
+  * Add a "record" subcommand, borrowing termonology from darcs. This does a
+    local commit, but does not push changes to remote repos.
 
  -- Joey Hess <joeyh@debian.org>  Sat, 22 Dec 2007 13:53:31 -0500
 

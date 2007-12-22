@@ -16,6 +16,8 @@ B<mr> [options] status
 
 B<mr> [options] commit [-m "message"]
 
+B<mr> [options] record [-m "message"]
+
 B<mr> [options] diff
 
 B<mr> [options] log
@@ -62,7 +64,16 @@ uncommitted changes are present in the repository.
 =item commit (or ci)
 
 Commits changes to each repository. (By default, changes are pushed to the
-remote repository too, when using distributed systems like git.)
+remote repository too, when using distributed systems like git. If you
+don't like this default, you can change it in your .mrconfig, or use record
+instead.)
+
+The optional -m parameter allows specifying a commit message.
+
+=item record
+
+Records changes to the local repository, but does not push them to the
+remote repository. Only supported for distributed revision control systems.
 
 The optional -m parameter allows specifying a commit message.
 
@@ -1196,6 +1207,11 @@ bzr_commit = bzr commit "$@" && bzr push
 cvs_commit = cvs commit "$@"
 hg_commit  = hg commit -m "$@" && hg push
 darcs_commit = darcs record -a -m "$@" && darcs push -a
+
+git_commit = git commit -a "$@"
+bzr_commit = bzr commit "$@"
+hg_commit  = hg commit -m "$@"
+darcs_commit = darcs record -a -m "$@"
 
 svn_diff = svn diff "$@"
 git_diff = git diff "$@"
