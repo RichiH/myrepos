@@ -15,6 +15,7 @@
 # And an example repo using it would look something like:
 #[music]
 #unison_test = true
+#checkout = unison_checkout music
 
 lib =
 	# The name of the directory containing the repo is assumed to
@@ -22,10 +23,15 @@ lib =
 	unison_config() {
 		basename "$MR_REPO"
 	}
+	unison_batch() {
+		unison -batch $(unison_config)
+	}
+	unison_checkout() {
+		mkdir "$1" && cd "$1" && unison -batch "$1"
+	}
 
-unison_checkout = unison -batch $(unison_config)
-unison_update   = unison -batch $(unison_config)
-unison_push     = unison -batch $(unison_config)
+unison_update   = unison_batch
+unison_push     = unison_batch
 unison_commit   = unison $(unison_config)
 
 # vim:sw=8:sts=0:ts=8:noet
