@@ -2,7 +2,6 @@
 
 [mr]
 checkout = git clone git://git.kitenet.net/mr
-skip = ! wantsrc
 
 [linux-2.6]
 checkout = git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git

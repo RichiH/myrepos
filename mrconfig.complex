@@ -10,6 +10,7 @@ include = cat /usr/share/mr/* 2>/dev/null || true
 svn_cleanup = svn cleanup "$@"
 git_gc = git gc "$@"
 git_push = git push "$@"
+svn_push = :
 git_tag = git tag -l
 svn_tag = svn ls "$(LC_ALL=C svn info . | grep -i ^URL: | cut -d ' ' -f 2 | sed -e 's/trunk/tags/')"
 # This hack is here because git-pull stupidly outputs tag info to stderr.
@@ -20,54 +21,64 @@ quietupdate = mr -s -n update 3>&1 1>/dev/null 2>&3 | egrep -v '(storing tag|tag
 #   $HOME uses
 # - full checks whether I probably want a full checkout (quite large),
 #   if not, the checkout is minimal
+# - on checks whether the given host basename is one of the listed
+#   values. A value can also have a username in it, ie "joey@dodo".
 # - wantmedia checks whether I probably want various large media files
-#   here.
+#   here
 # - private are hosts I trust private data to
 # - mylaptop only succeeds if it's on my main development laptop, which 
 #   gets lots of extra cruft
-# - kite only succeeds on kite
 lib = 
+	hostname="$(hostname)"
+	whoami="$(whoami)"
 	anon() {
-		expr $(GIT_CONFIG=$HOME/.git/config git config remote.origin.url) : 'git://' >/dev/null
+		( GIT_CONFIG=$HOME/.git/config git config remote.origin.url || cat .git/remotes/origin ) | grep -q 'git://'
 	}
 	full() {
-		test "$(whoami)" = joey
+		test "$whoami" = joey && ! anon
+	}
+	on() {
+		for host in $@; do
+			if [ "${host%@*}" != "${host#*@}" ]; then
+				if [ "$whoami" != "${host%@*}" ]; then
+					continue
+				fi
+				host="${host#*@}"
+			fi
+			if [ "$hostname" = "$host" ]; then
+				return 0
+			fi
+		done
+		return 1
 	}
 	wantmedia() {
-		if [ "$(whoami)" = joey ]; then
-			case "$(hostname)" in
-				kodama|dragon|dodo)
-					return 0
-			;;
-			esac
-		fi
-		return 1
+		on joey@kodama joey@dragon joey@dodo joey@turtle
 	}
 	private() {
-		if [ "$(whoami)" = joey ]; then
-			case "$(hostname)" in
-			wren|kodama|dragon|dodo|bluebird|slug)
-				return 0
-			;;
-			esac
-		fi
-		return 1
+		on joey@wren joey@kodama joey@dragon joey@dodo joey@turtle \
+			joey@blurbird joey@slug
 	}
 	mylaptop() {
-		test "$(hostname)" = kodama
-	}
-	kite() {
-		test "$(hostname)" = wren
+		on kodama
 	}
 
 # The root of my home directory.
 []
+order = 1
 checkout =
 	if anon; then
 		git clone git://git.kitenet.net/joey/home joey
 	else
 		git clone ssh://git.kitenet.net/srv/git/kitenet.net/joey/home joey
 	fi
+
+# Dummy target to create Maildir. Doesn't run offlineimap since I have that
+# cronned on machines where I want it.
+[Maildir]
+update = :
+skip = ! full
+checkout = mkdir Maildir Maildir/cur Maildir/new Maildir/tmp; chmod 700 Maildir
+status = :
 
 # This is a dummy target, all it does is run fixups at the end of
 # an update.
@@ -78,6 +89,7 @@ status = :
 order = 25
 
 [.etc]
+order = 2
 checkout = 
 	if anon; then
 		git clone git://git.kitenet.net/joey/home-etc .etc
