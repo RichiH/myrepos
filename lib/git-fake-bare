@@ -1,7 +1,7 @@
 # An example of how to add a new revision control system type to mr.
 # git fake bare repositories have a detached workspace. One potential
 # application is storing dotfiles in git, keeping them checked out in
-# one $HOME, but checked into different git repositories. This file adds
+# ones $HOME, but checked into different git repositories. This file adds
 # support for them, separate from the normal git support.
 
 # To make mr use this file, add a line like this inside the [DEFAULT]
