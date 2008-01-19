@@ -1,0 +1,16 @@
+# Adds support for git-svn repositories.
+
+# To make mr use this file, add a line like this inside the [DEFAULT]
+# section of your ~/.mrconfig
+#include = cat /usr/share/mr/git-svn
+
+git_test = test -d "$MR_REPO"/.git && ! test -d "$MR_REPO"/.git/svn/git-svn
+git_svn_test = test -d "$MR_REPO"/.git/svn/git-svn
+git_svn_update = git-svn fetch
+git_svn_status = git status "$@" || true
+git_svn_commit = git-svn dcommit
+git_svn_record = git commit -a "$@"
+git_svn_diff = git diff "$@"
+git_svn_log = git log "$@"
+
+# vim:sw=8:sts=0:ts=8:noet
