@@ -43,6 +43,8 @@ git_fake_bare_status = git status "$@" || true
 
 git_fake_bare_commit = error "commit does not work for fake bare git repositories (yet)."
 
+git_fake_bare_record = error "record does not work for fake bare git repositories (yet)."
+
 git_fake_bare_diff = error "diff does not work for fake bare git repositories (yet)."
 
 git_fake_bare_log = git log "$@"
