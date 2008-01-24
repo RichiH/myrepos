@@ -3,6 +3,17 @@
 # To make mr use this file, add a line like this inside the [DEFAULT]
 # section of your ~/.mrconfig
 #include = cat /usr/share/mr/git-svn
+#
+# Note that by default this makes mr update do a git-svn fetch.
+# Some might prefer it to do a git-svn rebase, if you do, you can
+# configure that as follows in your ~/.mrconfig:
+#git_svn_update = git-svn rebase
+git_svn_update = git-svn fetch
+git_svn_status = git status "$@" || true
+git_svn_commit = git-svn dcommit
+git_svn_record = git commit -a "$@"
+git_svn_diff = git diff "$@"
+git_svn_log = git-svn log "$@"
 
 git_test =
 	test -d "$MR_REPO"/.git &&
@@ -19,12 +30,5 @@ git_svn_register =
 	fi
 	echo "Registering git-svn url: $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="git-svn clone '$url' '$MR_REPO'"
-
-git_svn_update = git-svn fetch
-git_svn_status = git status "$@" || true
-git_svn_commit = git-svn dcommit
-git_svn_record = git commit -a "$@"
-git_svn_diff = git diff "$@"
-git_svn_log = git-svn log "$@"
 
 # vim:sw=8:sts=0:ts=8:noet
