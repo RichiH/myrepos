@@ -1,7 +1,8 @@
 mr (0.21) UNRELEASED; urgency=low
 
   * Add lib/git-svn, which can be included to add support for git-svn
-    repositories.
+    repositories. Thanks to Clifford W. Hansen and Bastian Kleineidam
+    for implementations. Closes: #462408
 
  -- Joey Hess <joeyh@debian.org>  Sat, 19 Jan 2008 13:18:17 -0500
 
