@@ -32,7 +32,7 @@ lib =
 git_fake_bare_test = 
 	test -d "$MR_REPO"/refs/heads && test -d "$MR_REPO"/refs/tags &&
 	test -d "$MR_REPO"/objects && test -f "$MR_REPO"/config &&
-	test "$(GIT_CONFIG="$MR_REPO"/config git-config --get core.bare)" = false
+	test "$(GIT_CONFIG="$MR_REPO"/config git config --get core.bare)" = false
 
 git_fake_bare_update =
 	args="$@"
@@ -50,11 +50,11 @@ git_fake_bare_diff = error "diff does not work for fake bare git repositories (y
 git_fake_bare_log = git log "$@"
 
 git_fake_bare_register = 
-	url="$(LC_ALL=C GIT_CONFIG=config git-config --get remote.origin.url)" || true
+	url="$(LC_ALL=C GIT_CONFIG=config git config --get remote.origin.url)" || true
 	if [ -z "$url" ]; then
 		error "cannot determine git url"
 	fi
-	worktree="$(git-config --get core.worktree)" || true
+	worktree="$(git config --get core.worktree)" || true
 	if [ -z "$worktree" ]; then
 		error "git worktree is not set"
 	fi
