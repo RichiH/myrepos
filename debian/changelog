@@ -1,3 +1,10 @@
+mr (0.22) UNRELEASED; urgency=low
+
+  * Update bzr registration code to work with current version of bzr,
+    using bzr info to get the url. Closes: #463867
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 03 Feb 2008 17:04:30 -0500
+
 mr (0.21) unstable; urgency=low
 
   * Add a git-svn file, which can be included to add support for git-svn
