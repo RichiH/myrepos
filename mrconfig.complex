@@ -13,7 +13,7 @@ git_push = git push "$@"
 svn_push = :
 git_tag = git tag -l
 svn_tag = svn ls "$(LC_ALL=C svn info . | grep -i ^URL: | cut -d ' ' -f 2 | sed -e 's/trunk/tags/')"
-# This hack is here because git-pull stupidly outputs tag info to stderr.
+# This hack is here because git pull stupidly outputs tag info to stderr.
 # Shut it up but let real errors through, for use in cron.
 quietupdate = mr -s -n update 3>&1 1>/dev/null 2>&3 | egrep -v '(storing tag|tag: )' || true
 # Tests used below.
