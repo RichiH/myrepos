@@ -17,11 +17,11 @@ git_svn_log = git svn log "$@"
 
 git_test =
 	test -d "$MR_REPO"/.git &&
-	test -z "`git config --get svn-remote.svn.url`"
+	test -z "$(GIT_CONFIG="$MR_REPO"/config git config --get svn-remote.svn.url)"
 
 git_svn_test =
 	test -d "$MR_REPO"/.git &&
-	test -n "`git config --get svn-remote.svn.url`"
+	test -n "$(GIT_CONFIG="$MR_REPO"/config git config --get svn-remote.svn.url)"
 
 git_svn_register =
 	url="`LC_ALL=C git config --get svn-remote.svn.url`" || true
