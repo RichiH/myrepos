@@ -1,8 +1,8 @@
-mr (0.23) UNRELEASED; urgency=low
+mr (0.23) unstable; urgency=low
 
   * Fix tests in git-svn include file to use MR_REPO. Closes: #463941
 
- -- Joey Hess <joeyh@debian.org>  Mon, 04 Feb 2008 13:36:22 -0500
+ -- Joey Hess <joeyh@debian.org>  Tue, 05 Feb 2008 13:26:05 -0500
 
 mr (0.22) unstable; urgency=low
 
