@@ -1,3 +1,9 @@
+mr (0.24) unstable; urgency=low
+
+  * Correct GIT_CONFIG settings in git-svn. Closes: #463941
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 06 Feb 2008 13:04:30 -0500
+
 mr (0.23) unstable; urgency=low
 
   * Fix tests in git-svn include file to use MR_REPO. Closes: #463941
