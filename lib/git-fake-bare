@@ -28,6 +28,18 @@ lib =
 		mv .git/* .
 		rmdir .git
 	}
+	git_get_worktree() {
+		local worktree
+		worktree="$(git config --get core.worktree)" || true
+		if [ -z "$worktree" ]; then
+			error "git worktree is not set"
+		fi
+		worktree="${worktree%%/}/"
+		if [ ! -d "$worktree" ]; then
+			error "git worktree $worktree does not exist"
+		fi
+		echo "$worktree"
+	}
 
 git_fake_bare_test = 
 	test -d "$MR_REPO"/refs/heads && test -d "$MR_REPO"/refs/tags &&
@@ -54,14 +66,7 @@ git_fake_bare_register =
 	if [ -z "$url" ]; then
 		error "cannot determine git url"
 	fi
-	worktree="$(git config --get core.worktree)" || true
-	if [ -z "$worktree" ]; then
-		error "git worktree is not set"
-	fi
-	worktree="${worktree%%/}/"
-	if [ ! -d "$worktree" ]; then
-		error "git worktree $worktree does not exist"
-	fi
+	worktree="$(git_get_worktree)"
 	echo "Registering git url: $url in $MR_CONFIG (with worktree $worktree)"
 	mr -c "$MR_CONFIG" config "`pwd`" \
 		checkout="git_fake_bare_checkout '$url' '$MR_REPO' '$worktree'"
