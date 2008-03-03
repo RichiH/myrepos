@@ -53,9 +53,14 @@ git_fake_bare_update =
 
 git_fake_bare_status = git status "$@" || true
 
-git_fake_bare_commit = error "commit does not work for fake bare git repositories (yet)."
+git_fake_bare_commit =
+	cd "$(git_get_worktree)"
+	eval GIT_DIR="$MR_REPO" git commit -a "$@"
+	eval GIT_DIR="$MR_REPO" git push --all
 
-git_fake_bare_record = error "record does not work for fake bare git repositories (yet)."
+git_fake_bare_record = 
+	cd "$(git_get_worktree)"
+	eval GIT_DIR="$MR_REPO" git commit -a "$@"
 
 git_fake_bare_diff =
 	cd "$(git_get_worktree)"
