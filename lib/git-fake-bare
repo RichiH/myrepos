@@ -49,22 +49,22 @@ git_fake_bare_test =
 git_fake_bare_update =
 	args="$@"
 	[ -z "$args" ] && args="-t origin master"
-	eval GIT_DIR="$MR_REPO" git pull "$args"
+	GIT_DIR="$MR_REPO" git pull "$args"
 
 git_fake_bare_status = git status "$@" || true
 
 git_fake_bare_commit =
 	cd "$(git_get_worktree)"
-	eval GIT_DIR="$MR_REPO" git commit -a "$@"
-	eval GIT_DIR="$MR_REPO" git push --all
+	GIT_DIR="$MR_REPO" git commit -a "$@"
+	GIT_DIR="$MR_REPO" git push --all
 
 git_fake_bare_record = 
 	cd "$(git_get_worktree)"
-	eval GIT_DIR="$MR_REPO" git commit -a "$@"
+	GIT_DIR="$MR_REPO" git commit -a "$@"
 
 git_fake_bare_diff =
 	cd "$(git_get_worktree)"
-	eval GIT_DIR="$MR_REPO" git diff "$@"
+	GIT_DIR="$MR_REPO" git diff "$@"
 
 git_fake_bare_log = git log "$@"
 
