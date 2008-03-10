@@ -1,8 +1,8 @@
-mr (0.25) UNRELEASED; urgency=low
+mr (0.25) unstable; urgency=low
 
   * git-fake-bare: Add support for diff, commit, and record. (madduck)
 
- -- Joey Hess <joeyh@debian.org>  Mon, 03 Mar 2008 14:55:13 -0500
+ -- Joey Hess <joeyh@debian.org>  Mon, 10 Mar 2008 15:56:17 -0400
 
 mr (0.24) unstable; urgency=low
 
