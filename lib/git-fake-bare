@@ -49,7 +49,7 @@ git_fake_bare_test =
 git_fake_bare_update =
 	args="$@"
 	[ -z "$args" ] && args="-t origin master"
-	GIT_DIR="$MR_REPO" git pull "$args"
+	GIT_DIR="$MR_REPO" git pull $args
 
 git_fake_bare_status = git status "$@" || true
 
