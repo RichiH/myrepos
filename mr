@@ -1183,12 +1183,7 @@ git_bare_test =
 	test "`GIT_CONFIG="$MR_REPO"/config git config --get core.bare`" = true
 
 svn_update = svn update "$@"
-git_update =
-	if [ "$@" ]; then
-		git pull "$@"
-	else
-		git pull
-	fi
+git_update = git pull "$@"
 bzr_update = bzr merge "$@"
 cvs_update = cvs update "$@"
 hg_update  = hg pull "$@" && hg update "$@"
