@@ -1,3 +1,9 @@
+mr (0.26) UNRELEASED; urgency=low
+
+  * Add -i option to start a shell if an operation fails. Closes: #474962
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 08 Apr 2008 13:54:35 -0400
+
 mr (0.25) unstable; urgency=low
 
   * git-fake-bare: Add support for diff, commit, and record. (madduck)

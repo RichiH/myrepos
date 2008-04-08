@@ -167,6 +167,12 @@ Be quiet.
 Expand the statistics line displayed at the end to include information
 about exactly which repositories failed and were skipped, if any.
 
+=item -i
+
+Interactive mode. If a repository fails to be processed, a subshell will be
+started which you can use to resolve or investigate the problem. Exit the
+subshell to continue the mr run.
+
 =item -n [number]
 
 If no number if specified, just operate on the repository for the current
@@ -333,6 +339,7 @@ my $config_overridden=0;
 my $verbose=0;
 my $quiet=0;
 my $stats=0;
+my $interactive=0;
 my $max_depth;
 my $no_chdir=0;
 my $jobs=1;
@@ -598,6 +605,11 @@ sub record { #{{{
 		print "\n";
 	}
 	elsif ($ret == FAILED) {
+		if ($interactive) {
+			chdir($dir) unless $no_chdir;
+			print STDERR "mr: starting interactive shell. Exit shell to continue.\n";
+			system((getpwuid($<))[8]);
+		}
 		push @failed, $dir;
 		print "\n";
 	}
@@ -1072,6 +1084,7 @@ sub getopts { #{{{
 		"v|verbose" => \$verbose,
 		"q|quiet" => \$quiet,
 		"s|stats" => \$stats,
+		"i|interactive" => \$interactive,
 		"n|no-recurse:i" => \$max_depth,
 		"j|jobs:i" => \$jobs,
 	);
