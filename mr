@@ -607,7 +607,7 @@ sub record { #{{{
 	elsif ($ret == FAILED) {
 		if ($interactive) {
 			chdir($dir) unless $no_chdir;
-			print STDERR "mr: starting interactive shell. Exit shell to continue.\n";
+			print STDERR "mr: Starting interactive shell. Exit shell to continue.\n";
 			system((getpwuid($<))[8]);
 		}
 		push @failed, $dir;
