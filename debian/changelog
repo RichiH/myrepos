@@ -1,8 +1,8 @@
-mr (0.26) UNRELEASED; urgency=low
+mr (0.26) unstable; urgency=low
 
   * Add -i option to start a shell if an operation fails. Closes: #474962
 
- -- Joey Hess <joeyh@debian.org>  Tue, 08 Apr 2008 13:54:35 -0400
+ -- Joey Hess <joeyh@debian.org>  Tue, 08 Apr 2008 20:58:44 -0400
 
 mr (0.25) unstable; urgency=low
 
