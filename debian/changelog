@@ -1,3 +1,10 @@
+mr (0.27) UNRELEASED; urgency=low
+
+  * Ignore exit code from darcs whatsnew, which can be nonzero if there
+    are no changes. Closes: #476650
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 18 Apr 2008 12:54:09 -0400
+
 mr (0.26) unstable; urgency=low
 
   * Add -i option to start a shell if an operation fails. Closes: #474962

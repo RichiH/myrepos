@@ -1207,7 +1207,7 @@ git_status = git status "$@" || true
 bzr_status = bzr status "$@"
 cvs_status = cvs status "$@"
 hg_status  = hg status "$@"
-darcs_status = darcs whatsnew -ls "$@"
+darcs_status = darcs whatsnew -ls "$@" || true
 
 svn_commit = svn commit "$@"
 git_commit = git commit -a "$@" && git push --all
