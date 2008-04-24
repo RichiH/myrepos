@@ -1,3 +1,10 @@
+mr (0.28) UNRELEASED; urgency=low
+
+  * Use debhelper v7, rules file minimisation.
+  * Add a Makefile.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 23 Apr 2008 21:06:08 -0400
+
 mr (0.27) unstable; urgency=low
 
   * Ignore exit code from darcs whatsnew, which can be nonzero if there
