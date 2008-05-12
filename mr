@@ -425,6 +425,8 @@ sub action { #{{{
 	               $config{$topdir}{$subdir}{lib}."\n" : "";
 	my $is_checkout=($action eq 'checkout');
 
+	$ENV{MR_REPO}=$dir;
+
 	if ($is_checkout) {
 		if (-d $dir) {
 			print "mr $action: $dir already exists, skipping checkout\n" if $verbose;
@@ -438,8 +440,6 @@ sub action { #{{{
 			return action("checkout", $dir, $topdir, $subdir);
 		}
 	}
-
-	$ENV{MR_REPO}=$dir;
 
 	my $skiptest=findcommand("skip", $dir, $topdir, $subdir, $is_checkout);
 	my $command=findcommand($action, $dir, $topdir, $subdir, $is_checkout);
