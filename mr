@@ -224,7 +224,9 @@ is an alias, and its value is the action to use.
 All other sections add repositories. The section header specifies the
 directory where the repository is located. This is relative to the directory
 that contains the mrconfig file, but you can also choose to use absolute
-paths.
+paths. (Note that you can use environment variables in section names; they
+will be passed through the shell for expansion. For example, 
+"[$HOSTNAME]", or "[${HOSTNAME}foo]")
 
 Within a section, each parameter defines a shell command to run to handle a
 given action. mr contains default handlers for "update", "status",
@@ -717,6 +719,18 @@ sub selectrepos { #{{{
 	return @repos;
 } #}}}
 
+sub expandenv { #{{{
+	my $val=shift;
+	
+
+	if ($val=~/\$/) {
+		$val=`echo "$val"`;
+		chomp $val;
+	}
+	
+	return $val;
+} #}}}
+
 my %loaded;
 sub loadconfig { #{{{
 	my $f=shift;
@@ -777,7 +791,7 @@ sub loadconfig { #{{{
 		chomp;
 		next if /^\s*\#/ || /^\s*$/;
 		if (/^\[([^\]]*)\]\s*$/) {
-			$section=$1;
+			$section=expandenv($1);
 		}
 		elsif (/^(\w+)\s*=\s*(.*)/) {
 			my $parameter=$1;
@@ -900,7 +914,7 @@ sub modifyconfig { #{{{
 				$addfields->();
 			}
 
-			$section=$1;
+			$section=expandenv($1);
 
 			push @out, $_;
 		}

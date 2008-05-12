@@ -1,3 +1,10 @@
+mr (0.29) UNRELEASED; urgency=low
+
+  * Allow environment variables in section headers. Pass such headers
+    through the shell to expand them. Closes: #480580
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 12 May 2008 15:15:48 -0400
+
 mr (0.28) unstable; urgency=low
 
   * Use debhelper v7, rules file minimisation.
