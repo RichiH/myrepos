@@ -1,4 +1,4 @@
-mr (0.29) UNRELEASED; urgency=low
+mr (0.29) unstable; urgency=low
 
   * Allow environment variables in section headers. Pass such headers
     through the shell to expand them. Closes: #480580
@@ -6,7 +6,7 @@ mr (0.29) UNRELEASED; urgency=low
     directory of the directory to checkout. It is supposed to be the
     path to the directory itself though; fixed this. Closes: #480424
 
- -- Joey Hess <joeyh@debian.org>  Mon, 12 May 2008 15:15:48 -0400
+ -- Joey Hess <joeyh@debian.org>  Wed, 14 May 2008 19:38:18 -0400
 
 mr (0.28) unstable; urgency=low
 
