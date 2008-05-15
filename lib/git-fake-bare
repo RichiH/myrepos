@@ -22,9 +22,10 @@ lib =
 		git clone --no-checkout "$url" "$repo"
 		cd "$repo"
 		mkdir -p "$worktree"
-		git read-tree HEAD
-		git checkout-index -a --prefix="$worktree" || true
-		git config core.worktree "$worktree"
+		PWD="`pwd`"
+		GIT_DIR="$PWD" git read-tree HEAD
+		GIT_DIR="$PWD" git checkout-index -a --prefix="$worktree" || true
+		GIT_DIR="$PWD" git config core.worktree "$worktree"
 		mv .git/* .
 		rmdir .git
 	}
@@ -38,20 +39,20 @@ lib =
 		if [ ! -d "$worktree" ]; then
 			error "git worktree $worktree does not exist"
 		fi
-		echo "$worktree"
+			echo "$worktree"
 	}
 
 git_fake_bare_test = 
 	test -d "$MR_REPO"/refs/heads && test -d "$MR_REPO"/refs/tags &&
 	test -d "$MR_REPO"/objects && test -f "$MR_REPO"/config &&
-	test "$(GIT_CONFIG="$MR_REPO"/config git config --get core.bare)" = false
+	test "$(GIT_DIR="$MR_REPO" git config --get core.bare)" = false
 
 git_fake_bare_update =
 	args="$@"
 	[ -z "$args" ] && args="-t origin master"
 	GIT_DIR="$MR_REPO" git pull $args
 
-git_fake_bare_status = git status "$@" || true
+git_fake_bare_status = GIT_DIR="$MR_REPO" git status "$@" || true
 
 git_fake_bare_commit =
 	cd "$(git_get_worktree)"
@@ -66,7 +67,7 @@ git_fake_bare_diff =
 	cd "$(git_get_worktree)"
 	GIT_DIR="$MR_REPO" git diff "$@"
 
-git_fake_bare_log = git log "$@"
+git_fake_bare_log = GIT_DIR="$MR_REPO" git log "$@"
 
 git_fake_bare_register = 
 	url="$(LC_ALL=C GIT_CONFIG=config git config --get remote.origin.url)" || true
