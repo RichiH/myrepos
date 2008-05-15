@@ -39,7 +39,7 @@ lib =
 		if [ ! -d "$worktree" ]; then
 			error "git worktree $worktree does not exist"
 		fi
-			echo "$worktree"
+		echo "$worktree"
 	}
 
 git_fake_bare_test = 
