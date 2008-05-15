@@ -1,7 +1,7 @@
 mr (0.29) unstable; urgency=low
 
   * Allow environment variables in section headers. Pass such headers
-    through the shell to expand them. Closes: #480580
+    through the shell to expand them. Closes: #480421
   * For the checkout command, MR_REPO was set to the name of the parent
     directory of the directory to checkout. It is supposed to be the
     path to the directory itself though; fixed this. Closes: #480424
