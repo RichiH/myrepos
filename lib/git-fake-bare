@@ -16,6 +16,7 @@ lib =
 	# git doesn't have an easy way to check out such a repo, so
 	# do it by hand
 	git_fake_bare_checkout() {
+		set -x
 		local url; url="$1"
 		local repo; repo="$2"
 		local worktree; worktree="$3"
@@ -23,11 +24,12 @@ lib =
 		cd "$repo"
 		mkdir -p "$worktree"
 		PWD="`pwd`"
+		mv .git/* .
+		rmdir .git
 		GIT_DIR="$PWD" git read-tree HEAD
 		GIT_DIR="$PWD" git checkout-index -a --prefix="$worktree" || true
 		GIT_DIR="$PWD" git config core.worktree "$worktree"
-		mv .git/* .
-		rmdir .git
+		set +x
 	}
 	git_get_worktree() {
 		local worktree
