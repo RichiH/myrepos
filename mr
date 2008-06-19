@@ -1027,7 +1027,9 @@ sub config { #{{{
 } #}}}
 
 sub register { #{{{
-	if (! $config_overridden) {
+	if ($config_overridden) {
+		($directory)=$ENV{MR_CONFIG}=~/^(.*\/)[^\/]+$/;
+	} else {
 		# Find the closest known mrconfig file to the current
 		# directory.
 		$directory.="/" unless $directory=~/\/$/;
