@@ -3,6 +3,9 @@ mr (0.30) UNRELEASED; urgency=low
   [ martin f. krafft ]
   * Several git-fake-bare improvements.
 
+  [ Joey Hess ]
+  * Fix mr -c <config> register. (Thanks, Daniel Bungert)
+
  -- Joey Hess <joeyh@debian.org>  Sun, 18 May 2008 17:41:53 -0400
 
 mr (0.29) unstable; urgency=low

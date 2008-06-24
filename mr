@@ -1028,8 +1028,11 @@ sub config { #{{{
 
 sub register { #{{{
 	if ($config_overridden) {
-		($directory)=$ENV{MR_CONFIG}=~/^(.*\/)[^\/]+$/;
-	} else {
+		# Find the directory that the specified config file is
+		# located in.
+		($directory)=abs_path($ENV{MR_CONFIG})=~/^(.*\/)[^\/]+$/;
+	}
+	else {
 		# Find the closest known mrconfig file to the current
 		# directory.
 		$directory.="/" unless $directory=~/\/$/;
