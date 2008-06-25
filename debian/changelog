@@ -1,4 +1,4 @@
-mr (0.30) UNRELEASED; urgency=low
+mr (0.30) unstable; urgency=low
 
   [ martin f. krafft ]
   * Several git-fake-bare improvements.
@@ -6,7 +6,7 @@ mr (0.30) UNRELEASED; urgency=low
   [ Joey Hess ]
   * Fix mr -c <config> register. (Thanks, Daniel Bungert)
 
- -- Joey Hess <joeyh@debian.org>  Sun, 18 May 2008 17:41:53 -0400
+ -- Joey Hess <joeyh@debian.org>  Wed, 25 Jun 2008 13:38:31 -0400
 
 mr (0.29) unstable; urgency=low
 
