@@ -381,6 +381,7 @@ my %configfiles;
 my %knownactions;
 my %alias;
 my (@ok, @failed, @skipped);
+my @SWITCHES=@ARGV;
 
 main();
 
@@ -539,7 +540,7 @@ sub action { #{{{
 			if ($ret >> 8 != 0) {
 				print STDERR "mr $action: command failed\n";
 				if (-e "$ENV{HOME}/.mrlog" && $action ne 'remember') {
-					@ARGV=($action, @ARGV);
+					@ARGV=(@SWITCHES, $action);
 					action("remember", $dir, $topdir, $subdir);
 				}
 			}
@@ -1176,11 +1177,15 @@ sub init { #{{{
 sub main { #{{{
 	getopts();
 	init();
+
 	loadconfig(\*DATA);
 	loadconfig($ENV{MR_CONFIG});
 	#use Data::Dumper; print Dumper(\%config);
+	
+	my $action=shift @ARGV;
+	@SWITCHES = grep { $_ ne $action } @SWITCHES;
+	$action=expandaction($action);
 
-	my $action=expandaction(shift @ARGV);
 	dispatch($action);
 	showstats($action);
 
