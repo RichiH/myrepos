@@ -11,22 +11,3 @@
 
   Until this is fixed, checkouts and updates need to be manually repeated
   after mrconfig files have changes.
-
-* offline support
-
-  If I commit something to git while offline, it would be nice if mr could
-  have a way to push that change when I get online.
-
-  One approach would be to notice when mr commit fails, and queue the
-  commit up to be tried happen again when "mr retry" is run. This could
-  also notice other failing commands, such as "mr up".
-
-  Would it make sense to have to first run "mr offline", before mr starts
-  recording such failures? If so, "mr online" would be the thing to run
-  when getting back online, this would both retry queued commands, and stop
-  queuing new failures.
-
-  One annoying thing is that, if offline, dns timeouts can take a while in
-  certian situations. So, it might be good to have a "mr remember <command>",
-  to directly add a command for mr to run when coming online, without
-  the need to run the command and wait for it to fail.

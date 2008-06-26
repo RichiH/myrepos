@@ -7,7 +7,7 @@
 mr - a Multiple Repository management tool
 
 =head1 SYNOPSIS
-
+/
 B<mr> [options] checkout
 
 B<mr> [options] update
@@ -27,6 +27,10 @@ B<mr> [options] register [repository]
 B<mr> [options] config section ["parameter=[value]" ...]
 
 B<mr> [options] action [params ...]
+
+B<mr> [options] [online|offline]
+
+B<mr> [options] remember action [params ...]
 
 =head1 DESCRIPTION
 
@@ -126,6 +130,24 @@ To see the built-in library of shell functions contained in mr:
 The ~/.mrconfig file is used by default. To use a different config file,
 use the -c option.
 
+=item offline
+
+Advises mr that it is in offline mode. Any commands that fail in
+offline mode will be remembered, and retried when mr is told it's online.
+
+=item online
+
+Advices mr that it is in online mode again. Commands that failed while in
+offline mode will be re-run.
+
+=item remember
+
+Remember a command, to be run later when mr re-enters online mode. This
+implicitly puts mr into offline mode. The command can be any regular mr
+command. This is useful when you know that a command will fail due to being
+offline, and so don't want to run it right now at all, but just remember
+to run it when you go back online.
+
 =item help
 
 Displays this help.
@@ -195,6 +217,11 @@ a good speedup in updates without loading the machine too much.
 =back
 
 =head1 FILES
+
+The ~/.mrlog file contains commands that mr has remembered to run later,
+due to being offline. You can delete or edit this file to remove commands,
+or even to add other commands for 'mr online' to run. If the file is
+present, mr assumes it is in offline mode.
 
 B<mr> is configured by .mrconfig files. It starts by reading the .mrconfig
 file in your home directory, and this can in turn chain load .mrconfig files
@@ -511,6 +538,10 @@ sub action { #{{{
 			print STDERR "mr $action: failed ($ret)\n" if $verbose;
 			if ($ret >> 8 != 0) {
 				print STDERR "mr $action: command failed\n";
+				if (-e "$ENV{HOME}/.mrlog" && $action ne 'remember') {
+					@ARGV=($action, @ARGV);
+					action("remember", $dir, $topdir, $subdir);
+				}
 			}
 			elsif ($ret != 0) {
 				print STDERR "mr $action: command died ($ret)\n";
@@ -973,6 +1004,11 @@ sub dispatch { #{{{
 	elsif ($action eq 'register') {
 		register(@ARGV);
 	}
+	elsif ($action eq 'remember') {
+		my @repos=selectrepos;
+		action($action, @{$repos[0]}) if @repos;
+		exit 0;
+	}
 
 	if (!$jobs || $jobs > 1) {
 		mrs($action, selectrepos());
@@ -987,7 +1023,7 @@ sub dispatch { #{{{
 sub help { #{{{
 	exec($config{''}{DEFAULT}{help}) || die "exec: $!";
 } #}}}
-	
+
 sub config { #{{{
 	if (@_ < 2) {
 		die "mr config: not enough parameters\n";
@@ -1310,6 +1346,30 @@ help =
 	man -l "$tmp" || error "man failed"
 list = true
 config = 
+
+online =
+	if [ -e ~/.mrlog ]; then
+		info "running offline commands"
+		mv -f ~/.mrlog ~/.mrlog.old
+		if ! sh ~/.mrlog.old; then
+			error "offline commands failed; left in ~/.mrlog.old"
+		fi
+		rm -f ~/.mrlog.old
+	else
+		info "no offline commands to run"
+	fi
+offline =
+	touch ~/.mrlog
+	info "offline mode enabled"
+remember =
+	info "remembering command: 'mr $@'"
+	command="mr -d '$(pwd)'"
+	for w in "$@"; do
+		command="$command '$w'"
+	done
+	if [ ! -e ~/.mrlog ] || ! grep -q -F "$command" ~/.mrlog; then
+		echo "$command" >> ~/.mrlog
+	fi
 
 ed = echo "A horse is a horse, of course, of course.."
 T = echo "I pity the fool."
