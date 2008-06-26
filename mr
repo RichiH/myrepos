@@ -381,7 +381,7 @@ my %configfiles;
 my %knownactions;
 my %alias;
 my (@ok, @failed, @skipped);
-my @SWITCHES=@ARGV;
+my @switches=@ARGV;
 
 main();
 
@@ -540,7 +540,7 @@ sub action { #{{{
 			if ($ret >> 8 != 0) {
 				print STDERR "mr $action: command failed\n";
 				if (-e "$ENV{HOME}/.mrlog" && $action ne 'remember') {
-					@ARGV=(@SWITCHES, $action);
+					@ARGV=(@switches, $action, @ARGV);
 					action("remember", $dir, $topdir, $subdir);
 				}
 			}
@@ -1183,7 +1183,7 @@ sub main { #{{{
 	#use Data::Dumper; print Dumper(\%config);
 	
 	my $action=shift @ARGV;
-	@SWITCHES = grep { $_ ne $action } @SWITCHES;
+	@switches = grep { $_ ne $action } @SWITCHES;
 	$action=expandaction($action);
 
 	dispatch($action);
