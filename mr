@@ -381,7 +381,6 @@ my %configfiles;
 my %knownactions;
 my %alias;
 my (@ok, @failed, @skipped);
-my @switches=@ARGV;
 
 main();
 
@@ -540,7 +539,9 @@ sub action { #{{{
 			if ($ret >> 8 != 0) {
 				print STDERR "mr $action: command failed\n";
 				if (-e "$ENV{HOME}/.mrlog" && $action ne 'remember') {
-					@ARGV=(@switches, $action, @ARGV);
+					# recreate original command line to
+					# remember, and avoid recursing
+					@ARGV=('-n', $action, @ARGV);
 					action("remember", $dir, $topdir, $subdir);
 				}
 			}
@@ -1005,7 +1006,9 @@ sub dispatch { #{{{
 	elsif ($action eq 'register') {
 		register(@ARGV);
 	}
-	elsif ($action eq 'remember') {
+	elsif ($action eq 'remember' ||
+	       $action eq 'offline' ||
+	       $action eq 'online') {
 		my @repos=selectrepos;
 		action($action, @{$repos[0]}) if @repos;
 		exit 0;
@@ -1133,6 +1136,7 @@ sub expandaction { #{{{
 } #}}}
 
 sub getopts { #{{{
+	my @saved=@ARGV;
 	Getopt::Long::Configure("bundling", "no_permute");
 	my $result=GetOptions(
 		"d|directory=s" => sub { $directory=abs_path($_[1]) },
@@ -1147,6 +1151,12 @@ sub getopts { #{{{
 	if (! $result || @ARGV < 1) {
 		die("Usage: mr [-d directory] action [params ...]\n".
 		    "(Use mr help for man page.)\n");
+	}
+	
+	$ENV{MR_SWITCHES}="";
+	foreach my $option (@saved) {
+		last if $option eq $ARGV[0];
+		$ENV{MR_SWITCHES}.="$option ";
 	}
 } #}}}
 
@@ -1182,10 +1192,7 @@ sub main { #{{{
 	loadconfig($ENV{MR_CONFIG});
 	#use Data::Dumper; print Dumper(\%config);
 	
-	my $action=shift @ARGV;
-	@switches = grep { $_ ne $action } @SWITCHES;
-	$action=expandaction($action);
-
+	my $action=expandaction(shift @ARGV);
 	dispatch($action);
 	showstats($action);
 
@@ -1353,7 +1360,7 @@ list = true
 config = 
 
 online =
-	if [ -e ~/.mrlog ]; then
+	if [ -s ~/.mrlog ]; then
 		info "running offline commands"
 		mv -f ~/.mrlog ~/.mrlog.old
 		if ! sh ~/.mrlog.old; then
@@ -1368,7 +1375,7 @@ offline =
 	info "offline mode enabled"
 remember =
 	info "remembering command: 'mr $@'"
-	command="mr -d '$(pwd)'"
+	command="mr -d '$(pwd)' $MR_SWITCHES"
 	for w in "$@"; do
 		command="$command '$w'"
 	done
