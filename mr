@@ -1363,8 +1363,8 @@ online =
 	if [ -s ~/.mrlog ]; then
 		info "running offline commands"
 		mv -f ~/.mrlog ~/.mrlog.old
-		if ! sh ~/.mrlog.old; then
-			error "offline commands failed; left in ~/.mrlog.old"
+		if ! sh -e ~/.mrlog.old; then
+			error "offline command failed; left in ~/.mrlog.old"
 		fi
 		rm -f ~/.mrlog.old
 	else
