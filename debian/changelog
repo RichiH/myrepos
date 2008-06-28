@@ -1,4 +1,4 @@
-mr (0.31) UNRELEASED; urgency=low
+mr (0.31) unstable; urgency=low
 
   * Add an offline mode. When in offline mode, mr will remember commands
     that failed (presumably due to lack of network access), and will run
@@ -6,7 +6,7 @@ mr (0.31) UNRELEASED; urgency=low
     like me who don't want to have to remember which git repos to mr push
     when they come back from a nice long hack in the woods. :-)
 
- -- Joey Hess <joeyh@debian.org>  Thu, 26 Jun 2008 17:02:26 -0400
+ -- Joey Hess <joeyh@debian.org>  Fri, 27 Jun 2008 23:19:23 -0400
 
 mr (0.30) unstable; urgency=low
 
