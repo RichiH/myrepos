@@ -1,3 +1,9 @@
+mr (0.32) UNRELEASED; urgency=low
+
+  * Include the right (v2) version of GPL in the source.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 09 Jul 2008 15:42:07 -0400
+
 mr (0.31) unstable; urgency=low
 
   * Add an offline mode. When in offline mode, mr will remember commands
