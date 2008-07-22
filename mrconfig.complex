@@ -9,10 +9,10 @@ include = cat /usr/share/mr/* 2>/dev/null || true
 # Teach mr to run a few git and svn specific commands.
 svn_cleanup = svn cleanup "$@"
 git_gc = git gc "$@"
-git_push = git push "$@"
-svn_push = :
 git_tag = git tag -l
 svn_tag = svn ls "$(LC_ALL=C svn info . | grep -i ^URL: | cut -d ' ' -f 2 | sed -e 's/trunk/tags/')"
+# I prefer to git-svn rebase to fetch
+git_svn_update = git svn rebase
 # This hack is here because git pull stupidly outputs tag info to stderr.
 # Shut it up but let real errors through, for use in cron.
 quietupdate = mr -s -n update 3>&1 1>/dev/null 2>&3 | egrep -v '(storing tag|tag: )' || true

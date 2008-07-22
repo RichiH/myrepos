@@ -59,6 +59,9 @@ git_fake_bare_commit =
 	GIT_DIR="$MR_REPO" git commit -a "$@"
 	GIT_DIR="$MR_REPO" git push --all
 
+git_fake_bare_push =
+	GIT_DIR="$MR_REPO" git push --all
+
 git_fake_bare_record = 
 	cd "$(git_get_worktree)"
 	GIT_DIR="$MR_REPO" git commit -a "$@"

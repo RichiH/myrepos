@@ -81,6 +81,11 @@ remote repository. Only supported for distributed revision control systems.
 
 The optional -m parameter allows specifying a commit message.
 
+=item push
+
+Pushes committed local changes to the remote repository. A no-op for
+centralized revision control systems.
+
 =item diff
 
 Show a diff of uncommitted changes.
@@ -1287,6 +1292,13 @@ git_record = git commit -a "$@"
 bzr_record = bzr commit "$@"
 hg_record  = hg commit -m "$@"
 darcs_record = darcs record -a -m "$@"
+
+svn_push = :
+git_push = git push "$@"
+bzr_push = bzr push "$@"
+cvs_push = :
+hg_push = hg push "$@"
+darcs_push = darcs push -a
 
 svn_diff = svn diff "$@"
 git_diff = git diff "$@"
