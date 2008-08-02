@@ -451,7 +451,7 @@ sub findcommand { #{{{
 
 sub action { #{{{
 	my ($action, $dir, $topdir, $subdir) = @_;
-
+	
 	$ENV{MR_CONFIG}=$configfiles{$topdir};
 	my $lib=exists $config{$topdir}{$subdir}{lib} ?
 	               $config{$topdir}{$subdir}{lib}."\n" : "";
@@ -546,8 +546,10 @@ sub action { #{{{
 				if (-e "$ENV{HOME}/.mrlog" && $action ne 'remember') {
 					# recreate original command line to
 					# remember, and avoid recursing
-					@ARGV=('-n', $action, @ARGV);
+					my @orig=@ARGV;
+					@ARGV=('-n', $action, @orig);
 					action("remember", $dir, $topdir, $subdir);
+					@ARGV=@orig;
 				}
 			}
 			elsif ($ret != 0) {
