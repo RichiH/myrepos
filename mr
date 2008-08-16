@@ -7,7 +7,7 @@
 mr - a Multiple Repository management tool
 
 =head1 SYNOPSIS
-/
+
 B<mr> [options] checkout
 
 B<mr> [options] update
