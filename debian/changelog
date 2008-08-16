@@ -1,3 +1,9 @@
+mr (0.35) UNRELEASED; urgency=low
+
+  * Warn if an include command fails nonzero. Closes: #495306
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 15 Aug 2008 23:26:14 -0400
+
 mr (0.34) unstable; urgency=low
 
   * Fix bug when remembering failed commands in offline mode.

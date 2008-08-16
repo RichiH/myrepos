@@ -848,6 +848,9 @@ sub loadconfig { #{{{
 			if ($parameter eq "include") {
 				print "mr: including output of \"$value\"\n" if $verbose;
 				unshift @lines, `$value`;
+				if ($?) {
+					print STDERR "mr: include command exited nonzero ($?)\n";
+				}
 				next;
 			}
 
