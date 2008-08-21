@@ -1,6 +1,7 @@
 mr (0.35) UNRELEASED; urgency=low
 
   * Warn if an include command fails nonzero. Closes: #495306
+  * Remove stray character in pod that uglified man page. Closes: #495731
 
  -- Joey Hess <joeyh@debian.org>  Fri, 15 Aug 2008 23:26:14 -0400
 
