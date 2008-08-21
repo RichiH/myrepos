@@ -1388,6 +1388,7 @@ online =
 		info "no offline commands to run"
 	fi
 offline =
+	umask 077
 	touch ~/.mrlog
 	info "offline mode enabled"
 remember =
