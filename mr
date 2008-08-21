@@ -1303,7 +1303,7 @@ git_push = git push "$@"
 bzr_push = bzr push "$@"
 cvs_push = :
 hg_push = hg push "$@"
-darcs_push = darcs push -a
+darcs_push = darcs push -a "$@"
 
 svn_diff = svn diff "$@"
 git_diff = git diff "$@"
