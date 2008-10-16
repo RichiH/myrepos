@@ -1,11 +1,11 @@
-mr (0.35) UNRELEASED; urgency=low
+mr (0.35) unstable; urgency=low
 
   * Warn if an include command fails nonzero. Closes: #495306
   * Remove stray character in pod that uglified man page. Closes: #495731
   * Create ~/.mrlog not world readable.
   * Pass additional options to darcs push when pushing. Closes: #495734
 
- -- Joey Hess <joeyh@debian.org>  Fri, 15 Aug 2008 23:26:14 -0400
+ -- Joey Hess <joeyh@debian.org>  Thu, 16 Oct 2008 14:51:00 -0400
 
 mr (0.34) unstable; urgency=low
 
