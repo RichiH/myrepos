@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-debcheckout - check out repositories referenced on a web page
+webcheckout - check out repositories referenced on a web page
 
 =head1 SYNOPSIS
 

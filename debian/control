@@ -12,6 +12,7 @@ Architecture: all
 Section: utils
 Depends: 
 Suggests: subversion, git-core, cvs, bzr, mercurial, darcs
+Recommends: libwww-perl, libhtml-parser-perl
 Description: a Multiple Repository management tool
  The mr(1) command can checkout, update, or perform other actions on
  a set of repositories as if they were one combined respository. It
@@ -31,3 +32,5 @@ Description: a Multiple Repository management tool
     the update process.
   * Remember actions that failed due to a laptop being offline, so they
     can be retried when it comes back online.
+  .
+  This package also includes webcheckout.
