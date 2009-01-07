@@ -16,7 +16,7 @@ a subdirectory of the current directory, using whatever VCS program is
 appropriate for that repository (git, svn, etc).
 
 The information about the repositories is embedded in the web page using
-the rel=vcs microformat, which is documented at
+the rel=vcs-* microformat, which is documented at
 <http://kitenet.net/~joey/rfc/rel-vcs/>.
 
 If the optional destdir parameter is specified, VCS programs will be asked
@@ -75,7 +75,7 @@ my $noact=0;
 # Controls whether to perfer repos that use authentication.
 my $want_auth=0;
 
-# Controls where to check out to. If not set, the vcs is allowed to
+# Controls where to check out to. If not set, the VCS is allowed to
 # decide.
 my $destdir;
 
@@ -187,9 +187,10 @@ sub parse {
 	$parser->handler(start => sub {
 		my $tagname=shift;
 		my $attr=shift;
-		return if ! exists $attr->{rel} || lc $attr->{rel} ne 'vcs';
+
 		return if ! exists $attr->{href} || ! length $attr->{href};
-		return if ! exists $attr->{type} || ! length $attr->{type};
+		return if ! exists $attr->{rel} || $attr->{rel} !~ /^vcs-(.+)/i;
+		$attr->{type}=lc($1);
 
 		# need to collect the body of the <a> tag if there is no title
 		if ($tagname eq "a" && ! exists $attr->{title}) {
