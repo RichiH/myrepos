@@ -182,15 +182,37 @@ sub parse {
 
 	my @ret;
 	my $parser=HTML::Parser->new(api_version => 3);
+	my $abody=undef;
+	my $aref=undef;
 	$parser->handler(start => sub {
 		my $tagname=shift;
 		my $attr=shift;
-		return if lc $tagname ne 'link';
 		return if ! exists $attr->{rel} || lc $attr->{rel} ne 'vcs';
 		return if ! exists $attr->{href} || ! length $attr->{href};
 		return if ! exists $attr->{type} || ! length $attr->{type};
+
+		# need to collect the body of the <a> tag if there is no title
+		if ($tagname eq "a" && ! exists $attr->{title}) {
+			$abody="";
+			$aref=$attr;
+		}
+
 		push @ret, $attr;
 	}, "tagname, attr");
+	$parser->handler(text => sub {
+		if (defined $aref) {
+			$abody.=join(" ", @_);
+		}
+	}, "text");
+	$parser->handler(end => sub {
+		my $tagname=shift;
+		if ($tagname eq "a" && defined $aref) {
+			$aref->{title}=$abody;
+			$aref=undef;
+			$abody=undef;
+		}
+	}, "tagname");
+	$parser->report_tags(qw{link a});
 	$parser->parse($page);
 	$parser->eof;
 
@@ -208,6 +230,10 @@ my @repos=dedup(parse($page));
 if (! @repos) {
 	die "no repositories found on $url\n";
 }
+
+#use Data::Dumper;
+#print Dumper(\@repos);
+#exit;
 
 if (defined $destdir && @repos > 1) {
 	# create subdirs of $destdir for the multiple repos
@@ -234,6 +260,3 @@ foreach my $repo (@repos) {
 	}
 }
 exit($errors > 0);
-
-#use Data::Dumper;
-#print Dumper(\@repos);
