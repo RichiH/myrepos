@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 
-#man{{{
-
 =head1 NAME
 
 mr - a Multiple Repository management tool
@@ -353,8 +351,6 @@ http://kitenet.net/~joey/code/mr/
 
 =cut
 
-#}}}
-
 use warnings;
 use strict;
 use Getopt::Long;
@@ -390,7 +386,7 @@ my (@ok, @failed, @skipped);
 main();
 
 my %rcs;
-sub rcs_test { #{{{
+sub rcs_test {
 	my ($action, $dir, $topdir, $subdir) = @_;
 
 	if (exists $rcs{$dir}) {
@@ -425,9 +421,9 @@ sub rcs_test { #{{{
 	else {
 		return $rcs{$dir}=$rcs;
 	}
-} #}}}
+}
 	
-sub findcommand { #{{{
+sub findcommand {
 	my ($action, $dir, $topdir, $subdir, $is_checkout) = @_;
 	
 	if (exists $config{$topdir}{$subdir}{$action}) {
@@ -447,9 +443,9 @@ sub findcommand { #{{{
 	else {
 		return undef;
 	}
-} #}}}
+}
 
-sub action { #{{{
+sub action {
 	my ($action, $dir, $topdir, $subdir) = @_;
 	
 	$ENV{MR_CONFIG}=$configfiles{$topdir};
@@ -566,10 +562,10 @@ sub action { #{{{
 			return OK;
 		}
 	}
-} #}}}
+}
 
 # run actions on multiple repos, in parallel
-sub mrs { #{{{
+sub mrs {
 	my $action=shift;
 	my @repos=@_;
 
@@ -636,9 +632,9 @@ sub mrs { #{{{
 			}
 		}
 	}
-} #}}}
+}
 
-sub record { #{{{
+sub record {
 	my $dir=shift()->[0];
 	my $ret=shift;
 
@@ -664,9 +660,9 @@ sub record { #{{{
 	else {
 		die "unknown exit status $ret";
 	}
-} #}}}
+}
 
-sub showstats { #{{{
+sub showstats {
 	my $action=shift;
 	if (! @ok && ! @failed && ! @skipped) {
 		die "mr $action: no repositories found to work on\n";
@@ -684,9 +680,9 @@ sub showstats { #{{{
 			print STDERR "mr $action: (failed: ".join(" ", @failed).")\n";
 		}
 	}
-} #}}}
+}
 
-sub showstat { #{{{
+sub showstat {
 	my $count=shift;
 	my $singular=shift;
 	my $plural=shift;
@@ -694,10 +690,10 @@ sub showstat { #{{{
 		return "$count ".($count > 1 ? $plural : $singular);
 	}
 	return;
-} #}}}
+}
 
 # an ordered list of repos
-sub repolist { #{{{
+sub repolist {
 	my @list;
 	foreach my $topdir (sort keys %config) {
 		foreach my $subdir (sort keys %{$config{$topdir}}) {
@@ -715,10 +711,10 @@ sub repolist { #{{{
 		             ||
 		$a->{subdir} cmp $b->{subdir}
 	} @list;
-} #}}}
+}
 
 # figure out which repos to act on
-sub selectrepos { #{{{
+sub selectrepos {
 	my @repos;
 	foreach my $repo (repolist()) {
 		my $topdir=$repo->{topdir};
@@ -757,9 +753,9 @@ sub selectrepos { #{{{
 		$no_chdir=1;
 	}
 	return @repos;
-} #}}}
+}
 
-sub expandenv { #{{{
+sub expandenv {
 	my $val=shift;
 	
 
@@ -769,10 +765,10 @@ sub expandenv { #{{{
 	}
 	
 	return $val;
-} #}}}
+}
 
 my %loaded;
-sub loadconfig { #{{{
+sub loadconfig {
 	my $f=shift;
 
 	my @toload;
@@ -904,9 +900,9 @@ sub loadconfig { #{{{
 	foreach (@toload) {
 		loadconfig($_);
 	}
-} #}}}
+}
 
-sub modifyconfig { #{{{
+sub modifyconfig {
 	my $f=shift;
 	# the section to modify or add
 	my $targetsection=shift;
@@ -1001,9 +997,9 @@ sub modifyconfig { #{{{
 	open(my $out, ">", $f) || die "mr: write $f: $!\n";
 	print $out @out;
 	close $out;	
-} #}}}
+}
 
-sub dispatch { #{{{
+sub dispatch {
 	my $action=shift;
 
 	# actions that do not operate on all repos
@@ -1032,13 +1028,13 @@ sub dispatch { #{{{
 			record($repo, action($action, @$repo));
 		}
 	}
-} #}}}
+}
 
-sub help { #{{{
+sub help {
 	exec($config{''}{DEFAULT}{help}) || die "exec: $!";
-} #}}}
+}
 
-sub config { #{{{
+sub config {
 	if (@_ < 2) {
 		die "mr config: not enough parameters\n";
 	}
@@ -1074,9 +1070,9 @@ sub config { #{{{
 	}
 	modifyconfig($ENV{MR_CONFIG}, $section, %changefields) if %changefields;
 	exit 0;
-} #}}}
+}
 
-sub register { #{{{
+sub register {
 	if ($config_overridden) {
 		# Find the directory that the specified config file is
 		# located in.
@@ -1119,10 +1115,10 @@ sub register { #{{{
 		join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
 	print "mr register: running >>$command<<\n" if $verbose;
 	exec($command) || die "exec: $!";
-} #}}}
+}
 
 # alias expansion and command stemming
-sub expandaction { #{{{
+sub expandaction {
 	my $action=shift;
 	if (exists $alias{$action}) {
 		$action=$alias{$action};
@@ -1143,9 +1139,9 @@ sub expandaction { #{{{
 		}
 	}
 	return $action;
-} #}}}
+}
 
-sub getopts { #{{{
+sub getopts {
 	my @saved=@ARGV;
 	Getopt::Long::Configure("bundling", "no_permute");
 	my $result=GetOptions(
@@ -1168,9 +1164,9 @@ sub getopts { #{{{
 		last if $option eq $ARGV[0];
 		$ENV{MR_SWITCHES}.="$option ";
 	}
-} #}}}
+}
 
-sub init { #{{{
+sub init {
 	$SIG{INT}=sub {
 		print STDERR "mr: interrupted\n";
 		exit 2;
@@ -1192,9 +1188,9 @@ sub init { #{{{
 		use FindBin qw($Bin $Script);
 		$ENV{MR_PATH}=$Bin."/".$Script;
 	};
-} #}}}
+}
 
-sub main { #{{{
+sub main {
 	getopts();
 	init();
 
@@ -1215,11 +1211,10 @@ sub main { #{{{
 	else {
 		exit 0;
 	}
-} #}}}
+}
 
 # Finally, some useful actions that mr knows about by default.
 # These can be overridden in ~/.mrconfig.
-#DATA{{{
 __DATA__
 [ALIAS]
 co = checkout
@@ -1404,6 +1399,5 @@ remember =
 ed = echo "A horse is a horse, of course, of course.."
 T = echo "I pity the fool."
 right = echo "Not found."
-#}}}
 
 # vim:sw=8:sts=0:ts=8:noet
