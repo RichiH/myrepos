@@ -1,3 +1,9 @@
+mr (0.36) UNRELEASED; urgency=low
+
+  * Add webcheckout command. See http://kitenet.net/~joey/rfc/rel-vcs/
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 06 Jan 2009 20:59:20 -0500
+
 mr (0.35) unstable; urgency=low
 
   * Warn if an include command fails nonzero. Closes: #495306

@@ -1,0 +1,144 @@
+#!/usr/bin/perl
+use LWP::Simple;
+use HTML::Parser;
+use warnings;
+use strict;
+
+# Controls whether to print what is being done.
+my $verbose=1;
+
+# Controls whether to actually check anything out.
+my $noact=1;
+
+# Controls whether to perfer repos that use authentication.
+my $want_auth=0;
+
+# Controls where to check out to. If not set, the vcs is allowed to
+# decide.
+my $destdir;
+
+# how to perform checkouts
+my %handlers=(
+	git => sub { doit("git", "clone", shift, $destdir) },
+	svn => sub { doit("svn", "checkout", shift, $destdir) },
+	bzr => sub { doit("bzr", "branch", shift, $destdir) },
+);
+
+# Regexps matching urls that are used for anonymous
+# repository checkouts. The order is significant:
+# urls matching earlier in the list are preferred over
+# those matching later.
+my @anon_urls=(
+	qr/^git:\/\//i,
+	qr/^bzr:\/\//i,
+	qr/^svn:\/\//i,
+	qr/^http:\/\//i, # generally the worst transport
+);
+
+sub doit {
+	my @args=grep { defined } @_;
+	print join(" ", @args)."\n" if $verbose;
+	return 0 if $noact;
+	return system(@args);
+}
+
+# Is repo a better than repo b?
+sub better {
+	my ($a, $b)=@_;
+
+	my $firstanon=$b;
+	foreach my $r (@anon_urls) {
+		if ($a->{href} =~ /$r/) {
+			$firstanon=$a;
+			last;
+		}
+		elsif ($b->{href} =~ /$r/) {
+			$firstanon=$b;
+			last;
+		}
+	}
+
+	if ($want_auth) {
+		return $firstanon != $a;
+	}
+	else {
+		return $firstanon == $a;
+	}
+}
+
+# Eliminate duplicate repositories from list.
+# Duplicate repositories have the same title, or the same href.
+sub dedup {
+	my %seenhref;
+	my %bytitle;
+	foreach my $repo (@_) {
+		if (exists $repo->{title} &&
+		    length $repo->{title} &&
+		    exists $bytitle{$repo->{title}}) {
+			my $other=$bytitle{$repo->{title}};
+			next unless better($repo, $other);
+			delete $bytitle{$other->{title}}
+		}
+
+		if (! $seenhref{$repo->{href}}++) {
+			$bytitle{$repo->{title}}=$repo;
+		}
+	}
+
+	return values %bytitle;
+}
+
+sub parse {
+	my $page=shift;
+
+	my @ret;
+	my $parser=HTML::Parser->new(api_version => 3);
+	$parser->handler(start => sub {
+		my $tagname=shift;
+		my $attr=shift;
+		return if lc $tagname ne 'link';
+		return if ! exists $attr->{rel} || lc $attr->{rel} ne 'vcs';
+		return if ! exists $attr->{href} || ! length $attr->{href};
+		return if ! exists $attr->{type} || ! length $attr->{type};
+		push @ret, $attr;
+	}, "tagname, attr");
+	$parser->parse($page);
+	$parser->eof;
+
+	return @ret;
+}
+
+my $url=shift;
+if (! defined $url) {
+	die "usage: webcheckout url\n";
+}
+
+my $page=get($url);
+if (! defined $page) {
+	die "failed to download $url\n";
+}
+
+my @repos=dedup(parse($page));
+if (! @repos) {
+	die "no repositories found on $url\n";
+}
+
+my $errors=0;
+foreach my $repo (@repos) {
+	my $handler=$handlers{$repo->{type}};
+	if ($handler) {
+		if ($handler->($repo->{href}) != 0) {
+			print STDERR "failed to checkout ".$repo->{href}."\n";
+			$errors++;
+		}
+	}
+	else {
+		print STDERR "unknown repository type ".$repo->{type}.
+			" for ".$repo->{href}."\n";
+		$errors++;
+	}
+}
+exit($errors > 0);
+
+#use Data::Dumper;
+#print Dumper(\@repos);
