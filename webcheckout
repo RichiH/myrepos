@@ -190,7 +190,6 @@ sub parse {
 }
 
 getopts();
-print "$url\n";
 
 my $page=get($url);
 if (! defined $page) {
