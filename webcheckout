@@ -127,23 +127,26 @@ sub doit {
 sub better {
 	my ($a, $b)=@_;
 
-	my $firstanon=$b;
+	my @anon;
 	foreach my $r (@anon_urls) {
 		if ($a->{href} =~ /$r/) {
-			$firstanon=$a;
-			last;
+			push @anon, $a;
 		}
 		elsif ($b->{href} =~ /$r/) {
-			$firstanon=$b;
-			last;
+			push @anon, $b;
 		}
 	}
 
 	if ($want_auth) {
-		return $firstanon != $a;
+		# Whichever is authed is better.
+		return 1 if ! @anon || ! grep { $_ eq $a } @anon;
+		return 0 if ! grep { $_ eq $b } @anon;
+		# Neither is authed, so the better anon method wins.
+		return $anon[0] == $a;
 	}
 	else {
-		return $firstanon == $a;
+		# Better anon method wins.
+		return @anon && $anon[0] == $a;
 	}
 }
 
