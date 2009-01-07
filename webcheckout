@@ -1,14 +1,76 @@
 #!/usr/bin/perl
+
+=head1 NAME
+
+debcheckout - check out repositories referenced on a web page
+
+=head1 SYNOPSIS
+
+B<webcheckout> [options] url [destdir]
+
+=head1 DESCRIPTION
+
+B<webcheckout> downloads an url and parses it, looking for version control 
+repositories referenced by the page. It checks out each repository into
+a subdirectory of the current directory, using whatever VCS program is
+appropriate for that repository (git, svn, etc).
+
+The information about the repositories is embedded in the web page using
+the rel=vcs microformat, which is documented at
+<http://kitenet.net/~joey/rfc/rel-vcs/>.
+
+If the optional destdir parameter is specified, VCS programs will be asked
+to check out repositories into that directory. If there are multiple
+repositories to check out, each will be checked out into a separate
+subdirectory of the destdir.
+
+=head1 OPTIONS
+
+=over 4
+
+=item -a, --auth
+
+Prefer authenticated repositories. By default, webcheckout will use
+anonymous repositories when possible. If you have an account that
+allows you to use authenticated repositories, you might want to use this
+option.
+
+=item -n
+
+Do not actually check anything out, just print out the commands that would
+be run to check out the repositories.
+
+=item -q
+
+Quiet mode. Do not print out the commands being run. (The VCS commands
+may still be noisy however.)
+
+=back
+
+=head1 AUTHOR
+
+Copyright 2009 Joey Hess <joey@kitenet.net>
+
+Licensed under the GNU GPL version 2 or higher.
+
+This program is included in mr <http://kitenet.net/~joey/code/mr/>
+
+=cut
+
 use LWP::Simple;
 use HTML::Parser;
+use Getopt::Long;
 use warnings;
 use strict;
 
+# What to download.
+my $url;
+
 # Controls whether to print what is being done.
-my $verbose=1;
+my $quiet=0;
 
 # Controls whether to actually check anything out.
-my $noact=1;
+my $noact=0;
 
 # Controls whether to perfer repos that use authentication.
 my $want_auth=0;
@@ -35,9 +97,28 @@ my @anon_urls=(
 	qr/^http:\/\//i, # generally the worst transport
 );
 
+sub getopts {
+	Getopt::Long::Configure("bundling", "no_permute");
+	my $result=GetOptions(
+		"q|quiet" => \$quiet,
+		"n|noact" => \$noact,
+		"a|auth", => \$want_auth,
+	);
+	if (! $result || @ARGV < 1) {
+		die "usage: webcheckout [options] url [destdir]\n";
+	}
+
+	$url=shift @ARGV;
+	$destdir=shift @ARGV;
+
+	if ($noact) {
+		$quiet=0;
+	}
+}
+
 sub doit {
 	my @args=grep { defined } @_;
-	print join(" ", @args)."\n" if $verbose;
+	print join(" ", @args)."\n" unless $quiet;
 	return 0 if $noact;
 	return system(@args);
 }
@@ -108,10 +189,8 @@ sub parse {
 	return @ret;
 }
 
-my $url=shift;
-if (! defined $url) {
-	die "usage: webcheckout url\n";
-}
+getopts();
+print "$url\n";
 
 my $page=get($url);
 if (! defined $page) {
@@ -121,6 +200,13 @@ if (! defined $page) {
 my @repos=dedup(parse($page));
 if (! @repos) {
 	die "no repositories found on $url\n";
+}
+
+if (defined $destdir && @repos > 1) {
+	# create subdirs of $destdir for the multiple repos
+	mkdir($destdir);
+	chdir($destdir) || die "failed to chdir to $destdir: $!";
+	$destdir=undef;
 }
 
 my $errors=0;
