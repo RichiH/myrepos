@@ -152,21 +152,26 @@ sub better {
 sub dedup {
 	my %seenhref;
 	my %bytitle;
+	my @others;
 	foreach my $repo (@_) {
 		if (exists $repo->{title} &&
-		    length $repo->{title} &&
-		    exists $bytitle{$repo->{title}}) {
-			my $other=$bytitle{$repo->{title}};
-			next unless better($repo, $other);
-			delete $bytitle{$other->{title}}
-		}
+		    length $repo->{title}) {
+		 	if (exists $bytitle{$repo->{title}}) {
+				my $other=$bytitle{$repo->{title}};
+				next unless better($repo, $other);
+				delete $bytitle{$other->{title}}
+			}
 
-		if (! $seenhref{$repo->{href}}++) {
-			$bytitle{$repo->{title}}=$repo;
+			if (! $seenhref{$repo->{href}}++) {
+				$bytitle{$repo->{title}}=$repo;
+			}
+		}
+		else {
+			push @others, $repo;
 		}
 	}
 
-	return values %bytitle;
+	return values %bytitle, @others;
 }
 
 sub parse {
