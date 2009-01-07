@@ -208,8 +208,10 @@ if (! @repos) {
 
 if (defined $destdir && @repos > 1) {
 	# create subdirs of $destdir for the multiple repos
-	mkdir($destdir);
-	chdir($destdir) || die "failed to chdir to $destdir: $!";
+	if (! $noact) {
+		mkdir($destdir);
+		chdir($destdir) || die "failed to chdir to $destdir: $!";
+	}
 	$destdir=undef;
 }
 
