@@ -47,6 +47,14 @@ may still be noisy however.)
 
 =back
 
+=head1 PREREQUISITES
+
+To use this program you will need lots of VCS programs installed,
+obviously. It also depends on the perl LWP and HTML::Parser modules.
+
+If the perl URI module is installed, webcheckout can heuristically guess
+what you mean by partial URLs, such as "kitenet.net/~joey"'
+
 =head1 AUTHOR
 
 Copyright 2009 Joey Hess <joey@kitenet.net>
@@ -110,6 +118,11 @@ sub getopts {
 
 	$url=shift @ARGV;
 	$destdir=shift @ARGV;
+
+	eval q{use URI::Heuristic};
+	if (! $@) {
+		$url=URI::Heuristic::uf_uristr($url);
+	}
 
 	if ($noact) {
 		$quiet=0;

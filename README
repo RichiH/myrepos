@@ -4,3 +4,8 @@ dependencies aside from basic perl.
 
 Just copy mr into your PATH somewhere, if it isn't already, and set up
 ~/.mrconfig
+
+----
+
+webcheckout has more dependencies, specifically the LWP::Simple and
+HTML::Parser CPAN modules, and optionally the URI module.

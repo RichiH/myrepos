@@ -11,7 +11,7 @@ Package: mr
 Architecture: all
 Section: utils
 Depends: 
-Suggests: subversion, git-core, cvs, bzr, mercurial, darcs
+Suggests: subversion, git-core, cvs, bzr, mercurial, darcs, liburi-perl
 Recommends: libwww-perl, libhtml-parser-perl
 Description: a Multiple Repository management tool
  The mr(1) command can checkout, update, or perform other actions on
