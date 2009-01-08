@@ -35,12 +35,12 @@ anonymous repositories when possible. If you have an account that
 allows you to use authenticated repositories, you might want to use this
 option.
 
-=item -n
+=item --no-act, -n
 
 Do not actually check anything out, just print out the commands that would
 be run to check out the repositories.
 
-=item -q
+=item --quiet, -q
 
 Quiet mode. Do not print out the commands being run. (The VCS commands
 may still be noisy however.)
