@@ -1,9 +1,9 @@
-mr (0.36) UNRELEASED; urgency=low
+mr (0.36) unstable; urgency=low
 
-  * Add webcheckout command. See http://kitenet.net/~joey/rfc/rel-vcs/
+  * Add webcheckout command. See <http://kitenet.net/~joey/rfc/rel-vcs/>
   * Fix display of repos configured at absolute path locations.
 
- -- Joey Hess <joeyh@debian.org>  Tue, 06 Jan 2009 20:59:20 -0500
+ -- Joey Hess <joeyh@debian.org>  Sat, 10 Jan 2009 16:42:07 -0500
 
 mr (0.35) unstable; urgency=low
 

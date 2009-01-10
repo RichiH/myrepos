@@ -10,7 +10,7 @@ Vcs-Git: git://git.kitenet.net/mr
 Package: mr
 Architecture: all
 Section: utils
-Depends: 
+Depends: ${misc:Depends}
 Suggests: subversion, git-core, cvs, bzr, mercurial, darcs, liburi-perl
 Recommends: libwww-perl, libhtml-parser-perl
 Description: a Multiple Repository management tool
