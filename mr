@@ -515,12 +515,12 @@ sub action {
 	}
 	else {
 		if (! $no_chdir) {
-			print "mr $action: $topdir$subdir\n" unless $quiet;
+			print "mr $action: $dir\n" unless $quiet;
 		}
 		else {
 			my $s=$directory;
 			$s=~s/^\Q$topdir$subdir\E\/?//;
-			print "mr $action: $topdir$subdir (in subdir $s)\n" unless $quiet;
+			print "mr $action: $dir (in subdir $s)\n" unless $quiet;
 		}
 		$command="set -e; ".$lib.
 			"my_action(){ $command\n }; my_action ".
