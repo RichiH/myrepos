@@ -412,7 +412,7 @@ sub rcs_test {
 	chomp $rcs;
 	if ($rcs=~/\n/s) {
 		$rcs=~s/\n/, /g;
-		print STDERR "mr $action: found multiple possible repository types ($rcs) for $topdir$subdir\n";
+		print STDERR "mr $action: found multiple possible repository types ($rcs) for $dir\n";
 		return undef;
 	}
 	if (! length $rcs) {
@@ -505,11 +505,11 @@ sub action {
 	elsif (! defined $command) {
 		my $rcs=rcs_test(@_);
 		if (! defined $rcs) {
-			print STDERR "mr $action: unknown repository type and no defined $action command for $topdir$subdir\n";
+			print STDERR "mr $action: unknown repository type and no defined $action command for $dir\n";
 			return FAILED;
 		}
 		else {
-			print STDERR "mr $action: no defined action for $rcs repository $topdir$subdir, skipping\n";
+			print STDERR "mr $action: no defined action for $rcs repository $dir, skipping\n";
 			return SKIPPED;
 		}
 	}
@@ -519,7 +519,7 @@ sub action {
 		}
 		else {
 			my $s=$directory;
-			$s=~s/^\Q$topdir$subdir\E\/?//;
+			$s=~s/^\Q$dir\E\/?//;
 			print "mr $action: $dir (in subdir $s)\n" unless $quiet;
 		}
 		$command="set -e; ".$lib.
