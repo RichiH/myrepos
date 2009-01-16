@@ -341,6 +341,13 @@ the action that is performed for a given revision control system, you can
 override these rcs specific actions. To add a new revision control system,
 you can just add rcs specific actions for it.
 
+=head1 EXTENSIONS
+
+mr can be extended to support things such as unison and remote git
+checkout. Some files providing such extensions are available in
+/usr/share/mr/. See the documentation in the files for details about using
+them.
+
 =head1 AUTHOR
 
 Copyright 2007 Joey Hess <joey@kitenet.net>

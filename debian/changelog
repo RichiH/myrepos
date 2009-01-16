@@ -1,3 +1,11 @@
+mr (0.37) UNRELEASED; urgency=low
+
+  * Add git-remote file to lib. 
+    This adds a special type of git repository, where the .git directory
+    is stored on a file server, to avoid wasting space with it on the client.
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 15 Jan 2009 22:47:48 -0500
+
 mr (0.36) unstable; urgency=low
 
   * Add webcheckout command. See <http://kitenet.net/~joey/rfc/rel-vcs/>
