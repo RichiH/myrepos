@@ -343,10 +343,9 @@ you can just add rcs specific actions for it.
 
 =head1 EXTENSIONS
 
-mr can be extended to support things such as unison and remote git
-checkout. Some files providing such extensions are available in
-/usr/share/mr/. See the documentation in the files for details about using
-them.
+mr can be extended to support things such as unison and git-svn. Some
+files providing such extensions are available in /usr/share/mr/. See
+the documentation in the files for details about using them.
 
 =head1 AUTHOR
 
