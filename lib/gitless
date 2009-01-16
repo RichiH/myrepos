@@ -21,7 +21,6 @@
 # commands can be used, as long as the file server is available.
 
 lib =
-
 	gitless_checkout() {
 		server="$1"
 		remotebase="$2"
@@ -33,9 +32,9 @@ lib =
 			if [ ! -d "$remotebase/$dir.$hostname" ]; then
 				git clone --no-checkout "$remotebase/$dir.git" "$remotebase/$dir.$hostname"
 			fi
-			mkdir -p $dir
-			cd $dir
-			ln -sf $remotebase/$dir/.git
-			git checkout .
+			mkdir -p "$dir"
+			cd "$dir"
+			ln -sf "$remotebase/$dir.$hostname/.git"
+			git reset --hard
 		fi
 	}
