@@ -6,11 +6,11 @@
 # 
 # To make mr use this file, add a line like this inside the [DEFAULT]
 # section of your ~/.mrconfig
-#include = cat /usr/share/mr/git-remote
+#include = cat /usr/share/mr/gitless
 #
 # And an example repo using it would look something like:
 #[lib/sound]
-#checkout = git_remote_checkout turtle /media/turtle/home/joey/lib sound
+#checkout = gitless_checkout turtle /media/turtle/home/joey/lib sound
 # 
 # In this example, the file server's hostname is "turtle", 
 # and it's mounted on /media/turtle. The file server contains a sound.git
@@ -22,7 +22,7 @@
 
 lib =
 
-	git_remote_checkout() {
+	gitless_checkout() {
 		server="$1"
 		remotebase="$2"
 		dir="$3"
