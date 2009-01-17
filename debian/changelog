@@ -1,6 +1,6 @@
 mr (0.37) UNRELEASED; urgency=low
 
-  * Add git-remote file to lib. 
+  * Add "gitless" file to lib. 
     This adds a special type of git repository, where the .git directory
     is stored on a file server, to avoid wasting space with it on the client.
 

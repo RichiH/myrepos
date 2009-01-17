@@ -28,6 +28,7 @@ lib =
 		hostname="$(hostname)"
 		if [ "$hostname" = "$server" ]; then
 			git clone "$dir.git" "$dir" 
+			cd "$dir"
 		else
 			if [ ! -d "$remotebase/$dir.$hostname" ]; then
 				git clone --no-checkout "$remotebase/$dir.git" "$remotebase/$dir.$hostname"
@@ -37,4 +38,8 @@ lib =
 			ln -sf "$remotebase/$dir.$hostname/.git"
 			git reset --hard
 		fi
+		
+		# disable auto gc, because it breaks repo hard links,
+		# and is not smart to run over a networked filesystem
+		git config gc.auto 0
 	}
