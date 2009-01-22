@@ -1,3 +1,10 @@
+mr (0.38) UNRELEASED; urgency=low
+
+  * gitless: Use --shared when cloning repos, avoids problems with hard links
+    etc.
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 22 Jan 2009 02:54:12 -0500
+
 mr (0.37) unstable; urgency=low
 
   * Add "gitless" file to lib. 

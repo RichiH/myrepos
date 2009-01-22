@@ -31,7 +31,7 @@ lib =
 			cd "$dir"
 		else
 			if [ ! -d "$remotebase/$dir.$hostname" ]; then
-				git clone --no-checkout "$remotebase/$dir.git" "$remotebase/$dir.$hostname"
+				git clone --shared --no-checkout "$remotebase/$dir.git" "$remotebase/$dir.$hostname"
 			fi
 			mkdir -p "$dir"
 			cd "$dir"
