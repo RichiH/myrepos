@@ -1,9 +1,9 @@
-mr (0.38) UNRELEASED; urgency=low
+mr (0.38) unstable; urgency=low
 
-  * gitless: Use --shared when cloning repos, avoids problems with hard links
-    etc.
+  * Remove gitless lib. It turned out to be better to simply
+    use git clone --shared when checking out. Sorry for the churn..
 
- -- Joey Hess <joeyh@debian.org>  Thu, 22 Jan 2009 02:54:12 -0500
+ -- Joey Hess <joeyh@debian.org>  Thu, 22 Jan 2009 15:39:33 -0500
 
 mr (0.37) unstable; urgency=low
 
