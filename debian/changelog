@@ -1,3 +1,9 @@
+mr (0.39) UNRELEASED; urgency=low
+
+  * Determine current branch for fake-bare update (martin f. krafft)
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 01 Mar 2009 15:10:06 -0500
+
 mr (0.38) unstable; urgency=low
 
   * Remove gitless lib. It turned out to be better to simply
