@@ -49,7 +49,8 @@ git_fake_bare_test =
 
 git_fake_bare_update =
 	args="$@"
-	[ -z "$args" ] && args="-t origin master"
+	branch="$(GIT_DIR="$MR_REPO" git symbolic-ref HEAD | sed -re 's,.+/,,')"
+	[ -z "$args" ] && args="-t origin $branch"
 	GIT_DIR="$MR_REPO" git pull $args
 
 git_fake_bare_status = GIT_DIR="$MR_REPO" git status "$@" || true
