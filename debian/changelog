@@ -1,8 +1,8 @@
-mr (0.39) UNRELEASED; urgency=low
+mr (0.39) unstable; urgency=low
 
   * Determine current branch for fake-bare update (martin f. krafft)
 
- -- Joey Hess <joeyh@debian.org>  Sun, 01 Mar 2009 15:10:06 -0500
+ -- Joey Hess <joeyh@debian.org>  Mon, 09 Mar 2009 22:50:54 -0400
 
 mr (0.38) unstable; urgency=low
 
