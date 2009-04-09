@@ -221,11 +221,6 @@ a good speedup in updates without loading the machine too much.
 
 =head1 FILES
 
-The ~/.mrlog file contains commands that mr has remembered to run later,
-due to being offline. You can delete or edit this file to remove commands,
-or even to add other commands for 'mr online' to run. If the file is
-present, mr assumes it is in offline mode.
-
 B<mr> is configured by .mrconfig files. It starts by reading the .mrconfig
 file in your home directory, and this can in turn chain load .mrconfig files
 from repositories.
@@ -340,6 +335,11 @@ Internally, mr has settings for "git_update", "svn_update", etc. To change
 the action that is performed for a given revision control system, you can
 override these rcs specific actions. To add a new revision control system,
 you can just add rcs specific actions for it.
+
+The ~/.mrlog file contains commands that mr has remembered to run later,
+due to being offline. You can delete or edit this file to remove commands,
+or even to add other commands for 'mr online' to run. If the file is
+present, mr assumes it is in offline mode.
 
 =head1 EXTENSIONS
 
