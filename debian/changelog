@@ -1,6 +1,6 @@
 mr (0.40) UNRELEASED; urgency=low
 
-  * Use pass --pull to bzr merge to avoid needing to commit
+  * Pass --pull to bzr merge to avoid needing to commit
     merged changes. Closes: #524352
 
  -- Joey Hess <joeyh@debian.org>  Thu, 16 Apr 2009 13:11:53 -0400
