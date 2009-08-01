@@ -1,9 +1,9 @@
-mr (0.40) UNRELEASED; urgency=low
+mr (0.40) unstable; urgency=low
 
   * Pass --pull to bzr merge to avoid needing to commit
     merged changes. Closes: #524352
 
- -- Joey Hess <joeyh@debian.org>  Thu, 16 Apr 2009 13:11:53 -0400
+ -- Joey Hess <joeyh@debian.org>  Fri, 31 Jul 2009 13:47:22 -0400
 
 mr (0.39) unstable; urgency=low
 
