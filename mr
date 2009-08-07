@@ -183,38 +183,54 @@ system.
 
 =item -d directory
 
+=item --directory directory
+
 Specifies the topmost directory that B<mr> should work in. The default is
 the current working directory.
 
 =item -c mrconfig
 
+=item --config mrconfig
+
 Use the specified mrconfig file. The default is B<~/.mrconfig>
 
 =item -p
+
+=item --path
 
 Search in the current directory, and its parent directories and use
 the first B<.mrconfig> found, instead of the default B<~/.mrconfig>.
 
 =item -v
 
+=item --verbose
+
 Be verbose.
 
 =item -q
 
+=item --quiet
+
 Be quiet.
 
 =item -s
+
+=item --stats
 
 Expand the statistics line displayed at the end to include information
 about exactly which repositories failed and were skipped, if any.
 
 =item -i
 
+=item --interactive
+
 Interactive mode. If a repository fails to be processed, a subshell will be
 started which you can use to resolve or investigate the problem. Exit the
 subshell to continue the mr run.
 
 =item -n [number]
+
+=item --no-recurse [number]
 
 If no number if specified, just operate on the repository for the current
 directory, do not recurse into deeper repositories.
@@ -225,6 +241,8 @@ but not ./src/packages/bar.
 
 =item -j [number]
 
+=item --jobs [number]
+
 Run the specified number of jobs in parallel, or an unlimited number of jobs
 with no number specified. This can greatly speed up operations such as updates.
 It is not recommended for interactive operations.
@@ -234,6 +252,8 @@ ssh connection limits. Running between 3 and 5 jobs at a time will yield
 a good speedup in updates without loading the machine too much.
 
 =item -t
+
+=item --trust-all
 
 Trust all mrconfig files even if they are not listed in ~/.mrtrust.
 Use with caution.
