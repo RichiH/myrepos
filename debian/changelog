@@ -1,3 +1,12 @@
+mr (0.42) UNRELEASED; urgency=low
+
+  * Add support for ~/.mrtrust, which can be used to list trusted mrconfig
+    files. If you create this file, all files not listed in it will be treated
+    as untrusted, and carefully limited in what they can do. This improves
+    security when using mrconfig files provided by others.
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 07 Aug 2009 01:10:39 -0400
+
 mr (0.41) unstable; urgency=low
 
   * Add -p switch, that makes mr search the current directory and its

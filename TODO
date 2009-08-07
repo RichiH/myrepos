@@ -1,3 +1,6 @@
+* For compatability, ~/.mrtrust has to exist before trust checks are
+  enabled. Change this in a flag day.
+
 * more revision control systems
 
 * a way to detect repos in a tree that are not registered, and warn
