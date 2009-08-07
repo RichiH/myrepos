@@ -1,4 +1,4 @@
-mr (0.41) UNRELEASED; urgency=low
+mr (0.41) unstable; urgency=low
 
   * Add -p switch, that makes mr search the current directory and its
     parents for a .mrconfig file to use.
@@ -7,7 +7,7 @@ mr (0.41) UNRELEASED; urgency=low
     in it. This is intended for projects that want to publish a mrconfig file
     to automate use of their several repositories.
 
- -- Joey Hess <joeyh@debian.org>  Thu, 06 Aug 2009 22:13:05 -0400
+ -- Joey Hess <joeyh@debian.org>  Thu, 06 Aug 2009 22:38:58 -0400
 
 mr (0.40) unstable; urgency=low
 
