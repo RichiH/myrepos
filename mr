@@ -233,6 +233,11 @@ Note that running more than 10 jobs at a time is likely to run afoul of
 ssh connection limits. Running between 3 and 5 jobs at a time will yield
 a good speedup in updates without loading the machine too much.
 
+=item -t
+
+Trust all mrconfig files even if they are not listed in ~/.mrtrust.
+Use with caution.
+
 =back
 
 =head1 "MRCONFIG FILES"
@@ -357,10 +362,11 @@ present, mr assumes it is in offline mode.
 Since mrconfig files can contain arbitrary shell commands, they can do
 anything. This flexability is good, but it also allows a malicious mrconfig
 file to delete your whole home directory. Such a file might be contained
-inside a repository that your main ~/.mrconfig checks out. To avoid worries
-about a malicious change being committed to such a file, mr has the ability
-to read mrconfig files in untrusted mode. Such files are limited to running
-only known safe commands (like "git clone").
+inside a repository that your main ~/.mrconfig checks out and chains to. To
+avoid worries about evil commands in a mrconfig file, mr
+has the ability to read mrconfig files in untrusted mode. Such files are
+limited to running only known safe commands (like "git clone") in a
+carefully checked manner.
 
 By default, mr trusts all mrconfig files. (This default will change in a
 future release!) But if you have a ~/.mrtrust file, mr will only trust
@@ -405,6 +411,7 @@ my $interactive=0;
 my $max_depth;
 my $no_chdir=0;
 my $jobs=1;
+my $trust_all=0;
 my $directory=getcwd();
 $ENV{MR_CONFIG}="$ENV{HOME}/.mrconfig";
 
@@ -805,6 +812,8 @@ sub is_trusted_config {
 
 	# We always trust ~/.mrconfig.
 	return 1 if $config eq abs_path("$ENV{HOME}/.mrconfig");
+
+	return 1 if $trust_all;
 
 	my $trustfile=$ENV{HOME}."/.mrtrust";
 
@@ -1351,6 +1360,7 @@ sub getopts {
 		"i|interactive" => \$interactive,
 		"n|no-recurse:i" => \$max_depth,
 		"j|jobs:i" => \$jobs,
+		"t|trust-all" => \$trust_all,
 	);
 	if (! $result || @ARGV < 1) {
 		die("Usage: mr [options] action [params ...]\n".
