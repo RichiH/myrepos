@@ -1,5 +1,5 @@
 Source: mr
-Section: utils
+Section: vcs
 Priority: optional
 Build-Depends: debhelper (>= 7), dpkg-dev (>= 1.9.0)
 Maintainer: Joey Hess <joeyh@debian.org>
@@ -9,7 +9,7 @@ Vcs-Git: git://git.kitenet.net/mr
 
 Package: mr
 Architecture: all
-Section: utils
+Section: vcs
 Depends: ${misc:Depends}
 Suggests: subversion, git-core, cvs, bzr, mercurial, darcs, liburi-perl
 Recommends: libwww-perl, libhtml-parser-perl

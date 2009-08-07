@@ -1,3 +1,12 @@
+mr (0.41) UNRELEASED; urgency=low
+
+  * Add -p switch, that makes mr search the current directory and its
+    parents for a .mrconfig file to use. Useful for projects that want
+    to publish a mrconfig file to use to check out their several repositories,
+    without requiring users put it anywhere in particular.
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 06 Aug 2009 22:13:05 -0400
+
 mr (0.40) unstable; urgency=low
 
   * Pass --pull to bzr merge to avoid needing to commit

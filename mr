@@ -179,6 +179,11 @@ the current working directory.
 
 Use the specified mrconfig file. The default is B<~/.mrconfig>
 
+=item -p
+
+Search in the current directory, and its parent directories and use
+the first B<.mrconfig> found, instead of the default B<~/.mrconfig>.
+
 =item -v
 
 Be verbose.
@@ -1147,12 +1152,24 @@ sub expandaction {
 	return $action;
 }
 
+sub find_nearest_mrconfig {
+	my $dir=getcwd();
+	while (length $dir) {
+		if (-e "$dir/.mrconfig") {
+			return "$dir/.mrconfig";
+		}
+		$dir=~s/\/[^\/]*$//;
+	}
+	die "no .mrconfig found in path\n";
+}
+
 sub getopts {
 	my @saved=@ARGV;
 	Getopt::Long::Configure("bundling", "no_permute");
 	my $result=GetOptions(
 		"d|directory=s" => sub { $directory=abs_path($_[1]) },
 		"c|config=s" => sub { $ENV{MR_CONFIG}=$_[1]; $config_overridden=1 },
+		"p|path" => sub { $ENV{MR_CONFIG}=find_nearest_mrconfig(); $config_overridden=1 },
 		"v|verbose" => \$verbose,
 		"q|quiet" => \$quiet,
 		"s|stats" => \$stats,
