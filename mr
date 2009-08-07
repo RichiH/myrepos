@@ -20,6 +20,8 @@ B<mr> [options] diff
 
 B<mr> [options] log
 
+B<mr> [options] bootstrap url
+
 B<mr> [options] register [repository]
 
 B<mr> [options] config section ["parameter=[value]" ...]
@@ -97,6 +99,14 @@ Show the commit log.
 These commands are also available:
 
 =over 4
+
+=item bootstrap url
+
+Causes mr to download the url, save it to a .mrconfig file in the
+current directory, and then check out all repositories listed in it.
+
+(Please only do this if you have reason to trust the url, since
+mrconfig files can contain arbitrary commands!)
 
 =item list (or ls)
 
@@ -354,7 +364,7 @@ the documentation in the files for details about using them.
 
 =head1 AUTHOR
 
-Copyright 2007 Joey Hess <joey@kitenet.net>
+Copyright 2007-2009 Joey Hess <joey@kitenet.net>
 
 Licensed under the GNU GPL version 2 or higher.
 
@@ -1023,6 +1033,9 @@ sub dispatch {
 	elsif ($action eq 'register') {
 		register(@ARGV);
 	}
+	elsif ($action eq 'bootstrap') {
+		bootstrap();
+	}
 	elsif ($action eq 'remember' ||
 	       $action eq 'offline' ||
 	       $action eq 'online') {
@@ -1126,6 +1139,25 @@ sub register {
 		join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
 	print "mr register: running >>$command<<\n" if $verbose;
 	exec($command) || die "exec: $!";
+}
+
+sub bootstrap {
+	my $url=shift @ARGV;
+
+	if (! defined $url || ! length $url) {
+		die "mr: bootstrap requires url\n";
+	}
+
+	if (-e ".mrconfig") {
+		die "mr: .mrconfig file already exists, not overwriting with $url\n";
+	}
+
+	if (system("curl", "-s", $url, "-o", ".mrconfig") != 0) {
+		die "mr: download of $url failed\n";
+	}
+
+	exec("mr $ENV{MR_SWITCHES} -c .mrconfig checkout");
+	die "failed to run mr checkout";
 }
 
 # alias expansion and command stemming
@@ -1393,6 +1425,7 @@ help =
 	man -l "$tmp" || error "man failed"
 list = true
 config = 
+bootstrap = 
 
 online =
 	if [ -s ~/.mrlog ]; then

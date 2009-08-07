@@ -1,9 +1,11 @@
 mr (0.41) UNRELEASED; urgency=low
 
   * Add -p switch, that makes mr search the current directory and its
-    parents for a .mrconfig file to use. Useful for projects that want
-    to publish a mrconfig file to use to check out their several repositories,
-    without requiring users put it anywhere in particular.
+    parents for a .mrconfig file to use.
+  * Add `mr bootstrap`, which downloads an url to a .mrconfig file
+    in the current directory and then checks out all repositories configured
+    in it. This is intended for projects that want to publish a mrconfig file
+    to automate use of their several repositories.
 
  -- Joey Hess <joeyh@debian.org>  Thu, 06 Aug 2009 22:13:05 -0400
 
