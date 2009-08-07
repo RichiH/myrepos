@@ -4,5 +4,5 @@ build:
 
 test:
 	(echo "[]"; echo "checkout=") > mrconfig.tmp
-	./mr -c mrconfig.tmp ed | grep -q "horse"
+	./mr --trust-all -c mrconfig.tmp ed | grep -q "horse"
 	rm -f mrconfig.tmp
