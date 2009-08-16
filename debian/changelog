@@ -1,3 +1,10 @@
+mr (0.43) UNRELEASED; urgency=low
+
+  * Set User-Agent to "mr" when downloading the mrconfig file
+    with mr bootstrap. Closes: #541778
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 16 Aug 2009 11:36:03 -0400
+
 mr (0.42) unstable; urgency=low
 
   * Add support for ~/.mrtrust, which can be used to list trusted mrconfig

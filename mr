@@ -1324,7 +1324,7 @@ sub bootstrap {
 		die "mr: .mrconfig file already exists, not overwriting with $url\n";
 	}
 
-	if (system("curl", "-s", $url, "-o", ".mrconfig") != 0) {
+	if (system("curl", "-A", "mr", "-s", $url, "-o", ".mrconfig") != 0) {
 		die "mr: download of $url failed\n";
 	}
 
