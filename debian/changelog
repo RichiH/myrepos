@@ -3,6 +3,10 @@ mr (0.43) UNRELEASED; urgency=low
   * Set User-Agent to "mr" when downloading the mrconfig file
     with mr bootstrap. Closes: #541778
   * Man page typo. Closes: #545412
+  * mr bootstrap: Allow a directory to checkout into to be specified,
+    and create it if necessary.
+  * mr bootstrap: If the mrconfig file contains a repository named ".",
+    check it out into the top level of the directory bootstrapped.
 
  -- Joey Hess <joeyh@debian.org>  Sun, 16 Aug 2009 11:36:03 -0400
 

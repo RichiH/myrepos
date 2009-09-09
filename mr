@@ -20,7 +20,7 @@ B<mr> [options] diff
 
 B<mr> [options] log
 
-B<mr> [options] bootstrap url
+B<mr> [options] bootstrap url [directory]
 
 B<mr> [options] register [repository]
 
@@ -104,10 +104,16 @@ These commands are also available:
 
 =over 4
 
-=item bootstrap url
+=item bootstrap url [directory]
 
-Causes mr to download the url, save it to a .mrconfig file in the
-current directory, and then check out all repositories listed in it.
+Causes mr to download the url, and use it as a .mrconfig file
+to checkout the repositories listed in it, into the specified directory.
+
+The directory will be created if it does not exist. If no directory is
+specified, the current directory will be used.
+
+If the .mrconfig file includes a repository named ".", that
+is checked out into the top of the specified directory.
 
 =item list (or ls)
 
@@ -505,7 +511,7 @@ sub findcommand {
 }
 
 sub action {
-	my ($action, $dir, $topdir, $subdir) = @_;
+	my ($action, $dir, $topdir, $subdir, $force_checkout) = @_;
 	
 	$ENV{MR_CONFIG}=$configfiles{$topdir};
 	my $lib=exists $config{$topdir}{$subdir}{lib} ?
@@ -515,12 +521,14 @@ sub action {
 	$ENV{MR_REPO}=$dir;
 
 	if ($is_checkout) {
-		if (-d $dir) {
-			print "mr $action: $dir already exists, skipping checkout\n" if $verbose;
-			return SKIPPED;
+		if (! $force_checkout) {
+			if (-d $dir) {
+				print "mr $action: $dir already exists, skipping checkout\n" if $verbose;
+				return SKIPPED;
+			}
+	
+			$dir=~s/^(.*)\/[^\/]+\/?$/$1/;
 		}
-
-		$dir=~s/^(.*)\/[^\/]+\/?$/$1/;
 	}
 	elsif ($action =~ /update/) {
 		if (! -d $dir) {
@@ -939,11 +947,11 @@ sub is_trusted_checkout {
 my %loaded;
 sub loadconfig {
 	my $f=shift;
+	my $dir=shift;
 
 	my @toload;
 
 	my $in;
-	my $dir;
 	my $trusted;
 	if (ref $f eq 'GLOB') {
 		$dir="";
@@ -963,10 +971,13 @@ sub loadconfig {
 
 		$trusted=is_trusted_config($absf);
 
-		($dir)=$f=~/^(.*\/)[^\/]+$/;
 		if (! defined $dir) {
-			$dir=".";
+			($dir)=$f=~/^(.*\/)[^\/]+$/;
+			if (! defined $dir) {
+				$dir=".";
+			}
 		}
+
 		$dir=abs_path($dir)."/";
 		
 		if (! exists $configfiles{$dir}) {
@@ -1315,17 +1326,38 @@ sub register {
 
 sub bootstrap {
 	my $url=shift @ARGV;
-
+	my $dir=shift @ARGV || ".";
+	
 	if (! defined $url || ! length $url) {
 		die "mr: bootstrap requires url\n";
 	}
-
-	if (-e ".mrconfig") {
-		die "mr: .mrconfig file already exists, not overwriting with $url\n";
+	
+	# Download the config file to a temporary location.
+	eval q{use File::Temp};
+	die $@ if $@;
+	my $tmpconfig=File::Temp->new();
+	if (system("curl", "-A", "mr", "-s", $url, "-o", $tmpconfig) != 0) {
+		die "mr: download of $url failed\n";
 	}
 
-	if (system("curl", "-A", "mr", "-s", $url, "-o", ".mrconfig") != 0) {
-		die "mr: download of $url failed\n";
+	if (! -e $dir) {
+		system("mkdir", "-p", $dir);
+	}
+	chdir($dir) || die "chdir $dir: $!";
+
+	# Special case to handle checkout of the "." repo, which 
+	# would normally be skipped.
+	my $topdir=abs_path(".")."/";
+	my @repo=($topdir, $topdir, ".");
+	loadconfig($tmpconfig, $topdir);
+	record(\@repo, action("checkout", @repo, 1))
+		if exists $config{$topdir}{"."}{"checkout"};
+
+	if (-e ".mrconfig") {
+		print STDERR "mr: .mrconfig file already exists, not overwriting with $url\n";
+	}
+	else {
+		rename($tmpconfig, ".mrconfig") || die "rename: $!";
 	}
 
 	exec("mr $ENV{MR_SWITCHES} -c .mrconfig checkout");
