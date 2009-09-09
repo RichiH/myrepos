@@ -1,4 +1,4 @@
-mr (0.43) UNRELEASED; urgency=low
+mr (0.43) unstable; urgency=low
 
   * Set User-Agent to "mr" when downloading the mrconfig file
     with mr bootstrap. Closes: #541778
@@ -8,7 +8,7 @@ mr (0.43) UNRELEASED; urgency=low
   * mr bootstrap: If the mrconfig file contains a repository named ".",
     check it out into the top level of the directory bootstrapped.
 
- -- Joey Hess <joeyh@debian.org>  Sun, 16 Aug 2009 11:36:03 -0400
+ -- Joey Hess <joeyh@debian.org>  Tue, 08 Sep 2009 20:22:32 -0400
 
 mr (0.42) unstable; urgency=low
 
