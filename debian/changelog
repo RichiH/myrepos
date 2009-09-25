@@ -1,6 +1,6 @@
 mr (0.44) UNRELEASED; urgency=low
 
-  * Make mr -i pass -i to the shell, to insure it knows it should be an
+  * Make mr -i pass -i to the shell, to ensure it knows it should be an
     interactive shell.
 
  -- Joey Hess <joeyh@debian.org>  Thu, 24 Sep 2009 21:52:27 -0400
