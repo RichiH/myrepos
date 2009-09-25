@@ -713,7 +713,7 @@ sub record {
 		if ($interactive) {
 			chdir($dir) unless $no_chdir;
 			print STDERR "mr: Starting interactive shell. Exit shell to continue.\n";
-			system((getpwuid($<))[8]);
+			system((getpwuid($<))[8], "-i");
 		}
 		push @failed, $dir;
 		print "\n";
