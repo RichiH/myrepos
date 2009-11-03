@@ -2,6 +2,7 @@ mr (0.44) UNRELEASED; urgency=low
 
   * Make mr -i pass -i to the shell, to ensure it knows it should be an
     interactive shell.
+  * mr help: Support man on SunOS and OS X. (Geoff Davis)
 
  -- Joey Hess <joeyh@debian.org>  Thu, 24 Sep 2009 21:52:27 -0400
 
