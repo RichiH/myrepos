@@ -1633,13 +1633,13 @@ git_bare_trusted_checkout = git clone --bare $url $repo
 help =
  	case `uname -s` in
 		SunOS)
-		SHOWMANFILE="/usr/bin/man -f"
+		SHOWMANFILE="man -f"
 		;;
 		Darwin)
-		SHOWMANFILE="/usr/bin/man"
+		SHOWMANFILE="man"
 		;;
 		*)
-		SHOWMANFILE="/usr/bin/man -l"
+		SHOWMANFILE="man -l"
 		;;
 	esac
 	if [ ! -e "$MR_PATH" ]; then
