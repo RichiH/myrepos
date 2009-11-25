@@ -12,7 +12,7 @@ Architecture: all
 Section: vcs
 Depends: ${misc:Depends}
 Suggests: subversion, git-core, cvs, bzr, mercurial, darcs, liburi-perl
-Recommends: libwww-perl, libhtml-parser-perl
+Recommends: libwww-perl, libhtml-parser-perl, perl
 Description: a Multiple Repository management tool
  The mr(1) command can checkout, update, or perform other actions on
  a set of repositories as if they were one combined respository. It
