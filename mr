@@ -1358,6 +1358,7 @@ sub bootstrap {
 	}
 	else {
 		eval q{use File::Copy};
+		die $@ if $@;
 		move($tmpconfig, ".mrconfig") || die "rename: $!";
 	}
 

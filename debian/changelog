@@ -1,11 +1,11 @@
-mr (0.44) UNRELEASED; urgency=low
+mr (0.44) unstable; urgency=low
 
   * Make mr -i pass -i to the shell, to ensure it knows it should be an
     interactive shell.
   * mr help: Support man on SunOS and OS X. (Geoff Davis)
   * mr bootstrap: Fix cross-device rename failure. Closes: #557962
 
- -- Joey Hess <joeyh@debian.org>  Thu, 24 Sep 2009 21:52:27 -0400
+ -- Joey Hess <joeyh@debian.org>  Wed, 25 Nov 2009 12:39:08 -0500
 
 mr (0.43) unstable; urgency=low
 
