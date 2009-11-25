@@ -1357,7 +1357,8 @@ sub bootstrap {
 		print STDERR "mr: .mrconfig file already exists, not overwriting with $url\n";
 	}
 	else {
-		rename($tmpconfig, ".mrconfig") || die "rename: $!";
+		eval q{use File::Copy};
+		move($tmpconfig, ".mrconfig") || die "rename: $!";
 	}
 
 	exec("mr $ENV{MR_SWITCHES} -c .mrconfig checkout");
