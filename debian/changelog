@@ -1,3 +1,9 @@
+mr (0.45) UNRELEASED; urgency=low
+
+  * Fix pod error. Closes: #558012
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 25 Nov 2009 17:27:23 -0500
+
 mr (0.44) unstable; urgency=low
 
   * Make mr -i pass -i to the shell, to ensure it knows it should be an

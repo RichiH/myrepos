@@ -383,7 +383,7 @@ due to being offline. You can delete or edit this file to remove commands,
 or even to add other commands for 'mr online' to run. If the file is
 present, mr assumes it is in offline mode.
 
-=head "UNTRUSTED MRCONFIG FILES"
+=head1 "UNTRUSTED MRCONFIG FILES"
 
 Since mrconfig files can contain arbitrary shell commands, they can do
 anything. This flexability is good, but it also allows a malicious mrconfig
