@@ -707,7 +707,7 @@ sub record {
 
 	if ($ret == OK) {
 		push @ok, $dir;
-		print "\n";
+		print "\n" unless $quiet;
 	}
 	elsif ($ret == FAILED) {
 		if ($interactive) {
@@ -716,7 +716,7 @@ sub record {
 			system((getpwuid($<))[8], "-i");
 		}
 		push @failed, $dir;
-		print "\n";
+		print "\n" unless $quiet;
 	}
 	elsif ($ret == SKIPPED) {
 		push @skipped, $dir;
@@ -1337,7 +1337,7 @@ sub bootstrap {
 	die $@ if $@;
 	my $tmpconfig=File::Temp->new();
 	if (system("curl", "-A", "mr", "-s", $url, "-o", $tmpconfig) != 0) {
-		die "mr: download of $url failed\n";
+		die "mr bootstrap: download of $url failed\n";
 	}
 
 	if (! -e $dir) {
@@ -1354,7 +1354,7 @@ sub bootstrap {
 		if exists $config{$topdir}{"."}{"checkout"};
 
 	if (-e ".mrconfig") {
-		print STDERR "mr: .mrconfig file already exists, not overwriting with $url\n";
+		print STDERR "mr bootstrap: .mrconfig file already exists, not overwriting with $url\n";
 	}
 	else {
 		eval q{use File::Copy};
