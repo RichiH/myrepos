@@ -22,4 +22,4 @@
   process the new one.
 
   Until this is fixed, checkouts and updates need to be manually repeated
-  after mrconfig files have changes.
+  after mrconfig files have changes. (See #447553)
