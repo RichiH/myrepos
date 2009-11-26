@@ -23,9 +23,6 @@ quietupdate = mr -s -n update 3>&1 1>/dev/null 2>&3 | egrep -v '(storing tag|tag
 #   if not, the checkout is minimal
 # - on checks whether the given host basename is one of the listed
 #   values. A value can also have a username in it, ie "joey@dodo".
-# - wantmedia checks whether I probably want various large media files
-#   here
-# - private are hosts I trust private data to
 # - mylaptop only succeeds if it's on my main development laptop, which 
 #   gets lots of extra cruft
 lib = 
@@ -51,15 +48,8 @@ lib =
 		done
 		return 1
 	}
-	wantmedia() {
-		on joey@kodama joey@dragon joey@dodo joey@turtle
-	}
-	private() {
-		on joey@wren joey@kodama joey@dragon joey@dodo joey@turtle \
-			joey@blurbird joey@slug
-	}
 	mylaptop() {
-		on kodama
+		on joey@gnu
 	}
 
 # The root of my home directory.
@@ -72,19 +62,25 @@ checkout =
 		git clone ssh://git.kitenet.net/srv/git/kitenet.net/joey/home joey
 	fi
 
+[Maildir]
 # Dummy target to create Maildir. Doesn't run offlineimap since I have that
 # cronned on machines where I want it.
-[Maildir]
 update = :
 skip = ! full
 checkout = mkdir Maildir Maildir/cur Maildir/new Maildir/tmp; chmod 700 Maildir
 status = :
 
+[mail]
+# I use mairix to index my mail archive; run it after each update.
+checkout = git clone ssh://joey@git.kitenet.net/srv/git/joey/private/mail
+update = git pull "$@"; if [ "$(which mairix)" ]; then mairix -Q; fi
+skip = ! mylaptop
+
+[tmp]
 # This is a dummy target, all it does is run fixups at the end of
 # an update.
-[tmp]
-update = fixups
-checkout = fixups
+update = $HOME/bin/fixups
+checkout = $HOME/bin/fixups
 status = :
 order = 25
 
