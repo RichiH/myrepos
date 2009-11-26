@@ -63,7 +63,7 @@ lib =
 	}
 
 # The root of my home directory.
-[]
+[.]
 order = 1
 checkout =
 	if anon; then
