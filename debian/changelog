@@ -1,6 +1,7 @@
 mr (0.45) UNRELEASED; urgency=low
 
   * Fix pod error. Closes: #558012
+  * bootstrap: Improve stats display.
 
  -- Joey Hess <joeyh@debian.org>  Wed, 25 Nov 2009 17:27:23 -0500
 

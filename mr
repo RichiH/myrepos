@@ -1001,7 +1001,7 @@ sub loadconfig {
 		open($in, "<", $f) || die "mr: open $f: $!\n";
 	}
 	my @lines=<$in>;
-	close $in;
+	close $in unless ref $f eq 'GLOB';
 
 	my $section;
 	my $line=0;
@@ -1104,6 +1104,13 @@ sub loadconfig {
 	foreach (@toload) {
 		loadconfig($_);
 	}
+}
+
+sub startingconfig {
+	%alias=%config=%configfiles=%knownactions=%loaded=();
+	my $datapos=tell(DATA);
+	loadconfig(\*DATA);
+	seek(DATA,$datapos,0); # rewind
 }
 
 sub modifyconfig {
@@ -1362,8 +1369,13 @@ sub bootstrap {
 		move($tmpconfig, ".mrconfig") || die "rename: $!";
 	}
 
-	exec("mr $ENV{MR_SWITCHES} -c .mrconfig checkout");
-	die "failed to run mr checkout";
+	# Load the config file and checkout everything else.
+	startingconfig();
+	loadconfig(".mrconfig");
+	dispatch("checkout");
+	@skipped=grep { abs_path($_) ne abs_path($topdir) } @skipped;
+	showstats("bootstrap");
+	exitstats();
 }
 
 # alias expansion and command stemming
@@ -1451,19 +1463,8 @@ sub init {
 		$ENV{MR_PATH}=$Bin."/".$Script;
 	};
 }
-
-sub main {
-	getopts();
-	init();
-
-	loadconfig(\*DATA);
-	loadconfig($ENV{MR_CONFIG});
-	#use Data::Dumper; print Dumper(\%config);
 	
-	my $action=expandaction(shift @ARGV);
-	dispatch($action);
-	showstats($action);
-
+sub exitstats {
 	if (@failed) {
 		exit 1;
 	}
@@ -1473,6 +1474,21 @@ sub main {
 	else {
 		exit 0;
 	}
+}
+
+sub main {
+	getopts();
+	init();
+
+	startingconfig();
+	loadconfig($ENV{MR_CONFIG});
+	#use Data::Dumper; print Dumper(\%config);
+	
+	my $action=expandaction(shift @ARGV);
+	dispatch($action);
+
+	showstats($action);
+	exitstats();
 }
 
 # Finally, some useful actions that mr knows about by default.
