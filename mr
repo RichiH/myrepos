@@ -1369,7 +1369,8 @@ sub bootstrap {
 		move($tmpconfig, ".mrconfig") || die "rename: $!";
 	}
 
-	# Load the config file and checkout everything else.
+	# Reload the config file (in case we got a different version)
+	# and checkout everything else.
 	startingconfig();
 	loadconfig(".mrconfig");
 	dispatch("checkout");
