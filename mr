@@ -115,6 +115,9 @@ specified, the current directory will be used.
 If the .mrconfig file includes a repository named ".", that
 is checked out into the top of the specified directory.
 
+To bootstrap from a SSL url with an untrusted certificate, you may
+need to specify the -k option.
+
 =item list (or ls)
 
 List the repositories that mr will act on.
@@ -218,6 +221,12 @@ Be verbose.
 =item --quiet
 
 Be quiet.
+
+=item -k
+
+=item --insecure
+
+Accept untrusted SSL certificates when bootstrapping.
 
 =item -s
 
@@ -433,6 +442,7 @@ my $config_overridden=0;
 my $verbose=0;
 my $quiet=0;
 my $stats=0;
+my $insecure=0;
 my $interactive=0;
 my $max_depth;
 my $no_chdir=0;
@@ -1343,9 +1353,11 @@ sub bootstrap {
 	eval q{use File::Temp};
 	die $@ if $@;
 	my $tmpconfig=File::Temp->new();
-	if (system("curl", "-A", "mr", "-s", $url, "-o", $tmpconfig) != 0) {
-		die "mr bootstrap: download of $url failed\n";
-	}
+	my @curlargs = ("curl", "-A", "mr", "-s", $url, "-o", $tmpconfig);
+	push(@curlargs, "-k") if $insecure;
+	my $curlstatus = system(@curlargs);
+	die "mr bootstrap: invalid SSL certificate for $url (consider -k)\n" if $curlstatus >> 8 == 60;
+	die "mr bootstrap: download of $url failed\n" if $curlstatus != 0;
 
 	if (! -e $dir) {
 		system("mkdir", "-p", $dir);
@@ -1424,6 +1436,7 @@ sub getopts {
 		"v|verbose" => \$verbose,
 		"q|quiet" => \$quiet,
 		"s|stats" => \$stats,
+		"k|insecure" => \$insecure,   
 		"i|interactive" => \$interactive,
 		"n|no-recurse:i" => \$max_depth,
 		"j|jobs:i" => \$jobs,
