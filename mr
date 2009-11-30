@@ -115,9 +115,6 @@ specified, the current directory will be used.
 If the .mrconfig file includes a repository named ".", that
 is checked out into the top of the specified directory.
 
-To bootstrap from a SSL url with an untrusted certificate, you may
-need to specify the -k option.
-
 =item list (or ls)
 
 List the repositories that mr will act on.
@@ -1436,7 +1433,7 @@ sub getopts {
 		"v|verbose" => \$verbose,
 		"q|quiet" => \$quiet,
 		"s|stats" => \$stats,
-		"k|insecure" => \$insecure,   
+		"k|insecure" => \$insecure,
 		"i|interactive" => \$interactive,
 		"n|no-recurse:i" => \$max_depth,
 		"j|jobs:i" => \$jobs,
