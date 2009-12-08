@@ -4,6 +4,7 @@ mr (0.45) UNRELEASED; urgency=low
   * bootstrap: Improve stats display.
   * Add --insecure option that can be used to ignore SSL cert errors
     when bootstrapping. (Pavel Avgustinov)
+  * Fix handling of a repository in "."
 
  -- Joey Hess <joeyh@debian.org>  Wed, 25 Nov 2009 17:27:23 -0500
 

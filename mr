@@ -787,6 +787,13 @@ sub repolist {
 	} @list;
 }
 
+sub repodir {
+	my $repo=shift;
+	my $topdir=$repo->{topdir};
+	my $subdir=$repo->{subdir};
+	return abs_path(($subdir =~/^\//) ? $subdir : $topdir.$subdir);
+}
+
 # figure out which repos to act on
 sub selectrepos {
 	my @repos;
@@ -795,7 +802,7 @@ sub selectrepos {
 		my $subdir=$repo->{subdir};
 
 		next if $subdir eq 'DEFAULT';
-		my $dir=($subdir =~/^\//) ? $subdir : $topdir.$subdir;
+		my $dir=repodir($repo);
 		my $d=$directory;
 		$dir.="/" unless $dir=~/\/$/;
 		$d.="/" unless $d=~/\/$/;
@@ -815,7 +822,7 @@ sub selectrepos {
 			my $subdir=$repo->{subdir};
 			
 			next if $subdir eq 'DEFAULT';
-			my $dir=($subdir =~/^\//) ? $subdir : $topdir.$subdir;
+			my $dir=repodir($repo);
 			my $d=$directory;
 			$dir.="/" unless $dir=~/\/$/;
 			$d.="/" unless $d=~/\/$/;
