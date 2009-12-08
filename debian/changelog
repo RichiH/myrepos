@@ -1,4 +1,4 @@
-mr (0.45) UNRELEASED; urgency=low
+mr (0.45) unstable; urgency=low
 
   * Fix pod error. Closes: #558012
   * bootstrap: Improve stats display.
@@ -6,7 +6,7 @@ mr (0.45) UNRELEASED; urgency=low
     when bootstrapping. (Pavel Avgustinov)
   * Fix handling of a repository in "."
 
- -- Joey Hess <joeyh@debian.org>  Wed, 25 Nov 2009 17:27:23 -0500
+ -- Joey Hess <joeyh@debian.org>  Tue, 08 Dec 2009 14:58:21 -0500
 
 mr (0.44) unstable; urgency=low
 
