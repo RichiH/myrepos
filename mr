@@ -791,7 +791,9 @@ sub repodir {
 	my $repo=shift;
 	my $topdir=$repo->{topdir};
 	my $subdir=$repo->{subdir};
-	return abs_path(($subdir =~/^\//) ? $subdir : $topdir.$subdir);
+	my $ret=($subdir =~/^\//) ? $subdir : $topdir.$subdir;
+	$ret=~s/\/\.$//;
+	return $ret;
 }
 
 # figure out which repos to act on

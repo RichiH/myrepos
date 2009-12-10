@@ -1,3 +1,10 @@
+mr (0.46) unstable; urgency=low
+
+  * Avoid using abs_path to determine canonical repo path, as that fails
+    when the repo has not yet been checked out.
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 10 Dec 2009 17:28:26 -0500
+
 mr (0.45) unstable; urgency=low
 
   * Fix pod error. Closes: #558012
