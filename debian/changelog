@@ -1,3 +1,10 @@
+mr (0.47) UNRELEASED; urgency=low
+
+  * Pass -L to curl to allow it to follow redirects when bootstrapping.
+    (Pavel Avgustinov)
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 13 Dec 2009 13:04:53 -0500
+
 mr (0.46) unstable; urgency=low
 
   * Avoid using abs_path to determine canonical repo path, as that fails
