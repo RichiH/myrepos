@@ -2,6 +2,7 @@ mr (0.47) UNRELEASED; urgency=low
 
   * Pass -L to curl to allow it to follow redirects when bootstrapping.
     (Pavel Avgustinov)
+  * Allow empty sections to be used in mrconfig files.
 
  -- Joey Hess <joeyh@debian.org>  Sun, 13 Dec 2009 13:04:53 -0500
 

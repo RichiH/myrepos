@@ -1037,6 +1037,12 @@ sub loadconfig {
 				}
 			}
 			$section=expandenv($section) if $trusted;
+			if ($section ne 'ALIAS' &&
+			    ! exists $config{$dir}{$section} &&
+			    exists $config{$dir}{DEFAULT}) {
+				# copy in defaults
+				$config{$dir}{$section}={ %{$config{$dir}{DEFAULT}} };
+			}
 		}
 		elsif (/^(\w+)\s*=\s*(.*)/) {
 			my $parameter=$1;
@@ -1072,12 +1078,6 @@ sub loadconfig {
 
 			if (! defined $section) {
 				die "$f line $.: parameter ($parameter) not in section\n";
-			}
-			if ($section ne 'ALIAS' &&
-			    ! exists $config{$dir}{$section} &&
-			    exists $config{$dir}{DEFAULT}) {
-				# copy in defaults
-				$config{$dir}{$section}={ %{$config{$dir}{DEFAULT}} };
 			}
 			if ($section eq 'ALIAS') {
 				$alias{$parameter}=$value;
