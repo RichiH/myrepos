@@ -1547,10 +1547,10 @@ lib =
 		fi
 		delta=`perl -wle 'print -f shift() ? int((-M _) * 24) : 9999' "$flagfile"`
 		if [ "$delta" -lt "$2" ]; then
-			exit 0
+			return 1
 		else
 			touch "$flagfile"
-			exit 1
+			return 0
 		fi
 	}
 

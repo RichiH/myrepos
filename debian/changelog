@@ -1,3 +1,11 @@
+mr (0.48) unstable; urgency=low
+
+  * Fix the hours_since function built into mr's shell library to
+    not exit, but return a true/false exit status. This allows it to be
+    used outside of skip tests.
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 05 Feb 2010 17:12:01 -0500
+
 mr (0.47) unstable; urgency=low
 
   * Pass -L to curl to allow it to follow redirects when bootstrapping.
