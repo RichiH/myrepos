@@ -1,3 +1,9 @@
+mr (0.49) UNRELEASED; urgency=low
+
+  * Update suggests for git-core to git transition.
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 08 Apr 2010 16:06:46 -0400
+
 mr (0.48) unstable; urgency=low
 
   * Fix the hours_since function built into mr's shell library to
