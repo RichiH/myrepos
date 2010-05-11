@@ -272,7 +272,7 @@ Use with caution.
 
 =back
 
-=head1 "MRCONFIG FILES"
+=head1 MRCONFIG FILES
 
 Here is an example .mrconfig file:
 
@@ -389,7 +389,7 @@ due to being offline. You can delete or edit this file to remove commands,
 or even to add other commands for 'mr online' to run. If the file is
 present, mr assumes it is in offline mode.
 
-=head1 "UNTRUSTED MRCONFIG FILES"
+=head1 UNTRUSTED MRCONFIG FILES
 
 Since mrconfig files can contain arbitrary shell commands, they can do
 anything. This flexability is good, but it also allows a malicious mrconfig
