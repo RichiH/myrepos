@@ -392,7 +392,7 @@ present, mr assumes it is in offline mode.
 =head1 UNTRUSTED MRCONFIG FILES
 
 Since mrconfig files can contain arbitrary shell commands, they can do
-anything. This flexability is good, but it also allows a malicious mrconfig
+anything. This flexibility is good, but it also allows a malicious mrconfig
 file to delete your whole home directory. Such a file might be contained
 inside a repository that your main ~/.mrconfig checks out and chains to. To
 avoid worries about evil commands in a mrconfig file, mr
