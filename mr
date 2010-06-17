@@ -1573,8 +1573,8 @@ hg_update  = hg pull "$@" && hg update "$@"
 darcs_update = darcs pull -a "$@"
 
 svn_status = svn status "$@"
-git_status = git status "$@" || true
-bzr_status = bzr status "$@"
+git_status = git status -s "$@" || true
+bzr_status = bzr status --short "$@"
 cvs_status = cvs status "$@"
 hg_status  = hg status "$@"
 darcs_status = darcs whatsnew -ls "$@" || true

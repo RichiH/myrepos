@@ -53,7 +53,7 @@ git_fake_bare_update =
 	[ -z "$args" ] && args="-t origin $branch"
 	GIT_DIR="$MR_REPO" git pull $args
 
-git_fake_bare_status = GIT_DIR="$MR_REPO" git status "$@" || true
+git_fake_bare_status = GIT_DIR="$MR_REPO" git status -s "$@" || true
 
 git_fake_bare_commit =
 	cd "$(git_get_worktree)"
