@@ -16,7 +16,7 @@ Recommends: libwww-perl, libhtml-parser-perl, perl
 Description: a Multiple Repository management tool
  The mr(1) command can checkout, update, or perform other actions on
  a set of repositories as if they were one combined respository. It
- supports any combination of git, svn, mecurial, bzr, darcs, and cvs
+ supports any combination of git, svn, mercurial, bzr, darcs, and cvs
  repositories, and support for other revision control systems can easily
  be added. (There are extensions adding support for unison and git-svn.)
  .

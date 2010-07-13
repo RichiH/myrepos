@@ -2,7 +2,7 @@ mr (0.49) UNRELEASED; urgency=low
 
   * Update suggests for git-core to git transition.
   * Use short mode status output for git and bzr.
-  * Typo. Closes: #586233
+  * Typo. Closes: #586233, #588913
 
  -- Joey Hess <joeyh@debian.org>  Thu, 08 Apr 2010 16:06:46 -0400
 
