@@ -1594,7 +1594,7 @@ git_record = git commit -a "$@"
 bzr_record = bzr commit "$@"
 hg_record  = hg commit -m "$@"
 darcs_record = darcs record -a -m "$@"
-fossil_record = git commit "$@"
+fossil_record = fossil commit "$@"
 
 svn_push = :
 git_push = git push "$@"
