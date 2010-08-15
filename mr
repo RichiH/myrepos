@@ -1559,12 +1559,12 @@ git_test = test -d "$MR_REPO"/.git
 bzr_test = test -d "$MR_REPO"/.bzr
 cvs_test = test -d "$MR_REPO"/CVS
 hg_test  = test -d "$MR_REPO"/.hg
+darcs_test = test -d "$MR_REPO"/_darcs
 fossil_test = test -f "$MR_REPO"/_FOSSIL_
 git_bare_test =
 	test -d "$MR_REPO"/refs/heads && test -d "$MR_REPO"/refs/tags &&
 	test -d "$MR_REPO"/objects && test -f "$MR_REPO"/config &&
 	test "`GIT_CONFIG="$MR_REPO"/config git config --get core.bare`" = true
-darcs_test = test -d "$MR_REPO"/_darcs
 
 svn_update = svn update "$@"
 git_update = git pull "$@"
