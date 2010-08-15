@@ -1667,7 +1667,7 @@ git_bare_register =
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone --bare '$url' '$MR_REPO'"
 fossil_register =
 	url=`fossil remote-url`
-	repo=`fossil info | grep repository | sed -e s/repository:*.//g -e s/\ //g`
+	repo=`fossil info | grep repository | sed -e 's/repository:*.//g' -e 's/ //g'`
 	echo "Registering fossil repository $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="mkdir -p '$MR_REPO' && cd '$MR_REPO' && fossil open '$repo'"
 
