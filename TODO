@@ -10,8 +10,6 @@
   ~/.mrconfig (and files it chains). This allows a user to globally
   configure mr with aliases, etc. (Closes: #557963)
 
-* more revision control systems
-
 * a way to detect repos in a tree that are not registered, and warn
   about or even auto-register them. (svn externals make this quite
   difficult!)

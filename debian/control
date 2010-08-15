@@ -11,14 +11,15 @@ Package: mr
 Architecture: all
 Section: vcs
 Depends: ${misc:Depends}
-Suggests: subversion, git-core | git (>= 1:1.7), cvs, bzr, mercurial, darcs, liburi-perl, curl
+Suggests: subversion, git-core | git (>= 1:1.7), cvs, bzr, mercurial, darcs, liburi-perl, curl, fossil
 Recommends: libwww-perl, libhtml-parser-perl, perl
 Description: a Multiple Repository management tool
  The mr(1) command can checkout, update, or perform other actions on
  a set of repositories as if they were one combined respository. It
- supports any combination of git, svn, mercurial, bzr, darcs, and cvs
- repositories, and support for other revision control systems can easily
- be added. (There are extensions adding support for unison and git-svn.)
+ supports any combination of git, svn, mercurial, bzr, darcs, cvs, and
+ fossil repositories, and support for other revision control systems
+ can easily be added. (There are extensions adding support for unison
+ and git-svn.)
  .
  It is extremely configurable via simple shell scripting. Some examples
  of things it can do include:
@@ -32,4 +33,4 @@ Description: a Multiple Repository management tool
   * Remember actions that failed due to a laptop being offline, so they
     can be retried when it comes back online.
   .
-  This package also includes webcheckout.
+  This package also includes the webcheckout command.

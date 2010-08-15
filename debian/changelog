@@ -1,3 +1,9 @@
+mr (0.50) UNRELEASED; urgency=low
+
+  * Now supports the Fossil VCS. (Thanks, Jimmy Tang)
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 15 Aug 2010 12:36:34 -0400
+
 mr (0.49) unstable; urgency=low
 
   * Update suggests for git-core to git transition.
