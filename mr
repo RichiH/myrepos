@@ -37,8 +37,8 @@ B<mr> [options] remember action [params ...]
 B<mr> is a Multiple Repository management tool. It can checkout, update, or
 perform other actions on a set of repositories as if they were one combined
 repository. It supports any combination of subversion, git, cvs, mercurial,
-bzr and darcs repositories, and support for other revision control systems can
-easily be added.
+bzr, darcs and fossil repositories, and support for other revision
+control systems can easily be added.
 
 B<mr> cds into and operates on all registered repositories at or below your
 working directory. Or, if you are in a subdirectory of a repository that
@@ -1536,7 +1536,7 @@ lib =
 		if [ -z "$1" ] || [ -z "$2" ]; then
 			error "mr: usage: hours_since action num"
 		fi
-		for dir in .git .svn .bzr CVS .hg _darcs; do
+		for dir in .git .svn .bzr CVS .hg _darcs _FOSSIL_; do
 			if [ -e "$MR_REPO/$dir" ]; then
 				flagfile="$MR_REPO/$dir/.mr_last$1"
 				break
@@ -1559,11 +1559,12 @@ git_test = test -d "$MR_REPO"/.git
 bzr_test = test -d "$MR_REPO"/.bzr
 cvs_test = test -d "$MR_REPO"/CVS
 hg_test  = test -d "$MR_REPO"/.hg
-darcs_test = test -d "$MR_REPO"/_darcs
+fossil_test = test -f "$MR_REPO"/_FOSSIL_
 git_bare_test =
 	test -d "$MR_REPO"/refs/heads && test -d "$MR_REPO"/refs/tags &&
 	test -d "$MR_REPO"/objects && test -f "$MR_REPO"/config &&
 	test "`GIT_CONFIG="$MR_REPO"/config git config --get core.bare`" = true
+darcs_test = test -d "$MR_REPO"/_darcs
 
 svn_update = svn update "$@"
 git_update = git pull "$@"
@@ -1571,6 +1572,7 @@ bzr_update = bzr merge --pull "$@"
 cvs_update = cvs update "$@"
 hg_update  = hg pull "$@" && hg update "$@"
 darcs_update = darcs pull -a "$@"
+fossil_update = fossil pull "$@"
 
 svn_status = svn status "$@"
 git_status = git status -s "$@" || true
@@ -1578,6 +1580,7 @@ bzr_status = bzr status --short "$@"
 cvs_status = cvs status "$@"
 hg_status  = hg status "$@"
 darcs_status = darcs whatsnew -ls "$@" || true
+fossil_status = fossil changes "$@"
 
 svn_commit = svn commit "$@"
 git_commit = git commit -a "$@" && git push --all
@@ -1585,11 +1588,13 @@ bzr_commit = bzr commit "$@" && bzr push
 cvs_commit = cvs commit "$@"
 hg_commit  = hg commit -m "$@" && hg push
 darcs_commit = darcs record -a -m "$@" && darcs push -a
+fossil_commit = fossil commit "$@"
 
 git_record = git commit -a "$@"
 bzr_record = bzr commit "$@"
 hg_record  = hg commit -m "$@"
 darcs_record = darcs record -a -m "$@"
+fossil_record = git commit "$@"
 
 svn_push = :
 git_push = git push "$@"
@@ -1597,6 +1602,7 @@ bzr_push = bzr push "$@"
 cvs_push = :
 hg_push = hg push "$@"
 darcs_push = darcs push -a "$@"
+fossil_push = fossil push "$@"
 
 svn_diff = svn diff "$@"
 git_diff = git diff "$@"
@@ -1604,6 +1610,7 @@ bzr_diff = bzr diff "$@"
 cvs_diff = cvs diff "$@"
 hg_diff  = hg diff "$@"
 darcs_diff = darcs diff -u "$@"
+fossil_diff = fossil diff "$@"
 
 svn_log = svn log "$@"
 git_log = git log "$@"
@@ -1612,6 +1619,7 @@ cvs_log = cvs log "$@"
 hg_log  = hg log "$@"
 darcs_log = darcs changes "$@"
 git_bare_log = git log "$@"
+fossil_log = fossil timeline "$@"
 
 svn_register =
 	url=`LC_ALL=C svn info . | grep -i '^URL:' | cut -d ' ' -f 2`
@@ -1657,6 +1665,11 @@ git_bare_register =
 	fi
 	echo "Registering git url: $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone --bare '$url' '$MR_REPO'"
+fossil_register =
+	url=`fossil remote-url`
+	repo=`fossil info | grep repository | sed -e s/repository:*.//g -e s/\ //g`
+	echo "Registering fossil repository $url in $MR_CONFIG"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="mkdir -p '$MR_REPO' && cd '$MR_REPO' && fossil open '$repo'"
 
 svn_trusted_checkout = svn co $url $repo
 svn_alt_trusted_checkout = svn checkout $url $repo
@@ -1666,6 +1679,7 @@ bzr_trusted_checkout = bzr clone $url $repo
 hg_trusted_checkout = hg clone $url $repo
 darcs_trusted_checkout = darcs get $url $repo
 git_bare_trusted_checkout = git clone --bare $url $repo
+# fossil: messy to do
 
 
 help =
