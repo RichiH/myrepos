@@ -71,9 +71,9 @@ checkout = mkdir Maildir Maildir/cur Maildir/new Maildir/tmp; chmod 700 Maildir
 status = :
 
 [mail]
-# I use mairix to index my mail archive; run it after each update.
 checkout = git clone ssh://joey@git.kitenet.net/srv/git/joey/private/mail
-update = git pull "$@"; if [ "$(which mairix)" ]; then mairix -Q; fi
+# I use mairix to index my mail archive; keep its index up-to-date.
+fixups = if [ "$(which mairix)" ]; then ionice -c 3 mairix -Q; fi
 skip = ! mylaptop
 
 [tmp]
