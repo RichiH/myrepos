@@ -377,6 +377,13 @@ is checked out, or updated. This provides an easy way to do things
 like permissions fixups, or other tweaks to the repository content,
 whenever the repository is changed.
 
+=item pre_ and post_
+
+If a "pre_action" parameter is set, its command is run before mr performs the
+specified action. Similarly, "post_action" parameters are run after mr
+successfully performs the specified action. For example, "pre_commit" is
+run before committing; "post_update" is run after updating.
+
 =back
 
 When looking for a command to run for a given action, mr first looks for
@@ -604,6 +611,10 @@ sub action {
 			$s=~s/^\Q$topdir$subdir\E\/?//;
 			print "mr $action: $topdir$subdir (in subdir $s)\n" unless $quiet;
 		}
+
+		my $hookret=hook("pre_$action", $topdir, $subdir);
+		return $hookret if $hookret != OK;
+
 		$command="set -e; ".$lib.
 			"my_action(){ $command\n }; my_action ".
 			join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
@@ -641,11 +652,14 @@ sub action {
 				return FAILED;
 			}
 
+			my $ret=hook("post_$action", $topdir, $subdir);
+			return $ret if $ret != OK;
+			
 			if (($is_checkout || $is_update)) {
 				my $ret=hook("fixups", $topdir, $subdir);
 				return $ret if $ret != OK;
 			}
-
+			
 			return OK;
 		}
 	}
