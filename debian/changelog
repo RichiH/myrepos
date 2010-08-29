@@ -1,6 +1,8 @@
 mr (0.50) UNRELEASED; urgency=low
 
   * Now supports the Fossil VCS. (Thanks, Jimmy Tang)
+  * Added fixups hook, which can be used to run a command after
+    a repository is checked out or updated. Closes: #590868
 
  -- Joey Hess <joeyh@debian.org>  Sun, 15 Aug 2010 12:36:34 -0400
 

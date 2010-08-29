@@ -79,8 +79,8 @@ skip = ! mylaptop
 [tmp]
 # This is a dummy target, all it does is run fixups at the end of
 # an update.
-update = $HOME/bin/fixups
-checkout = $HOME/bin/fixups
+fixups = $HOME/bin/fixups
+checkout = mkdir -p $HOME/tmp
 status = :
 order = 25
 

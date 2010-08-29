@@ -370,6 +370,13 @@ The "lib" parameter can specify some shell code that will be run before each
 command, this can be a useful way to define shell functions for other commands
 to use.
 
+=item fixups
+
+If the "fixups" parameter is set, its command is run whenever a repository
+is checked out, or updated. This provides an easy way to do things
+like permissions fixups, or other tweaks to the repository content,
+whenever the repository is changed.
+
 =back
 
 When looking for a command to run for a given action, mr first looks for
@@ -524,6 +531,7 @@ sub action {
 	my $lib=exists $config{$topdir}{$subdir}{lib} ?
 	               $config{$topdir}{$subdir}{lib}."\n" : "";
 	my $is_checkout=($action eq 'checkout');
+	my $is_update=($action =~ /update/);
 
 	$ENV{MR_REPO}=$dir;
 
@@ -537,7 +545,7 @@ sub action {
 			$dir=~s/^(.*)\/[^\/]+\/?$/$1/;
 		}
 	}
-	elsif ($action =~ /update/) {
+	elsif ($is_update) {
 		if (! -d $dir) {
 			return action("checkout", $dir, $topdir, $subdir);
 		}
@@ -628,14 +636,44 @@ sub action {
 			return FAILED;
 		}
 		else {
-			if ($action eq 'checkout' && ! -d $dir) {
+			if ($is_checkout && ! -d $dir) {
 				print STDERR "mr $action: $dir missing after checkout\n";;
 				return FAILED;
+			}
+
+			if (($is_checkout || $is_update)) {
+				my $ret=hook("fixups", $topdir, $subdir);
+				return $ret if $ret != OK;
 			}
 
 			return OK;
 		}
 	}
+}
+
+sub hook {
+	my ($hook, $topdir, $subdir) = @_;
+
+	my $command=$config{$topdir}{$subdir}{$hook};
+	return OK unless defined $command;
+	my $lib=exists $config{$topdir}{$subdir}{lib} ?
+	               $config{$topdir}{$subdir}{lib}."\n" : "";
+	my $shell="set -e;".$lib.
+		"my_hook(){ $command\n }; my_hook";
+	print "mr $hook: running >>$shell<<\n" if $verbose;
+	my $ret=system($shell);
+	if ($ret != 0) {
+		if (($? & 127) == 2) {
+			print STDERR "mr $hook: interrupted\n";
+			return ABORT;
+		}
+		elsif ($? & 127) {
+			print STDERR "mr $hook: received signal ".($? & 127)."\n";
+			return ABORT;
+		}
+	}
+
+	return OK;
 }
 
 # run actions on multiple repos, in parallel
