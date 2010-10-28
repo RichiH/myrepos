@@ -498,7 +498,7 @@ sub rcs_test {
 	chomp $rcs;
 	if ($rcs=~/\n/s) {
 		$rcs=~s/\n/, /g;
-		print STDERR "mr $action: found multiple possible repository types ($rcs) for $topdir$subdir\n";
+		print STDERR "mr $action: found multiple possible repository types ($rcs) for ".fulldir($topdir, $subdir)."\n";
 		return undef;
 	}
 	if (! length $rcs) {
@@ -531,9 +531,15 @@ sub findcommand {
 	}
 }
 
+sub fulldir {
+	my ($topdir, $subdir) = @_;
+	return $subdir =~ /^\// ? $subdir : $topdir.$subdir;
+}
+
 sub action {
 	my ($action, $dir, $topdir, $subdir, $force_checkout) = @_;
-	
+	my $fulldir=fulldir($topdir, $subdir);
+
 	$ENV{MR_CONFIG}=$configfiles{$topdir};
 	my $lib=exists $config{$topdir}{$subdir}{lib} ?
 	               $config{$topdir}{$subdir}{lib}."\n" : "";
@@ -594,22 +600,22 @@ sub action {
 	elsif (! defined $command) {
 		my $rcs=rcs_test(@_);
 		if (! defined $rcs) {
-			print STDERR "mr $action: unknown repository type and no defined $action command for $topdir$subdir\n";
+			print STDERR "mr $action: unknown repository type and no defined $action command for $fulldir\n";
 			return FAILED;
 		}
 		else {
-			print STDERR "mr $action: no defined action for $rcs repository $topdir$subdir, skipping\n";
+			print STDERR "mr $action: no defined action for $rcs repository $fulldir, skipping\n";
 			return SKIPPED;
 		}
 	}
 	else {
 		if (! $no_chdir) {
-			print "mr $action: $topdir$subdir\n" unless $quiet;
+			print "mr $action: $fulldir\n" unless $quiet;
 		}
 		else {
 			my $s=$directory;
-			$s=~s/^\Q$topdir$subdir\E\/?//;
-			print "mr $action: $topdir$subdir (in subdir $s)\n" unless $quiet;
+			$s=~s/^\Q$fulldir\E\/?//;
+			print "mr $action: $fulldir (in subdir $s)\n" unless $quiet;
 		}
 
 		my $hookret=hook("pre_$action", $topdir, $subdir);

@@ -1,3 +1,9 @@
+mr (0.51) UNRELEASED; urgency=low
+
+  * Fix display when absolute directories are configured in mrconfig.
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 28 Oct 2010 18:01:27 -0400
+
 mr (0.50) unstable; urgency=low
 
   * Now supports the Fossil VCS. (Thanks, Jimmy Tang)
