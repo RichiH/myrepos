@@ -16,6 +16,8 @@ B<mr> [options] commit [-m "message"]
 
 B<mr> [options] record [-m "message"]
 
+B<mr> [options] push
+
 B<mr> [options] diff
 
 B<mr> [options] log
