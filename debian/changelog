@@ -2,6 +2,8 @@ mr (0.51) UNRELEASED; urgency=low
 
   * Fix display when absolute directories are configured in mrconfig.
   * Add push to manpage synopsis. Closes: #603029
+  * Do not return a nonzero exit status when all repositories were skipped.
+    Closes: #607287
 
  -- Joey Hess <joeyh@debian.org>  Thu, 28 Oct 2010 18:01:27 -0400
 

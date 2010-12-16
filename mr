@@ -427,6 +427,10 @@ mr can be extended to support things such as unison and git-svn. Some
 files providing such extensions are available in /usr/share/mr/. See
 the documentation in the files for details about using them.
 
+=head1 EXIT STATUS
+
+mr returns nonzero if a command failed in any of the repositories.
+
 =head1 AUTHOR
 
 Copyright 2007-2010 Joey Hess <joey@kitenet.net>
@@ -1546,9 +1550,6 @@ sub init {
 	
 sub exitstats {
 	if (@failed) {
-		exit 1;
-	}
-	elsif (! @ok && @skipped) {
 		exit 1;
 	}
 	else {
