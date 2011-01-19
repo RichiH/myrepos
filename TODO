@@ -1,6 +1,3 @@
-* For compatability, ~/.mrtrust has to exist before trust checks are
-  enabled. Change this in a flag day.
-
 * After the mtrust flag day, consider making something similar to -p 
   be enabled by default. 
 

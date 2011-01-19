@@ -400,26 +400,28 @@ the action that is performed for a given revision control system, you can
 override these rcs specific actions. To add a new revision control system,
 you can just add rcs specific actions for it.
 
-The ~/.mrlog file contains commands that mr has remembered to run later,
-due to being offline. You can delete or edit this file to remove commands,
-or even to add other commands for 'mr online' to run. If the file is
-present, mr assumes it is in offline mode.
-
 =head1 UNTRUSTED MRCONFIG FILES
 
 Since mrconfig files can contain arbitrary shell commands, they can do
 anything. This flexibility is good, but it also allows a malicious mrconfig
 file to delete your whole home directory. Such a file might be contained
-inside a repository that your main ~/.mrconfig checks out and chains to. To
-avoid worries about evil commands in a mrconfig file, mr
-has the ability to read mrconfig files in untrusted mode. Such files are
-limited to running only known safe commands (like "git clone") in a
-carefully checked manner.
+inside a repository that your main ~/.mrconfig checks out. To
+avoid worries about evil commands in a mrconfig file, mr defaults to
+reading all mrconfig files other than the main ~/.mrconfig in untrusted
+mode. In untrusted mode, mrconfig files are limited to running only known
+safe commands (like "git clone") in a carefully checked manner.
 
-By default, mr trusts all mrconfig files. (This default will change in a
-future release!) But if you have a ~/.mrtrust file, mr will only trust
-mrconfig files that are listed within it. (One file per line.) All other
-files will be treated as untrusted.
+To configure mr to trust other mrconfig files, list them in ~/.mrtrust.
+One mrconfig file should be listed per line. Either the full pathname
+should be listed, or the pathname can start with "~/" to specify a file
+relative to your home directory.
+
+=head1 OFFLINE LOG FILE
+
+The ~/.mrlog file contains commands that mr has remembered to run later,
+due to being offline. You can delete or edit this file to remove commands,
+or even to add other commands for 'mr online' to run. If the file is
+present, mr assumes it is in offline mode.
 
 =head1 EXTENSIONS
 
@@ -433,7 +435,7 @@ mr returns nonzero if a command failed in any of the repositories.
 
 =head1 AUTHOR
 
-Copyright 2007-2010 Joey Hess <joey@kitenet.net>
+Copyright 2007-2011 Joey Hess <joey@kitenet.net>
 
 Licensed under the GNU GPL version 2 or higher.
 
@@ -925,22 +927,16 @@ sub is_trusted_config {
 
 	my $trustfile=$ENV{HOME}."/.mrtrust";
 
-	if (! -e $trustfile) {
-		print "mr: Assuming $config is trusted.\n";
-		print "mr: For better security, you are encouraged to create ~/.mrtrust\n";
-		print "mr: and list all trusted mrconfig files in it.\n";
-		return 1;
-	}
-
 	if (! %trusted) {
 		$trusted{"$ENV{HOME}/.mrconfig"}=1;
-		open (TRUST, "<", $trustfile) || die "$trustfile: $!";
-		while (<TRUST>) {
-			chomp;
-			s/^~\//$ENV{HOME}\//;
-			$trusted{abs_path($_)}=1;
+		if (open (TRUST, "<", $trustfile)) {
+			while (<TRUST>) {
+				chomp;
+				s/^~\//$ENV{HOME}\//;
+				$trusted{abs_path($_)}=1;
+			}
+			close TRUST;
 		}
-		close TRUST;
 	}
 
 	return $trusted{$config};
@@ -1024,6 +1020,11 @@ sub is_trusted_checkout {
 	return 0;
 }
 
+sub trusterror {
+	die shift()."\n".
+		"(To trust this file, list it in ~/.mrtrust.)\n";
+}
+
 my %loaded;
 sub loadconfig {
 	my $f=shift;
@@ -1097,7 +1098,7 @@ sub loadconfig {
 				if (! is_trusted_repo($section) ||
 				    $section eq 'ALIAS' ||
 				    $section eq 'DEFAULT') {
-					die "mr: illegal section \"[$section]\" in untrusted $f line $line\n";
+					trusterror "mr: illegal section \"[$section]\" in untrusted $f line $line";
 				}
 			}
 			$section=expandenv($section) if $trusted;
@@ -1124,10 +1125,10 @@ sub loadconfig {
 				# Untrusted files can only contain checkout
 				# parameters.
 				if ($parameter ne 'checkout') {
-					die "mr: illegal setting \"$parameter=$value\" in untrusted $f line $line\n";
+					trusterror "mr: illegal setting \"$parameter=$value\" in untrusted $f line $line";
 				}
 				if (! is_trusted_checkout($value)) {
-					die "mr: illegal checkout command \"$value\" in untrusted $f line $line\n";
+					trusterror "mr: illegal checkout command \"$value\" in untrusted $f line $line";
 				}
 			}
 

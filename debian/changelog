@@ -1,3 +1,10 @@
+mr (1.00) UNRELEASED; urgency=low
+
+  * Trust flag day. All mrconfig files except the main ~/.mrconfig are
+    now untrusted by default, until listed in ~/.mrtrust.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 19 Jan 2011 13:39:43 -0400
+
 mr (0.51) unstable; urgency=low
 
   * Fix display when absolute directories are configured in mrconfig.
