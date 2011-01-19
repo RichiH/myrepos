@@ -2,6 +2,9 @@ mr (1.00) UNRELEASED; urgency=low
 
   * Trust flag day. All mrconfig files except the main ~/.mrconfig are
     now untrusted by default, until listed in ~/.mrtrust.
+  * The -p flag is now enabled by default. mr first reads ~/.mrconfig,
+    and then looks for an additional .mrconfig file in the current
+    directory or one of its parent directories. Closes: #557963
 
  -- Joey Hess <joeyh@debian.org>  Wed, 19 Jan 2011 13:39:43 -0400
 

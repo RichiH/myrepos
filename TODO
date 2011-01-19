@@ -1,12 +1,3 @@
-* After the mtrust flag day, consider making something similar to -p 
-  be enabled by default. 
-
-  It should not be identical to -p, for the following reason: -p causes
-  mr to only look at the mrconfig it finds in the path (like -c only looks
-  at the specified file). But by default, mr should certianly load the
-  ~/.mrconfig (and files it chains). This allows a user to globally
-  configure mr with aliases, etc. (Closes: #557963)
-
 * a way to detect repos in a tree that are not registered, and warn
   about or even auto-register them. (svn externals make this quite
   difficult!)

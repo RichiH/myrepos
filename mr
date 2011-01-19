@@ -49,7 +49,9 @@ and work on only that repository,
 
 B<mr> is configured by .mrconfig files, which list the repositories. It
 starts by reading the .mrconfig file in your home directory, and this can
-in turn chain load .mrconfig files from repositories.
+in turn chain load .mrconfig files from repositories. It also automatically
+looks for a .mrconfig file in the current directory, or in one of its
+parent directories.
 
 These predefined commands should be fairly familiar to users of any revision
 control system:
@@ -128,7 +130,7 @@ repository in the current directory is registered, or you can specify a
 directory to register.
 
 The mrconfig file that is modified is chosen by either the -c option, or by
-looking for the closest known one at or below the current directory.
+looking for the closest known one at or in a parent of the current directory.
 
 =item config
 
@@ -149,8 +151,8 @@ To see the built-in library of shell functions contained in mr:
 
   mr config DEFAULT lib
 
-The ~/.mrconfig file is used by default. To use a different config file,
-use the -c option.
+The mrconfig file that is used is chosen by either the -c option, or by
+looking for the closest known one at or in a parent of the current directory.
 
 =item offline
 
@@ -200,14 +202,9 @@ the current working directory.
 
 =item --config mrconfig
 
-Use the specified mrconfig file. The default is B<~/.mrconfig>
-
-=item -p
-
-=item --path
-
-Search in the current directory, and its parent directories and use
-the first B<.mrconfig> found, instead of the default B<~/.mrconfig>.
+Use the specified mrconfig file. The default is to use both B<~/.mrconfig>
+as well as look for a .mrconfig file in the current directory, or in one
+of its parent directories.
 
 =item -v
 
@@ -271,6 +268,12 @@ a good speedup in updates without loading the machine too much.
 
 Trust all mrconfig files even if they are not listed in ~/.mrtrust.
 Use with caution.
+
+=item -p
+
+=item --path
+
+This obsolete flag is ignored.
 
 =back
 
@@ -468,7 +471,8 @@ my $no_chdir=0;
 my $jobs=1;
 my $trust_all=0;
 my $directory=getcwd();
-$ENV{MR_CONFIG}="$ENV{HOME}/.mrconfig";
+
+$ENV{MR_CONFIG}=find_mrconfig();
 
 # globals :-(
 my %config;
@@ -1486,7 +1490,7 @@ sub expandaction {
 	return $action;
 }
 
-sub find_nearest_mrconfig {
+sub find_mrconfig {
 	my $dir=getcwd();
 	while (length $dir) {
 		if (-e "$dir/.mrconfig") {
@@ -1494,7 +1498,7 @@ sub find_nearest_mrconfig {
 		}
 		$dir=~s/\/[^\/]*$//;
 	}
-	die "no .mrconfig found in path\n";
+	return "$ENV{HOME}/.mrconfig";
 }
 
 sub getopts {
@@ -1503,7 +1507,7 @@ sub getopts {
 	my $result=GetOptions(
 		"d|directory=s" => sub { $directory=abs_path($_[1]) },
 		"c|config=s" => sub { $ENV{MR_CONFIG}=$_[1]; $config_overridden=1 },
-		"p|path" => sub { $ENV{MR_CONFIG}=find_nearest_mrconfig(); $config_overridden=1 },
+		"p|path" => sub { }, # now default, ignore
 		"v|verbose" => \$verbose,
 		"q|quiet" => \$quiet,
 		"s|stats" => \$stats,
@@ -1563,6 +1567,7 @@ sub main {
 	init();
 
 	startingconfig();
+	loadconfig("$ENV{HOME}/.mrconfig");
 	loadconfig($ENV{MR_CONFIG});
 	#use Data::Dumper; print Dumper(\%config);
 	
