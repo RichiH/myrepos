@@ -1,4 +1,4 @@
-mr (1.00) UNRELEASED; urgency=low
+mr (1.00) unstable; urgency=low
 
   * Trust flag day. All mrconfig files except the main ~/.mrconfig are
     now untrusted by default, until listed in ~/.mrtrust.
@@ -6,7 +6,7 @@ mr (1.00) UNRELEASED; urgency=low
     and then looks for an additional .mrconfig file in the current
     directory or one of its parent directories. Closes: #557963
 
- -- Joey Hess <joeyh@debian.org>  Wed, 19 Jan 2011 13:39:43 -0400
+ -- Joey Hess <joeyh@debian.org>  Wed, 19 Jan 2011 14:28:38 -0400
 
 mr (0.51) unstable; urgency=low
 
