@@ -1,3 +1,9 @@
+mr (1.01) UNRELEASED; urgency=low
+
+  * Add "mr run", which can run an arbitrary command in each repository.
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 20 Jan 2011 16:47:37 -0400
+
 mr (1.00) unstable; urgency=low
 
   * Trust flag day. All mrconfig files except the main ~/.mrconfig are

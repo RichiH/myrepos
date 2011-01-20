@@ -22,6 +22,8 @@ B<mr> [options] diff
 
 B<mr> [options] log
 
+B<mr> [options] run command [param ...]
+
 B<mr> [options] bootstrap url [directory]
 
 B<mr> [options] register [repository]
@@ -101,6 +103,10 @@ Show a diff of uncommitted changes.
 =item log
 
 Show the commit log.
+
+=item run command [param ...]
+
+Runs the specified command in each repository.
 
 =back
 
@@ -1687,6 +1693,8 @@ hg_log  = hg log "$@"
 darcs_log = darcs changes "$@"
 git_bare_log = git log "$@"
 fossil_log = fossil timeline "$@"
+
+run = "$@"
 
 svn_register =
 	url=`LC_ALL=C svn info . | grep -i '^URL:' | cut -d ' ' -f 2`
