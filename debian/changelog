@@ -1,8 +1,8 @@
-mr (1.02) UNRELEASED; urgency=low
+mr (1.02) unstable; urgency=low
 
   * Fix bug in escaping.
 
- -- Joey Hess <joeyh@debian.org>  Sat, 22 Jan 2011 01:04:01 -0400
+ -- Joey Hess <joeyh@debian.org>  Sat, 22 Jan 2011 01:18:23 -0400
 
 mr (1.01) unstable; urgency=low
 
