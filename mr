@@ -641,7 +641,7 @@ sub action {
 
 		$command="set -e; ".$lib.
 			"my_action(){ $command\n }; my_action ".
-			join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
+			join(" ", map { s/\\/\\\\/g; s/"/\"/g; '"'.$_.'"' } @ARGV);
 		print "mr $action: running >>$command<<\n" if $verbose;
 		my $ret=system($command);
 		if ($ret != 0) {
@@ -1417,7 +1417,7 @@ sub register {
 	$ENV{MR_REPO}=~s/.*\/(.*)/$1/;
 	$command="set -e; ".$config{$directory}{DEFAULT}{lib}."\n".
 		"my_action(){ $command\n }; my_action ".
-		join(" ", map { s/\//\/\//g; s/"/\"/g; '"'.$_.'"' } @ARGV);
+		join(" ", map { s/\\/\\\\/g; s/"/\"/g; '"'.$_.'"' } @ARGV);
 	print "mr register: running >>$command<<\n" if $verbose;
 	exec($command) || die "exec: $!";
 }

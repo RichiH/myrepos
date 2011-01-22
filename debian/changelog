@@ -1,3 +1,9 @@
+mr (1.02) UNRELEASED; urgency=low
+
+  * Fix bug in escaping.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 22 Jan 2011 01:04:01 -0400
+
 mr (1.01) unstable; urgency=low
 
   * Add "mr run", which can run an arbitrary command in each repository.
