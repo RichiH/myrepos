@@ -1,3 +1,8 @@
+mr is a Multiple Repository management tool for Mercurial and Git
+
+Author: Joey Hess
+Homepage: http://git.kitenet.net/?p=mr.git;a=summary
+
 mr is intended to be very self-contained, since it might be useful to check
 it into ~/bin when keeping your home in version control. It has no
 dependencies aside from basic perl.
