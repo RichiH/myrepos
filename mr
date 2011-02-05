@@ -222,7 +222,10 @@ Be verbose.
 
 =item --quiet
 
-Be quiet.
+Be quiet. This supresses mr's usual output. Any output from the
+commands that mr runs will still be displayed.
+
+For example, to see only uncommitted changes, use "mr -q status"
 
 =item -k
 
