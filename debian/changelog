@@ -1,3 +1,9 @@
+mr (1.03) UNRELEASED; urgency=low
+
+  * Added git-subtree library. Thanks, Svend Sorensen
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 28 Mar 2011 17:04:56 -0400
+
 mr (1.02) unstable; urgency=low
 
   * Fix bug in escaping.
