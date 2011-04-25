@@ -2,7 +2,7 @@ mr (1.03) UNRELEASED; urgency=low
 
   * Added git-subtree library. Thanks, Svend Sorensen
   * Now --quiet supresses all output from commands run, as well
-    as from mr, unless a command fails.
+    as from mr, unless a command fails. Closes: #529296
 
  -- Joey Hess <joeyh@debian.org>  Mon, 28 Mar 2011 17:04:56 -0400
 
