@@ -222,10 +222,9 @@ Be verbose.
 
 =item --quiet
 
-Be quiet. This supresses mr's usual output. Any output from the
-commands that mr runs will still be displayed.
-
-For example, to see only uncommitted changes, use "mr -q status"
+Be quiet. This supresses mr's usual output, as well as any output from
+commands that are run (including stderr output). If a command fails,
+the output will be shown.
 
 =item -k
 
@@ -630,14 +629,16 @@ sub action {
 		}
 	}
 	else {
+		my $actionmsg;
 		if (! $no_chdir) {
-			print "mr $action: $fulldir\n" unless $quiet;
+			$actionmsg="mr $action: $fulldir";
 		}
 		else {
 			my $s=$directory;
 			$s=~s/^\Q$fulldir\E\/?//;
-			print "mr $action: $fulldir (in subdir $s)\n" unless $quiet;
+			$actionmsg="mr $action: $fulldir (in subdir $s)";
 		}
+		print "$actionmsg\n" unless $quiet;
 
 		my $hookret=hook("pre_$action", $topdir, $subdir);
 		return $hookret if $hookret != OK;
@@ -646,7 +647,18 @@ sub action {
 			"my_action(){ $command\n }; my_action ".
 			join(" ", map { s/\\/\\\\/g; s/"/\"/g; '"'.$_.'"' } @ARGV);
 		print "mr $action: running >>$command<<\n" if $verbose;
-		my $ret=system($command);
+		my $ret;
+		if ($quiet) {
+			my $output = qx/$command 2>&1/;
+			$ret = $?;
+			if ($ret != 0) {
+				print "$actionmsg\n";
+				print STDERR $output;
+			}
+		}
+		else {
+			$ret=system($command);
+		}
 		if ($ret != 0) {
 			if (($? & 127) == 2) {
 				print STDERR "mr $action: interrupted\n";
@@ -702,7 +714,17 @@ sub hook {
 	my $shell="set -e;".$lib.
 		"my_hook(){ $command\n }; my_hook";
 	print "mr $hook: running >>$shell<<\n" if $verbose;
-	my $ret=system($shell);
+	my $ret;
+	if ($quiet) {
+		my $output = qx/$shell 2>&1/;
+		$ret = $?;
+		if ($ret != 0) {
+			print STDERR $output;
+		}
+	}
+	else {
+		$ret=system($shell);
+	}
 	if ($ret != 0) {
 		if (($? & 127) == 2) {
 			print STDERR "mr $hook: interrupted\n";
