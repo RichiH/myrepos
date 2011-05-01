@@ -1449,6 +1449,16 @@ sub loadconfig {
 				next;
 			}
 
+			if ($parameter eq 'jobs') {
+				print "mr: setting --jobs to \"$value\"\n" if $verbose;
+				unless ($value =~ /^\d+$/) {
+					print "mr: error: --jobs must be numeric\n";
+					exit 2
+				}
+				$jobs=$value;
+				next;
+			}
+
 			if (! defined $section) {
 				$lineerror->("parameter ($parameter) not in section");
 			}
@@ -1487,7 +1497,7 @@ sub loadconfig {
 							push @toload, ["$chaindir/.mrconfig", $chaindir];
 						}
 					}
-			        }
+				}
 			}
 		}
 		else {
