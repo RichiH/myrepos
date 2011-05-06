@@ -33,7 +33,7 @@ lib =
 		git subtree push "$@"
 	}
 
-git_subtree_status = git status .
+git_subtree_status = git status -s "$@" . || true
 git_subtree_commit = git add . && git commit "$@" && git_subtree_push
 git_subtree_record = git add . && git commit "$@"
 git_subtree_diff = git diff .
