@@ -1,3 +1,9 @@
+mr (1.04) UNRELEASED; urgency=low
+
+  * Improve trust errors displayed while bootstrapping. Closes: #628234
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 30 May 2011 14:55:09 -0400
+
 mr (1.03) unstable; urgency=low
 
   * Added git-subtree library. Thanks, Svend Sorensen

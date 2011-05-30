@@ -1056,14 +1056,24 @@ sub is_trusted_checkout {
 }
 
 sub trusterror {
-	die shift()."\n".
-		"(To trust this file, list it in ~/.mrtrust.)\n";
+	my ($err, $file, $line, $url)=@_;
+	
+	if (defined $url) {
+		die "$err in untrusted $url line $line\n".
+			"(To trust this url, --trust-all can be used; but please use caution;\n".
+			"this can allow arbitrary code execution!)\n";
+	}
+	else {
+		die "$err in untrusted $file line $line\n".
+			"(To trust this file, list it in ~/.mrtrust.)\n";
+	}
 }
 
 my %loaded;
 sub loadconfig {
 	my $f=shift;
 	my $dir=shift;
+	my $bootstrap_url=shift;
 
 	my @toload;
 
@@ -1133,7 +1143,7 @@ sub loadconfig {
 				if (! is_trusted_repo($section) ||
 				    $section eq 'ALIAS' ||
 				    $section eq 'DEFAULT') {
-					trusterror "mr: illegal section \"[$section]\" in untrusted $f line $line";
+					trusterror("mr: illegal section \"[$section]\"", $f, $line, $bootstrap_url)
 				}
 			}
 			$section=expandenv($section) if $trusted;
@@ -1160,10 +1170,10 @@ sub loadconfig {
 				# Untrusted files can only contain checkout
 				# parameters.
 				if ($parameter ne 'checkout') {
-					trusterror "mr: illegal setting \"$parameter=$value\" in untrusted $f line $line";
+					trusterror("mr: illegal setting \"$parameter=$value\"", $f, $line, $bootstrap_url);
 				}
 				if (! is_trusted_checkout($value)) {
-					trusterror "mr: illegal checkout command \"$value\" in untrusted $f line $line";
+					trusterror("mr: illegal checkout command \"$value\"", $f, $line, $bootstrap_url);
 				}
 			}
 
@@ -1474,7 +1484,7 @@ sub bootstrap {
 	# would normally be skipped.
 	my $topdir=abs_path(".")."/";
 	my @repo=($topdir, $topdir, ".");
-	loadconfig($tmpconfig, $topdir);
+	loadconfig($tmpconfig, $topdir, $url);
 	record(\@repo, action("checkout", @repo, 1))
 		if exists $config{$topdir}{"."}{"checkout"};
 
