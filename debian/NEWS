@@ -1,0 +1,13 @@
+mr (1.00) unstable; urgency=low
+
+  In this version, mr has changed to not trust all mrconfig files by
+  default. Untrusted files are only allowed to run carefully checked commands.
+  Only the main ~/.mrconfig is now trusted by default. If you have other
+  mrconfig files, containing unusual commands, that mr should trust, you
+  will need to list them in ~/.mrtrust.
+
+  Also in this version, the -p flag is on by default, so mr will
+  look for a .mrconfig file in the current directory or one of its parent
+  directories, in addition to the main ~/.mrconfig file.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 19 Jan 2011 13:40:16 -0400
