@@ -3,7 +3,7 @@ Section: vcs
 Priority: optional
 Build-Depends: debhelper (>= 7), dpkg-dev (>= 1.9.0)
 Maintainer: Joey Hess <joeyh@debian.org>
-Standards-Version: 3.9.0
+Standards-Version: 3.9.2
 Homepage: http://kitenet.net/~joey/code/mr/
 Vcs-Git: git://git.kitenet.net/mr
 
@@ -13,7 +13,7 @@ Section: vcs
 Depends: ${misc:Depends}
 Suggests: subversion, git-core | git (>= 1:1.7), cvs, bzr, mercurial, darcs, liburi-perl, curl, fossil
 Recommends: libwww-perl, libhtml-parser-perl, perl
-Description: a Multiple Repository management tool
+Description: Multiple Repository management tool
  The mr(1) command can checkout, update, or perform other actions on
  a set of repositories as if they were one combined respository. It
  supports any combination of git, svn, mercurial, bzr, darcs, cvs, and

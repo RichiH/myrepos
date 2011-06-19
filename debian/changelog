@@ -1,10 +1,10 @@
-mr (1.04) UNRELEASED; urgency=low
+mr (1.04) unstable; urgency=low
 
   * Improve trust errors displayed while bootstrapping. Closes: #628234
   * Allow mr register to be used with mrconfig file that does not yet
     exist. Closes: #629217
 
- -- Joey Hess <joeyh@debian.org>  Mon, 30 May 2011 14:55:09 -0400
+ -- Joey Hess <joeyh@debian.org>  Sun, 19 Jun 2011 15:52:42 -0400
 
 mr (1.03) unstable; urgency=low
 
