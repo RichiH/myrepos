@@ -1,3 +1,9 @@
+mr (1.05) UNRELEASED; urgency=low
+
+  * Avoid using sed -r in git-fake-bare, for OSX portability.
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 05 Aug 2011 13:29:21 -0400
+
 mr (1.04) unstable; urgency=low
 
   * Improve trust errors displayed while bootstrapping. Closes: #628234
