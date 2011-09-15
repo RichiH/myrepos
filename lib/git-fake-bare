@@ -45,7 +45,7 @@ lib =
 git_fake_bare_test = 
 	test -d "$MR_REPO"/refs/heads && test -d "$MR_REPO"/refs/tags &&
 	test -d "$MR_REPO"/objects && test -f "$MR_REPO"/config &&
-	test "$(GIT_DIR="$MR_REPO" git config --get core.bare)" = false
+	test `GIT_DIR="$MR_REPO" git config --get core.worktree`
 
 git_fake_bare_update =
 	args="$@"
