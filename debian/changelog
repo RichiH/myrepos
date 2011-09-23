@@ -1,6 +1,8 @@
 mr (1.05) UNRELEASED; urgency=low
 
   * Avoid using sed -r in git-fake-bare, for OSX portability.
+  * git-fake-bare: handle fake bare repositories with core.bare not set
+    (Thanks, Julien Rebetez)
 
  -- Joey Hess <joeyh@debian.org>  Fri, 05 Aug 2011 13:29:21 -0400
 
