@@ -1,16 +1,26 @@
-mr is a Multiple Repository management tool for Mercurial and Git
+mr is a Multiple Repository management tool for git, svn, mercurial, bzr,
+darcs, cvs, and fossil.
 
 Author: Joey Hess
 Homepage: http://kitenet.net/~joey/code/mr/
 
 mr is intended to be very self-contained, since it might be useful to check
 it into ~/bin when keeping your home in version control. It has no
-dependencies aside from basic perl.
+dependencies aside from basic perl. (The included webcheckout command has
+more dependencies, specifically the LWP::Simple and HTML::Parser CPAN
+modules, and optionally the URI module.)
 
-Just copy mr into your PATH somewhere, if it isn't already, and set up
-~/.mrconfig
+To install mr, just copy mr into your PATH somewhere.
 
-----
+To get started using mr, perhaps you already have some checked out
+repositories. Go into each one and run "mr register". Now mr has
+a list of them in ~/.mrconfig, which you can edit later to tune its
+operation.
 
-webcheckout has more dependencies, specifically the LWP::Simple and
-HTML::Parser CPAN modules, and optionally the URI module.
+Suppose you've cd'd to ~/src, and it has many repositories under it.
+To update them all, run "mr update". To commit any pending changes in
+each, run "mr commit". To check the status of each, you could run
+"mr status".
+
+For further details, and lots of configuration options, see the mr(1) man
+page.
