@@ -6,6 +6,9 @@ mr (1.05) UNRELEASED; urgency=low
   * README now gives a quick into to using mr.
   * Brought back the "deleted" parameter, which provides an easy way to
     mark repositories that should be removed.
+  * Allow untrusted mrconfig files to set parameters to true/false.
+    So skip=true or deleted=true canbe used in an untrusted mrconfig file.
+  * Also allow order=N in an untrusted mrconfig file.
 
  -- Joey Hess <joeyh@debian.org>  Fri, 05 Aug 2011 13:29:21 -0400
 

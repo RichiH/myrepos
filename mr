@@ -1184,13 +1184,23 @@ sub loadconfig {
 			}
 
 			if (! $trusted) {
-				# Untrusted files can only contain checkout
-				# parameters.
-				if ($parameter ne 'checkout') {
-					trusterror("mr: illegal setting \"$parameter=$value\"", $f, $line, $bootstrap_url);
+				# Untrusted files can only contain a few
+				# settings in specific known-safe formats.
+				if ($parameter eq 'checkout') {
+					if (! is_trusted_checkout($value)) {
+						trusterror("mr: illegal checkout command \"$value\"", $f, $line, $bootstrap_url);
+					}
 				}
-				if (! is_trusted_checkout($value)) {
-					trusterror("mr: illegal checkout command \"$value\"", $f, $line, $bootstrap_url);
+				elsif ($parameter eq 'order') {
+					# not interpreted as a command, so
+					# safe.
+				}
+				elsif ($value eq 'true' || $value eq 'false') {
+					# skip=true , deleted=true etc are
+					# safe.
+				}
+				else {
+					trusterror("mr: illegal setting \"$parameter=$value\"", $f, $line, $bootstrap_url);
 				}
 			}
 
