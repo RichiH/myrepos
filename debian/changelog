@@ -1,19 +1,19 @@
 mr (1.05) unstable; urgency=low
 
-  * Avoid using sed -r in git-fake-bare, for OSX portability.
-  * git-fake-bare: handle fake bare repositories with core.bare not set
-    (Thanks, Julien Rebetez)
   * README now gives a quick into to using mr.
   * Brought back the "deleted" parameter, which provides an easy way to
     mark repositories that should be removed.
   * Allow untrusted mrconfig files to set parameters to true/false.
-    So skip=true or deleted=true canbe used in an untrusted mrconfig file.
+    So skip=true or deleted=true can be used in an untrusted mrconfig file.
   * Also allow order=N in an untrusted mrconfig file.
   * Support bzr checkouts, which are updated with "bzr update",
     and to which bzr automatically pushes commits. Closes: #643589
   * Use bzr branch, not deprecated bzr clone when registering bzr
     repositories. Closes: #643591
-  * Allow bzr branch|clone|get in untrusted mrconfig files.
+  * Allow bzr branch|clone|get|checkout in untrusted mrconfig files.
+  * Avoid using sed -r in git-fake-bare, for OSX portability.
+  * git-fake-bare: handle fake bare repositories with core.bare not set
+    (Thanks, Julien Rebetez)
 
  -- Joey Hess <joeyh@debian.org>  Tue, 27 Sep 2011 17:28:35 -0400
 

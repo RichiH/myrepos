@@ -1824,7 +1824,7 @@ fossil_register =
 svn_trusted_checkout = svn co $url $repo
 svn_alt_trusted_checkout = svn checkout $url $repo
 git_trusted_checkout = git clone $url $repo
-bzr_trusted_checkout = bzr clone|branch|get $url $repo
+bzr_trusted_checkout = bzr checkout|clone|branch|get $url $repo
 # cvs: too hard
 hg_trusted_checkout = hg clone $url $repo
 darcs_trusted_checkout = darcs get $url $repo
