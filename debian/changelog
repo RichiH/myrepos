@@ -11,6 +11,9 @@ mr (1.05) unstable; urgency=low
   * Also allow order=N in an untrusted mrconfig file.
   * Support bzr checkouts, which are updated with "bzr update",
     and to which bzr automatically pushes commits. Closes: #643589
+  * Use bzr branch, not deprecated bzr clone when registering bzr
+    repositories. Closes: #643591
+  * Allow bzr branch|clone|get in untrusted mrconfig files.
 
  -- Joey Hess <joeyh@debian.org>  Tue, 27 Sep 2011 17:28:35 -0400
 
