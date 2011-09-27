@@ -290,7 +290,7 @@ This obsolete flag is ignored.
 Here is an example .mrconfig file:
 
   [src]
-  checkout = svn co svn://svn.example.com/src/trunk src
+  checkout = svn checkout svn://svn.example.com/src/trunk src
   chain = true
 
   [src/linux-2.6]
@@ -317,14 +317,18 @@ will be passed through the shell for expansion. For example,
 
 Within a section, each parameter defines a shell command to run to handle a
 given action. mr contains default handlers for "update", "status",
-"commit", and other standard actions. Normally you only need to specify what
-to do for "checkout".
+"commit", and other standard actions.
+
+Normally you only need to specify what to do for "checkout". Here you
+specify the command to run in order to create a checkout of the repository.
+The command will be run in the parent directory, and must create the
+repository's directory. So use "git clone", "svn checkout", "bzr branch"
+or "bzr checkout" (for a bound branch), etc.
 
 Note that these shell commands are run in a "set -e" shell
 environment, where any additional parameters you pass are available in
-"$@". The "checkout" command is run in the parent of the repository
-directory, since the repository isn't checked out yet. All other commands
-are run inside the repository, though not necessarily at the top of it.
+"$@". All commands other than "checkout" are run inside the repository,
+though not necessarily at the top of it.
 
 The "MR_REPO" environment variable is set to the path to the top of the
 repository. (For the "register" action, "MR_REPO" is instead set to the 
