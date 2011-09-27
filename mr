@@ -1739,7 +1739,12 @@ darcs_commit = darcs record -a -m "$@" && darcs push -a
 fossil_commit = fossil commit "$@"
 
 git_record = git commit -a "$@"
-bzr_record = bzr commit "$@"
+bzr_record =
+	if is_bzr_checkout; then
+		bzr commit --local "$@"
+	else
+		bzr commit "$@"
+	fi
 hg_record  = hg commit -m "$@"
 darcs_record = darcs record -a -m "$@"
 fossil_record = fossil commit "$@"
