@@ -377,6 +377,14 @@ part of the including file.
 Unlike all other parameters, this parameter does not need to be placed
 within a section.
 
+=item deleted
+
+If the "deleted" parameter is set and its command returns true, then
+B<mr> will treat the repository as deleted. It won't ever actually delete
+the repository, but it will warn if it sees the repository's directory.
+This is useful when one mrconfig file is shared amoung multiple machines,
+to keep track of and remember to delete old repositories.
+
 =item lib
 
 The "lib" parameter can specify some shell code that will be run before each
@@ -567,6 +575,37 @@ sub action {
 	my $is_update=($action =~ /update/);
 
 	$ENV{MR_REPO}=$dir;
+	
+	foreach my $testname ("skip", "deleted") {
+		my $testcommand=findcommand($testname, $dir, $topdir, $subdir, $is_checkout);
+
+		if (defined $testcommand) {
+			my $test="set -e;".$lib.
+				"my_action(){ $testcommand\n }; my_action '$action'";
+			print "mr $action: running $testname test >>$test<<\n" if $verbose;
+			my $ret=system($test);
+			if ($ret != 0) {
+				if (($? & 127) == 2) {
+					print STDERR "mr $action: interrupted\n";
+					return ABORT;
+				}
+				elsif ($? & 127) {
+					print STDERR "mr $action: $testname test received signal ".($? & 127)."\n";
+					return ABORT;
+				}
+			}
+			if ($ret >> 8 == 0) {
+				if ($testname eq "deleted") {
+					if (-d $dir) {
+						print STDERR "mr error: $dir should be deleted yet still exists\n";
+						return FAILED;
+					}
+				}
+				print "mr $action: skip $dir skipped\n" if $verbose;
+				return SKIPPED;
+			}
+		}
+	}
 
 	if ($is_checkout) {
 		if (! $force_checkout) {
@@ -584,29 +623,7 @@ sub action {
 		}
 	}
 
-	my $skiptest=findcommand("skip", $dir, $topdir, $subdir, $is_checkout);
 	my $command=findcommand($action, $dir, $topdir, $subdir, $is_checkout);
-
-	if (defined $skiptest) {
-		my $test="set -e;".$lib.
-			"my_action(){ $skiptest\n }; my_action '$action'";
-		print "mr $action: running skip test >>$test<<\n" if $verbose;
-		my $ret=system($test);
-		if ($ret != 0) {
-			if (($? & 127) == 2) {
-				print STDERR "mr $action: interrupted\n";
-				return ABORT;
-			}
-			elsif ($? & 127) {
-				print STDERR "mr $action: skip test received signal ".($? & 127)."\n";
-				return ABORT;
-			}
-		}
-		if ($ret >> 8 == 0) {
-			print "mr $action: $dir skipped per config file\n" if $verbose;
-			return SKIPPED;
-		}
-	}
 
 	if ($is_checkout && ! -d $dir) {
 		print "mr $action: creating parent directory $dir\n" if $verbose;
