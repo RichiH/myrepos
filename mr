@@ -1688,6 +1688,9 @@ lib =
 			return 0
 		fi
 	}
+	is_bzr_checkout() {
+		LANG=C bzr info | egrep -q '^Checkout'
+	}
 
 svn_test = test -d "$MR_REPO"/.svn
 git_test = test -d "$MR_REPO"/.git
@@ -1703,7 +1706,12 @@ git_bare_test =
 
 svn_update = svn update "$@"
 git_update = git pull "$@"
-bzr_update = bzr merge --pull "$@"
+bzr_update = 
+	if is_bzr_checkout; then
+		bzr update "$@"
+	else
+		bzr merge --pull "$@"
+	fi
 cvs_update = cvs update "$@"
 hg_update  = hg pull "$@" && hg update "$@"
 darcs_update = darcs pull -a "$@"
@@ -1719,7 +1727,12 @@ fossil_status = fossil changes "$@"
 
 svn_commit = svn commit "$@"
 git_commit = git commit -a "$@" && git push --all
-bzr_commit = bzr commit "$@" && bzr push
+bzr_commit = 
+	if is_bzr_checkout; then
+		bzr commit "$@"
+	else
+		bzr commit "$@" && bzr push
+	fi
 cvs_commit = cvs commit "$@"
 hg_commit  = hg commit -m "$@" && hg push
 darcs_commit = darcs record -a -m "$@" && darcs push -a
