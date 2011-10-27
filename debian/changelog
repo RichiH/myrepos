@@ -1,3 +1,9 @@
+mr (1.06) UNRELEASED; urgency=low
+
+  * Fix propigation of failure from pre and post hooks and from fixups.
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 27 Oct 2011 12:18:43 -0400
+
 mr (1.05) unstable; urgency=low
 
   * README now gives a quick into to using mr.

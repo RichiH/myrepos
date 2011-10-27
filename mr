@@ -755,6 +755,9 @@ sub hook {
 			print STDERR "mr $hook: received signal ".($? & 127)."\n";
 			return ABORT;
 		}
+		else {
+			return FAILED;
+		}
 	}
 
 	return OK;
