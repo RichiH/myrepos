@@ -1238,20 +1238,25 @@ sub loadconfig {
 					$knownactions{$parameter}=1;
 				}
 				if ($parameter eq 'chain' &&
-				    length $dir && $section ne "DEFAULT" &&
-				    -e $dir.$section."/.mrconfig") {
-					my $ret=system($value);
-					if ($ret != 0) {
-						if (($? & 127) == 2) {
-							print STDERR "mr: chain test interrupted\n";
-							exit 2;
-						}
-						elsif ($? & 127) {
-							print STDERR "mr: chain test received signal ".($? & 127)."\n";
-						}
+				    length $dir && $section ne "DEFAULT") {
+					my $chaindir="$section";
+					if ($chaindir !~ m!/!) {
+						$chaindir=$dir.$chaindir;
 					}
-					else {
-						push @toload, $dir.$section."/.mrconfig";
+					if (-e "$chaindir/.mrconfig") {
+						my $ret=system($value);
+						if ($ret != 0) {
+							if (($? & 127) == 2) {
+								print STDERR "mr: chain test interrupted\n";
+								exit 2;
+							}
+							elsif ($? & 127) {
+								print STDERR "mr: chain test received signal ".($? & 127)."\n";
+							}
+						}
+						else {
+							push @toload, ["$chaindir/.mrconfig", $chaindir];
+						}
 					}
 			        }
 			}
@@ -1261,8 +1266,8 @@ sub loadconfig {
 		}
 	}
 
-	foreach (@toload) {
-		loadconfig($_);
+	foreach my $c (@toload) {
+		loadconfig(@$c);
 	}
 }
 

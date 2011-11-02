@@ -1,6 +1,7 @@
 mr (1.06) UNRELEASED; urgency=low
 
   * Fix propigation of failure from pre and post hooks and from fixups.
+  * Support chaining to absolute paths.
 
  -- Joey Hess <joeyh@debian.org>  Thu, 27 Oct 2011 12:18:43 -0400
 
