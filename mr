@@ -352,14 +352,25 @@ If the "skip" parameter is set and its command returns true, then B<mr>
 will skip acting on that repository. The command is passed the action
 name in $1.
 
-Here are three examples. The first skips the repo unless
+Here are two examples. The first skips the repo unless
 mr is run by joey. The second uses the hours_since function
 (included in mr's built-in library) to skip updating the repo unless it's
-been at least 12 hours since the last update. The third skips operating
-on the repo unless it already exists (use mr checkout to enable the repo).
+been at least 12 hours since the last update.
 
+  [mystuff]
+  checkout = ...
   skip = test `whoami` != joey
+
+  [linux]
+  checkout = ...
   skip = [ "$1" = update ] && ! hours_since "$1" 12
+ 
+Another way to use skip is for a lazy checkout. This makes mr skip
+operating on a repo unless it already exists. To enable the 
+repo, you have to explicitly check it out (using "mr -d foo checkout").
+
+  [foo]
+  checkout = ...
   skip = lazy
 
 =item order
