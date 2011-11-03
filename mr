@@ -339,6 +339,9 @@ The "MR_CONFIG" environment variable is set to the .mrconfig file
 that defines the repo being acted on, or, if the repo is not yet in a config
 file, the .mrconfig file that should be modified to register the repo.
 
+The "MR_ACTION" environment variable is set to the command being run
+(update, checkout, etc).
+
 A few parameters have special meanings:
 
 =over 4
@@ -349,13 +352,15 @@ If the "skip" parameter is set and its command returns true, then B<mr>
 will skip acting on that repository. The command is passed the action
 name in $1.
 
-Here are two examples. The first skips the repo unless
+Here are three examples. The first skips the repo unless
 mr is run by joey. The second uses the hours_since function
 (included in mr's built-in library) to skip updating the repo unless it's
-been at least 12 hours since the last update.
+been at least 12 hours since the last update. The third skips operating
+on the repo unless it already exists (use mr checkout to enable the repo).
 
   skip = test `whoami` != joey
   skip = [ "$1" = update ] && ! hours_since "$1" 12
+  skip = lazy
 
 =item order
 
@@ -579,6 +584,7 @@ sub action {
 	my $is_update=($action =~ /update/);
 
 	$ENV{MR_REPO}=$dir;
+	$ENV{MR_ACTION}=$action;
 	
 	foreach my $testname ("skip", "deleted") {
 		my $testcommand=findcommand($testname, $dir, $topdir, $subdir, $is_checkout);
@@ -1702,6 +1708,13 @@ lib =
 	}
 	is_bzr_checkout() {
 		LANG=C bzr info | egrep -q '^Checkout'
+	}
+	lazy() {
+		if [ "$MR_ACTION" = checkout ] || [ -d "$MR_REPO" ]; then
+			return 1
+		else
+			return 0
+		fi
 	}
 
 svn_test = test -d "$MR_REPO"/.svn
