@@ -1,11 +1,11 @@
-mr (1.06) UNRELEASED; urgency=low
+mr (1.06) unstable; urgency=low
 
   * Fix propigation of failure from pre and post hooks and from fixups.
   * Support chaining to absolute paths.
   * Add support for skip = lazy, a mode where mr only operates on repositories
     that are checked out.
 
- -- Joey Hess <joeyh@debian.org>  Thu, 27 Oct 2011 12:18:43 -0400
+ -- Joey Hess <joeyh@debian.org>  Fri, 04 Nov 2011 17:03:17 -0400
 
 mr (1.05) unstable; urgency=low
 
