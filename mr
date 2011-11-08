@@ -222,7 +222,7 @@ Be verbose.
 
 =item --quiet
 
-Be quiet. This supresses mr's usual output, as well as any output from
+Be quiet. This suppresses mr's usual output, as well as any output from
 commands that are run (including stderr output). If a command fails,
 the output will be shown.
 
