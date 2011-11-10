@@ -602,7 +602,7 @@ sub action {
 	my $is_checkout=($action eq 'checkout');
 	my $is_update=($action =~ /update/);
 
-	$ENV{MR_REPO}=$dir;
+	($ENV{MR_REPO}=$dir) =~ s!/$!!;
 	$ENV{MR_ACTION}=$action;
 	
 	foreach my $testname ("skip", "deleted") {
