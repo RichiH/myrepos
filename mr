@@ -946,7 +946,10 @@ sub repodir {
 	return $ret;
 }
 
-# figure out which repos to act on
+# Figure out which repos to act on.  Returns a list of array refs
+# in the format:
+#
+#   [ "$full_repo_path/", "$mr_config_path/", $section_header ]
 sub selectrepos {
 	my @repos;
 	foreach my $repo (repolist()) {
