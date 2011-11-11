@@ -1970,3 +1970,7 @@ T = echo "I pity the fool."
 right = echo "Not found."
 
 # vim:sw=8:sts=0:ts=8:noet
+# Local variables:
+# indent-tabs-mode: t
+# cperl-indent-level: 8
+# End:
