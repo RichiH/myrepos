@@ -208,8 +208,8 @@ the current working directory.
 
 =item --config mrconfig
 
-Use the specified mrconfig file. The default is to use both B<~/.mrconfig>
-as well as look for a .mrconfig file in the current directory, or in one
+Use the specified mrconfig file. The default is to use both F<~/.mrconfig>
+as well as look for a F<.mrconfig> file in the current directory, or in one
 of its parent directories.
 
 =item -v
@@ -274,7 +274,7 @@ a good speedup in updates without loading the machine too much.
 
 =item --trust-all
 
-Trust all mrconfig files even if they are not listed in ~/.mrtrust.
+Trust all mrconfig files even if they are not listed in F<~/.mrtrust>.
 Use with caution.
 
 =item -p
@@ -287,7 +287,7 @@ This obsolete flag is ignored.
 
 =head1 MRCONFIG FILES
 
-Here is an example .mrconfig file:
+Here is an example F<.mrconfig> file:
 
   [src]
   checkout = svn checkout svn://svn.example.com/src/trunk src
@@ -298,14 +298,14 @@ Here is an example .mrconfig file:
   	cd linux-2.6 &&
   	git checkout -b mybranch origin/master
 
-The .mrconfig file uses a variant of the INI file format. Lines starting with
-"#" are comments. Values can be continued to the following line by
-indenting the line with whitespace.
+The F<.mrconfig> file uses a variant of the INI file format. Lines
+starting with "#" are comments. Values can be continued to the
+following line by indenting the line with whitespace.
 
-The "DEFAULT" section allows setting default values for the sections that
+The C<DEFAULT> section allows setting default values for the sections that
 come after it.
 
-The "ALIAS" section allows adding aliases for actions. Each parameter
+The C<ALIAS> section allows adding aliases for actions. Each parameter
 is an alias, and its value is the action to use.
 
 All other sections add repositories. The section header specifies the
@@ -313,7 +313,7 @@ directory where the repository is located. This is relative to the directory
 that contains the mrconfig file, but you can also choose to use absolute
 paths. (Note that you can use environment variables in section names; they
 will be passed through the shell for expansion. For example, 
-"[$HOSTNAME]", or "[${HOSTNAME}foo]")
+C<[$HOSTNAME]>, or C<[${HOSTNAME}foo]>).
 
 Within a section, each parameter defines a shell command to run to handle a
 given action. mr contains default handlers for "update", "status",
@@ -322,24 +322,24 @@ given action. mr contains default handlers for "update", "status",
 Normally you only need to specify what to do for "checkout". Here you
 specify the command to run in order to create a checkout of the repository.
 The command will be run in the parent directory, and must create the
-repository's directory. So use "git clone", "svn checkout", "bzr branch"
-or "bzr checkout" (for a bound branch), etc.
+repository's directory. So use C<git clone>, C<svn checkout>, C<bzr branch>
+or C<bzr checkout> (for a bound branch), etc.
 
-Note that these shell commands are run in a "set -e" shell
+Note that these shell commands are run in a C<set -e> shell
 environment, where any additional parameters you pass are available in
-"$@". All commands other than "checkout" are run inside the repository,
+C<$@>. All commands other than "checkout" are run inside the repository,
 though not necessarily at the top of it.
 
-The "MR_REPO" environment variable is set to the path to the top of the
+The C<MR_REPO> environment variable is set to the path to the top of the
 repository. (For the "register" action, "MR_REPO" is instead set to the 
 basename of the directory that should be created when checking the
 repository out.)
 
-The "MR_CONFIG" environment variable is set to the .mrconfig file
+The C<MR_CONFIG> environment variable is set to the .mrconfig file
 that defines the repo being acted on, or, if the repo is not yet in a config
-file, the .mrconfig file that should be modified to register the repo.
+file, the F<.mrconfig> file that should be modified to register the repo.
 
-The "MR_ACTION" environment variable is set to the command being run
+The C<MR_ACTION> environment variable is set to the command being run
 (update, checkout, etc).
 
 A few parameters have special meanings:
@@ -350,7 +350,7 @@ A few parameters have special meanings:
 
 If the "skip" parameter is set and its command returns true, then B<mr>
 will skip acting on that repository. The command is passed the action
-name in $1.
+name in C<$1>.
 
 Here are two examples. The first skips the repo unless
 mr is run by joey. The second uses the hours_since function
@@ -386,7 +386,7 @@ repository, ordering it to be processed earlier is not recommended.
 =item chain
 
 If the "chain" parameter is set and its command returns true, then B<mr>
-will try to load a .mrconfig file from the root of the repository.
+will try to load a F<.mrconfig> file from the root of the repository.
 
 =item include
 
@@ -410,7 +410,7 @@ See the individual files for details.
 If the "deleted" parameter is set and its command returns true, then
 B<mr> will treat the repository as deleted. It won't ever actually delete
 the repository, but it will warn if it sees the repository's directory.
-This is useful when one mrconfig file is shared amoung multiple machines,
+This is useful when one mrconfig file is shared among multiple machines,
 to keep track of and remember to delete old repositories.
 
 =item lib
@@ -452,20 +452,20 @@ you can just add VCS specific actions for it.
 Since mrconfig files can contain arbitrary shell commands, they can do
 anything. This flexibility is good, but it also allows a malicious mrconfig
 file to delete your whole home directory. Such a file might be contained
-inside a repository that your main ~/.mrconfig checks out. To
+inside a repository that your main F<~/.mrconfig> checks out. To
 avoid worries about evil commands in a mrconfig file, mr defaults to
-reading all mrconfig files other than the main ~/.mrconfig in untrusted
+reading all mrconfig files other than the main F<~/.mrconfig> in untrusted
 mode. In untrusted mode, mrconfig files are limited to running only known
 safe commands (like "git clone") in a carefully checked manner.
 
-To configure mr to trust other mrconfig files, list them in ~/.mrtrust.
+To configure mr to trust other mrconfig files, list them in F<~/.mrtrust>.
 One mrconfig file should be listed per line. Either the full pathname
-should be listed, or the pathname can start with "~/" to specify a file
+should be listed, or the pathname can start with F<~/> to specify a file
 relative to your home directory.
 
 =head1 OFFLINE LOG FILE
 
-The ~/.mrlog file contains commands that mr has remembered to run later,
+The F<~/.mrlog> file contains commands that mr has remembered to run later,
 due to being offline. You can delete or edit this file to remove commands,
 or even to add other commands for 'mr online' to run. If the file is
 present, mr assumes it is in offline mode.
@@ -473,7 +473,7 @@ present, mr assumes it is in offline mode.
 =head1 EXTENSIONS
 
 mr can be extended to support things such as unison and git-svn. Some
-files providing such extensions are available in /usr/share/mr/. See
+files providing such extensions are available in F</usr/share/mr/>. See
 the documentation in the files for details about using them.
 
 =head1 EXIT STATUS
