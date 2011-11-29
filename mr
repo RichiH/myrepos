@@ -397,6 +397,14 @@ part of the including file.
 Unlike all other parameters, this parameter does not need to be placed
 within a section.
 
+B<mr> ships several libraries that can be included to add support for
+additional version control type things (unison, git-svn, vcsh, git-fake-bare,
+git-subtree). To include them all, you could use:
+
+  include = cat /usr/share/mr/*
+
+See the individual files for details.
+
 =item deleted
 
 If the "deleted" parameter is set and its command returns true, then
