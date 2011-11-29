@@ -1,3 +1,10 @@
+mr (1.07) UNRELEASED; urgency=low
+
+  * Added support for vcsh, enable with: include = cat /usr/share/mr/vcsh
+    Thanks, Richard Hartmann 
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 29 Nov 2011 18:15:51 -0400
+
 mr (1.06) unstable; urgency=low
 
   * Fix propigation of failure from pre and post hooks and from fixups.
