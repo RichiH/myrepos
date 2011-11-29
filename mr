@@ -41,7 +41,7 @@ B<mr> [options] remember action [params ...]
 B<mr> is a Multiple Repository management tool. It can checkout, update, or
 perform other actions on a set of repositories as if they were one combined
 repository. It supports any combination of subversion, git, cvs, mercurial,
-bzr, darcs and fossil repositories, and support for other revision
+bzr, darcs and fossil repositories, and support for other version
 control systems can easily be added.
 
 B<mr> cds into and operates on all registered repositories at or below your
@@ -55,7 +55,7 @@ in turn chain load .mrconfig files from repositories. It also automatically
 looks for a .mrconfig file in the current directory, or in one of its
 parent directories.
 
-These predefined commands should be fairly familiar to users of any revision
+These predefined commands should be fairly familiar to users of any version
 control system:
 
 =over 4
@@ -87,14 +87,14 @@ The optional -m parameter allows specifying a commit message.
 =item record
 
 Records changes to the local repository, but does not push them to the
-remote repository. Only supported for distributed revision control systems.
+remote repository. Only supported for distributed version control systems.
 
 The optional -m parameter allows specifying a commit message.
 
 =item push
 
 Pushes committed local changes to the remote repository. A no-op for
-centralized revision control systems.
+centralized version control systems.
 
 =item diff
 
@@ -189,8 +189,8 @@ Actions can be abbreviated to any unambiguous substring, so
 update"
 
 Additional parameters can be passed to most commands, and are passed on
-unchanged to the underlying revision control system. This is mostly useful
-if the repositories mr will act on all use the same revision control
+unchanged to the underlying version control system. This is mostly useful
+if the repositories mr will act on all use the same version control
 system.
 
 =head1 OPTIONS
@@ -437,15 +437,15 @@ run before committing; "post_update" is run after updating.
 
 When looking for a command to run for a given action, mr first looks for
 a parameter with the same name as the action. If that is not found, it
-looks for a parameter named "rcs_action" (substituting in the name of the
-revision control system and the action). The name of the revision control
-system is itself determined by running each defined "rcs_test" action,
+looks for a parameter named "VCS_action" (substituting in the name of the
+version control system and the action). The name of the version control
+system is itself determined by running each defined "VCS_test" action,
 until one succeeds.
 
 Internally, mr has settings for "git_update", "svn_update", etc. To change
-the action that is performed for a given revision control system, you can
-override these rcs specific actions. To add a new revision control system,
-you can just add rcs specific actions for it.
+the action that is performed for a given version control system, you can
+override these VCS specific actions. To add a new version control system,
+you can just add VCS specific actions for it.
 
 =head1 UNTRUSTED MRCONFIG FILES
 
@@ -527,41 +527,41 @@ my (@ok, @failed, @skipped);
 
 main();
 
-my %rcs;
-sub rcs_test {
+my %vcs;
+sub vcs_test {
 	my ($action, $dir, $topdir, $subdir) = @_;
 
-	if (exists $rcs{$dir}) {
-		return $rcs{$dir};
+	if (exists $vcs{$dir}) {
+		return $vcs{$dir};
 	}
 
 	my $test="set -e\n";
-	foreach my $rcs_test (
+	foreach my $vcs_test (
 			sort {
 				length $a <=> length $b 
 				          ||
 				       $a cmp $b
 			} grep { /_test$/ } keys %{$config{$topdir}{$subdir}}) {
-		my ($rcs)=$rcs_test=~/(.*)_test/;
-		$test="my_$rcs_test() {\n$config{$topdir}{$subdir}{$rcs_test}\n}\n".$test;
-		$test.="if my_$rcs_test; then echo $rcs; fi\n";
+		my ($vcs)=$vcs_test=~/(.*)_test/;
+		$test="my_$vcs_test() {\n$config{$topdir}{$subdir}{$vcs_test}\n}\n".$test;
+		$test.="if my_$vcs_test; then echo $vcs; fi\n";
 	}
 	$test=$config{$topdir}{$subdir}{lib}."\n".$test
 		if exists $config{$topdir}{$subdir}{lib};
 	
-	print "mr $action: running rcs test >>$test<<\n" if $verbose;
-	my $rcs=`$test`;
-	chomp $rcs;
-	if ($rcs=~/\n/s) {
-		$rcs=~s/\n/, /g;
-		print STDERR "mr $action: found multiple possible repository types ($rcs) for ".fulldir($topdir, $subdir)."\n";
+	print "mr $action: running vcs test >>$test<<\n" if $verbose;
+	my $vcs=`$test`;
+	chomp $vcs;
+	if ($vcs=~/\n/s) {
+		$vcs=~s/\n/, /g;
+		print STDERR "mr $action: found multiple possible repository types ($vcs) for ".fulldir($topdir, $subdir)."\n";
 		return undef;
 	}
-	if (! length $rcs) {
-		return $rcs{$dir}=undef;
+	if (! length $vcs) {
+		return $vcs{$dir}=undef;
 	}
 	else {
-		return $rcs{$dir}=$rcs;
+		return $vcs{$dir}=$vcs;
 	}
 }
 	
@@ -576,11 +576,11 @@ sub findcommand {
 		return undef;
 	}
 
-	my $rcs=rcs_test(@_);
+	my $vcs=vcs_test(@_);
 
-	if (defined $rcs && 
-	    exists $config{$topdir}{$subdir}{$rcs."_".$action}) {
-		return $config{$topdir}{$subdir}{$rcs."_".$action};
+	if (defined $vcs && 
+	    exists $config{$topdir}{$subdir}{$vcs."_".$action}) {
+		return $config{$topdir}{$subdir}{$vcs."_".$action};
 	}
 	else {
 		return undef;
@@ -664,13 +664,13 @@ sub action {
 		return FAILED;
 	}
 	elsif (! defined $command) {
-		my $rcs=rcs_test(@_);
-		if (! defined $rcs) {
+		my $vcs=vcs_test(@_);
+		if (! defined $vcs) {
 			print STDERR "mr $action: unknown repository type and no defined $action command for $fulldir\n";
 			return FAILED;
 		}
 		else {
-			print STDERR "mr $action: no defined action for $rcs repository $fulldir, skipping\n";
+			print STDERR "mr $action: no defined action for $vcs repository $fulldir, skipping\n";
 			return SKIPPED;
 		}
 	}

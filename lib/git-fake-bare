@@ -1,4 +1,4 @@
-# An example of how to add a new revision control system type to mr.
+# An example of how to add a new version control system type to mr.
 # git fake bare repositories have a detached workspace. One potential
 # application is storing dotfiles in git, keeping them checked out in
 # ones $HOME, but checked into different git repositories. This file adds

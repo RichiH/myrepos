@@ -1,4 +1,4 @@
-# This allows using unison as a "revison control system" with mr.
+# This allows using unison as a "version control system" with mr.
 # 
 # You need to configure unison by setting up files in ~/.unison named
 # the same as the basenames of the directories you want to sync, and

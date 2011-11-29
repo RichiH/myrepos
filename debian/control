@@ -17,9 +17,9 @@ Description: Multiple Repository management tool
  The mr(1) command can checkout, update, or perform other actions on
  a set of repositories as if they were one combined respository. It
  supports any combination of git, svn, mercurial, bzr, darcs, cvs, and
- fossil repositories, and support for other revision control systems
+ fossil repositories, and support for other version control systems
  can easily be added. (There are extensions adding support for unison
- and git-svn.)
+ and git-svn, amoung others.)
  .
  It is extremely configurable via simple shell scripting. Some examples
  of things it can do include:
