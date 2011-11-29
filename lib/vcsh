@@ -1,0 +1,36 @@
+# To make mr use this file, add a line like this inside the [DEFAULT]
+# section of your ~/.mrconfig
+#include = cat /usr/share/mr/vcsh
+
+# And an example repo using it would look something like:
+#[$HOME/.config/vcsh/repo.d/zsh.git]
+#checkout = vcsh clone git://github.com/RichiH/zshrc.git zsh
+
+vcsh_test =
+	test -d "$MR_REPO"/refs/heads && test -d "$MR_REPO"/refs/tags &&
+	test -d "$MR_REPO"/objects && test -f "$MR_REPO"/config &&
+	test "`GIT_CONFIG="$MR_REPO"/config git config --get vcsh.vcsh`" = true
+
+vcsh_update = vcsh run "$MR_REPO" git pull "$@"
+
+vcsh_status = vcsh run "$MR_REPO" git status -s "$@" || true
+
+vcsh_commit = vcsh run "$MR_REPO" git commit -a "$@" && vcsh run "$MR_REPO" git push --all
+
+vcsh_record = vcsh run "$MR_REPO" git commit -a "$@"
+
+vcsh_push = vcsh run "$MR_REPO" git push "$@"
+
+vcsh_diff = vcsh run "$MR_REPO" git diff "$@"
+
+vcsh_log = vcsh run "$MR_REPO" git log "$@"
+
+vcsh_register =
+	url="`LC_ALL=C vcsh run "$MR_REPO" git config --get remote.origin.url`" || true
+	if [ -z "$url" ]; then
+		error "cannot determine git url"
+	fi
+	echo "Registering git url: $url in $MR_CONFIG"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="vcsh clone '$url' '$MR_REPO'"
+
+vcsh_trusted_checkout = vcsh run "$MR_REPO" git clone $url $repo
