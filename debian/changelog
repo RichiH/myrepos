@@ -6,6 +6,8 @@ mr (1.07) UNRELEASED; urgency=low
   * Correct printing of line numbers when includes are used. Closes: #650952
   * The previous fix for chaining to absolute paths broke chaining to relative
     paths with more than one path segment. (Thanks, Adam Spiers)
+  * Support _append to add on to the existing value of a parameter.
+    (Thanks, Adam Spiers)
 
  -- Joey Hess <joeyh@debian.org>  Tue, 29 Nov 2011 18:15:51 -0400
 

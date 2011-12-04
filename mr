@@ -417,12 +417,11 @@ to keep track of and remember to delete old repositories.
 
 The "lib" parameter can specify some shell code that will be run
 before each command, this can be a useful way to define shell
-functions for other commands to use.  Unlike most other parameters,
-this can be specified multiple times, in which case the chunks of
-shell code are accumulatively concatenated together.  This is
-particularly useful because it allows the user to build a library of
-shell functions defined in the [DEFAULT] section scattered across
-various mr modules (files referenced by an C<include> directive).
+functions for other commands to use. 
+
+Unlike most other parameters, this can be specified multiple times, in
+which case the chunks of shell code are accumulatively concatenated
+together.
 
 =item fixups
 
@@ -431,14 +430,7 @@ is checked out, or updated. This provides an easy way to do things
 like permissions fixups, or other tweaks to the repository content,
 whenever the repository is changed.
 
-=item pre_ and post_
-
-If a "pre_action" parameter is set, its command is run before mr performs the
-specified action. Similarly, "post_action" parameters are run after mr
-successfully performs the specified action. For example, "pre_commit" is
-run before committing; "post_update" is run after updating.
-
-=back
+=item VCS_action
 
 When looking for a command to run for a given action, mr first looks for
 a parameter with the same name as the action. If that is not found, it
@@ -452,10 +444,20 @@ the action that is performed for a given version control system, you can
 override these VCS specific actions. To add a new version control system,
 you can just add VCS specific actions for it.
 
-As with the C<lib> parameter, if a parameter is suffixed with
-C<_append>, its value is concatenated to the existing value of the
-parameter for that config block, rather than overwriting it.  In this
-way, actions such as C<fixup> can be constructed accumulatively.
+=item pre_ and post_
+
+If a "pre_action" parameter is set, its command is run before mr performs the
+specified action. Similarly, "post_action" parameters are run after mr
+successfully performs the specified action. For example, "pre_commit" is
+run before committing; "post_update" is run after updating.
+
+=item _append
+
+Any parameter can be suffixed with C<_append>, to add an additional value
+to the existing value of the parameter. In this way, actions 
+can be constructed accumulatively.
+
+=back
 
 =head1 UNTRUSTED MRCONFIG FILES
 
