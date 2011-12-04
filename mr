@@ -1298,7 +1298,7 @@ sub loadconfig {
 				if ($parameter eq 'chain' &&
 				    length $dir && $section ne "DEFAULT") {
 					my $chaindir="$section";
-					if ($chaindir !~ m!/!) {
+					if ($chaindir !~ m!^/!) {
 						$chaindir=$dir.$chaindir;
 					}
 					if (-e "$chaindir/.mrconfig") {
