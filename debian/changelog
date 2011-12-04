@@ -2,6 +2,7 @@ mr (1.07) UNRELEASED; urgency=low
 
   * Added support for vcsh, enable with: include = cat /usr/share/mr/vcsh
     Thanks, Richard Hartmann 
+  * Block tty control codes in untrusted mr config files.
 
  -- Joey Hess <joeyh@debian.org>  Tue, 29 Nov 2011 18:15:51 -0400
 

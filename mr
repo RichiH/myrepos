@@ -1184,6 +1184,11 @@ sub loadconfig {
 		$_=shift @lines;
 		$line++;
 		chomp;
+
+		if (! $trusted && /[[:cntrl:]]/) {
+			trusterror("mr: illegal control character", $f, $line, $bootstrap_url);
+		}
+
 		next if /^\s*\#/ || /^\s*$/;
 		if (/^\[([^\]]*)\]\s*$/) {
 			$section=$1;
