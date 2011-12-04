@@ -1179,11 +1179,38 @@ sub loadconfig {
 	close $in unless ref $f eq 'GLOB';
 
 	my $section;
+
+	# Keep track of the current line in the config file;
+	# when a file is included track the current line from the include.
 	my $line=0;
+	my $included=undef;
+	my $includeline=0;
+	my $nextline = sub {
+		if ($included) {
+			$includeline++;
+			$included--;
+		}
+		else {
+			$included=undef;
+			$includeline=0;
+			$line++;
+		}
+		my $l=shift @lines;
+		chomp $l;
+		return $l
+	};
+	my $lineerror = sub {
+		my $msg=shift;
+		if (defined $included) {
+			die "mr: $f line $line include line $includeline: $msg\n";
+		}
+		else {
+			die "mr: $f line $line: $msg\n";
+		}
+	};
+
 	while (@lines) {
-		$_=shift @lines;
-		$line++;
-		chomp;
+		$_=$nextline->();
 
 		if (! $trusted && /[[:cntrl:]]/) {
 			trusterror("mr: illegal control character", $f, $line, $bootstrap_url);
@@ -1214,10 +1241,9 @@ sub loadconfig {
 
 			# continued value
 			while (@lines && $lines[0]=~/^\s(.+)/) {
-				shift(@lines);
-				$line++;
 				$value.="\n$1";
 				chomp $value;
+				$nextline->();
 			}
 
 			if (! $trusted) {
@@ -1243,15 +1269,17 @@ sub loadconfig {
 
 			if ($parameter eq "include") {
 				print "mr: including output of \"$value\"\n" if $verbose;
-				unshift @lines, `$value`;
+				my @inc=`$value`;
 				if ($?) {
 					print STDERR "mr: include command exited nonzero ($?)\n";
 				}
+				$included += @inc;
+				unshift @lines, @inc;
 				next;
 			}
 
 			if (! defined $section) {
-				die "$f line $.: parameter ($parameter) not in section\n";
+				$lineerror->("parameter ($parameter) not in section");
 			}
 			if ($section eq 'ALIAS') {
 				$alias{$parameter}=$value;
@@ -1292,7 +1320,7 @@ sub loadconfig {
 			}
 		}
 		else {
-			die "$f line $line: '$_': parse error\n";
+			$lineerror->("parse error");
 		}
 	}
 
