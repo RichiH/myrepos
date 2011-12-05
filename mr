@@ -1202,10 +1202,10 @@ sub loadconfig {
 	my $lineerror = sub {
 		my $msg=shift;
 		if (defined $included) {
-			die "mr: $f line $lineno included line '$line': $msg\n";
+			die "mr: $msg at $f line $lineno, included line: $line\n";
 		}
 		else {
-			die "mr: $f line $lineno: $msg\n";
+			die "mr: $msg at $f line $lineno\n";
 		}
 	};
 	my $trusterror = sub {
