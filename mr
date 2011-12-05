@@ -1119,20 +1119,6 @@ sub is_trusted_checkout {
 	return 0;
 }
 
-sub trusterror {
-	my ($err, $file, $line, $url)=@_;
-	
-	if (defined $url) {
-		die "$err in untrusted $url line $line\n".
-			"(To trust this url, --trust-all can be used; but please use caution;\n".
-			"this can allow arbitrary code execution!)\n";
-	}
-	else {
-		die "$err in untrusted $file line $line\n".
-			"(To trust this file, list it in ~/.mrtrust.)\n";
-	}
-}
-
 my %loaded;
 sub loadconfig {
 	my $f=shift;
@@ -1197,30 +1183,43 @@ sub loadconfig {
 
 	# Keep track of the current line in the config file;
 	# when a file is included track the current line from the include.
-	my $line=0;
+	my $lineno=0;
 	my $included=undef;
-	my $includeline=0;
+
+	my $line;
 	my $nextline = sub {
 		if ($included) {
-			$includeline++;
 			$included--;
 		}
 		else {
 			$included=undef;
-			$includeline=0;
-			$line++;
+			$lineno++;
 		}
-		my $l=shift @lines;
-		chomp $l;
-		return $l
+		$line=shift @lines;
+		chomp $line;
+		return $line;
 	};
 	my $lineerror = sub {
 		my $msg=shift;
 		if (defined $included) {
-			die "mr: $f line $line include line $includeline: $msg\n";
+			die "mr: $f line $lineno included line '$line': $msg\n";
 		}
 		else {
-			die "mr: $f line $line: $msg\n";
+			die "mr: $f line $lineno: $msg\n";
+		}
+	};
+	my $trusterror = sub {
+		my $msg=shift;
+		my ($err, $file, $lineno, $url)=@_;
+	
+		if (defined $bootstrap_url) {
+			die "mr: $err in untrusted $bootstrap_url line $lineno\n".
+				"(To trust this url, --trust-all can be used; but please use caution;\n".
+				"this can allow arbitrary code execution!)\n";
+		}
+		else {
+			die "mr: $err in untrusted $file line $lineno\n".
+				"(To trust this file, list it in ~/.mrtrust.)\n";
 		}
 	};
 
@@ -1228,7 +1227,7 @@ sub loadconfig {
 		$_=$nextline->();
 
 		if (! $trusted && /[[:cntrl:]]/) {
-			trusterror("mr: illegal control character", $f, $line, $bootstrap_url);
+			$trusterror->("illegal control character");
 		}
 
 		next if /^\s*\#/ || /^\s*$/;
@@ -1239,7 +1238,7 @@ sub loadconfig {
 				if (! is_trusted_repo($section) ||
 				    $section eq 'ALIAS' ||
 				    $section eq 'DEFAULT') {
-					trusterror("mr: illegal section \"[$section]\"", $f, $line, $bootstrap_url)
+					$trusterror->("illegal section \"[$section]\"");
 				}
 			}
 			$section=expandenv($section) if $trusted;
@@ -1266,7 +1265,7 @@ sub loadconfig {
 				# settings in specific known-safe formats.
 				if ($parameter eq 'checkout') {
 					if (! is_trusted_checkout($value)) {
-						trusterror("mr: illegal checkout command \"$value\"", $f, $line, $bootstrap_url);
+						$trusterror->("illegal checkout command \"$value\"");
 					}
 				}
 				elsif ($parameter eq 'order') {
@@ -1278,7 +1277,7 @@ sub loadconfig {
 					# safe.
 				}
 				else {
-					trusterror("mr: illegal setting \"$parameter=$value\"", $f, $line, $bootstrap_url);
+					$trusterror->("illegal setting \"$parameter=$value\"");
 				}
 			}
 
