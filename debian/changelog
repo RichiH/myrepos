@@ -8,6 +8,7 @@ mr (1.07) UNRELEASED; urgency=low
     paths with more than one path segment. (Thanks, Adam Spiers)
   * Support _append to add on to the existing value of a parameter.
     (Thanks, Adam Spiers)
+  * Optimizations.
 
  -- Joey Hess <joeyh@debian.org>  Tue, 29 Nov 2011 18:15:51 -0400
 

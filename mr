@@ -539,6 +539,42 @@ my (@ok, @failed, @skipped);
 
 main();
 
+sub shellquote {
+	my $i=shift;
+	$i=~s/'/'"'"'/g;
+	return "'$i'";
+}
+
+# Runs a shell command using a supplied function.
+# The lib will be included in the shell command line, and any params
+# will be available in the shell as $1, $2, etc.
+my $lastlib;
+sub runsh {
+	my ($action, $topdir, $subdir, $command, $params, $runner) = @_;
+
+	# optimisation: avoid running the shell for true and false
+	if ($command =~ /^\s*true\s*$/) {
+		$?=0;
+	       	return 0;
+	}
+	elsif ($command =~ /^\s*false\s*$/) {
+		$?=0;
+		return 1;
+	}
+	
+	my $quotedparams=join(" ", (map { shellquote($_) } @$params));
+	my $lib=exists $config{$topdir}{$subdir}{lib} ?
+	               $config{$topdir}{$subdir}{lib}."\n" : "";
+	if ($verbose && (! defined $lastlib || $lastlib ne $lib)) {
+		print "mr library now: >>$lib<<\n";
+		$lastlib=$lib;
+	}
+	my $shellcode="set -e;".$lib.
+		"my_sh(){ $command\n }; my_sh $quotedparams";
+	print "mr $action: running $action >>$command<<\n" if $verbose;
+	$runner->($shellcode);
+}
+
 my %vcs;
 sub vcs_test {
 	my ($action, $dir, $topdir, $subdir) = @_;
@@ -547,7 +583,7 @@ sub vcs_test {
 		return $vcs{$dir};
 	}
 
-	my $test="set -e\n";
+	my $test="";
 	foreach my $vcs_test (
 			sort {
 				length $a <=> length $b 
@@ -558,12 +594,13 @@ sub vcs_test {
 		$test="my_$vcs_test() {\n$config{$topdir}{$subdir}{$vcs_test}\n}\n".$test;
 		$test.="if my_$vcs_test; then echo $vcs; fi\n";
 	}
-	$test=$config{$topdir}{$subdir}{lib}."\n".$test
-		if exists $config{$topdir}{$subdir}{lib};
-	
-	print "mr $action: running vcs test >>$test<<\n" if $verbose;
-	my $vcs=`$test`;
-	chomp $vcs;
+
+	my $vcs=runsh "vcs test", $topdir, $subdir, $test, [], sub {
+		my $sh=shift;
+		my $ret=`$sh`;
+		chomp $ret;
+		return $ret;
+	};
 	if ($vcs=~/\n/s) {
 		$vcs=~s/\n/, /g;
 		print STDERR "mr $action: found multiple possible repository types ($vcs) for ".fulldir($topdir, $subdir)."\n";
@@ -609,8 +646,6 @@ sub action {
 	my $fulldir=fulldir($topdir, $subdir);
 
 	$ENV{MR_CONFIG}=$configfiles{$topdir};
-	my $lib=exists $config{$topdir}{$subdir}{lib} ?
-	               $config{$topdir}{$subdir}{lib}."\n" : "";
 	my $is_checkout=($action eq 'checkout');
 	my $is_update=($action =~ /update/);
 
@@ -621,10 +656,9 @@ sub action {
 		my $testcommand=findcommand($testname, $dir, $topdir, $subdir, $is_checkout);
 
 		if (defined $testcommand) {
-			my $test="set -e;".$lib.
-				"my_action(){ $testcommand\n }; my_action '$action'";
-			print "mr $action: running $testname test >>$test<<\n" if $verbose;
-			my $ret=system($test);
+			my $ret=runsh "$testname test", $topdir, $subdir,
+				$testcommand, [$action],
+				sub { system(shift()) };
 			if ($ret != 0) {
 				if (($? & 127) == 2) {
 					print STDERR "mr $action: interrupted\n";
@@ -701,22 +735,22 @@ sub action {
 		my $hookret=hook("pre_$action", $topdir, $subdir);
 		return $hookret if $hookret != OK;
 
-		$command="set -e; ".$lib.
-			"my_action(){ $command\n }; my_action ".
-			join(" ", map { s/\\/\\\\/g; s/"/\"/g; '"'.$_.'"' } @ARGV);
-		print "mr $action: running >>$command<<\n" if $verbose;
-		my $ret;
-		if ($quiet) {
-			my $output = qx/$command 2>&1/;
-			$ret = $?;
-			if ($ret != 0) {
-				print "$actionmsg\n";
-				print STDERR $output;
-			}
-		}
-		else {
-			$ret=system($command);
-		}
+		my $ret=runsh $action, $topdir, $subdir,
+			$command, \@ARGV, sub {
+				my $sh=shift;
+				if ($quiet) {
+					my $output = qx/$sh 2>&1/;
+					my $ret = $?;
+					if ($ret != 0) {
+						print "$actionmsg\n";
+						print STDERR $output;
+					}
+					return $ret;
+				}
+				else {
+					system($sh);
+				}
+			};
 		if ($ret != 0) {
 			if (($? & 127) == 2) {
 				print STDERR "mr $action: interrupted\n";
@@ -767,22 +801,20 @@ sub hook {
 
 	my $command=$config{$topdir}{$subdir}{$hook};
 	return OK unless defined $command;
-	my $lib=exists $config{$topdir}{$subdir}{lib} ?
-	               $config{$topdir}{$subdir}{lib}."\n" : "";
-	my $shell="set -e;".$lib.
-		"my_hook(){ $command\n }; my_hook";
-	print "mr $hook: running >>$shell<<\n" if $verbose;
-	my $ret;
-	if ($quiet) {
-		my $output = qx/$shell 2>&1/;
-		$ret = $?;
-		if ($ret != 0) {
-			print STDERR $output;
-		}
-	}
-	else {
-		$ret=system($shell);
-	}
+	my $ret=runsh $hook, $topdir, $subdir, $command, [], sub {
+			my $sh=shift;
+			if ($quiet) {
+				my $output = qx/$sh 2>&1/;
+				my $ret = $?;
+				if ($ret != 0) {
+					print STDERR $output;
+				}
+				return $ret;
+			}
+			else {
+				system($sh);
+			}
+		};
 	if ($ret != 0) {
 		if (($? & 127) == 2) {
 			print STDERR "mr $hook: interrupted\n";
