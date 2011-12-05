@@ -435,9 +435,7 @@ whenever the repository is changed.
 When looking for a command to run for a given action, mr first looks for
 a parameter with the same name as the action. If that is not found, it
 looks for a parameter named "VCS_action" (substituting in the name of the
-version control system and the action). The name of the version control
-system is itself determined by running each defined "VCS_test" action,
-until one succeeds.
+version control system and the action).
 
 Internally, mr has settings for "git_update", "svn_update", etc. To change
 the action that is performed for a given version control system, you can
@@ -456,6 +454,18 @@ run before committing; "post_update" is run after updating.
 Any parameter can be suffixed with C<_append>, to add an additional value
 to the existing value of the parameter. In this way, actions 
 can be constructed accumulatively.
+
+=item VCS_test
+
+The name of the version control system is itself determined by
+running each defined "VCS_test" action, until one succeeds.
+
+=item VCS_dir_test
+
+This is a more optimised way to test for the version control system.
+Each "VCS_dir_test" action is run once, and can output lines consisting
+of the name of a VCS, and a directory to look for in the top of a repo
+to detect that VCS.
 
 =back
 
@@ -575,7 +585,17 @@ sub runsh {
 	$runner->($shellcode);
 }
 
+sub runshpipe {
+	runsh @_, sub {
+		my $sh=shift;
+		my $ret=`$sh`;
+		chomp $ret;
+		return $ret;
+	};
+}
+
 my %vcs;
+my %vcs_dir_test;
 sub vcs_test {
 	my ($action, $dir, $topdir, $subdir) = @_;
 
@@ -584,23 +604,43 @@ sub vcs_test {
 	}
 
 	my $test="";
+	my $dir_test="";
 	foreach my $vcs_test (
 			sort {
 				length $a <=> length $b 
 				          ||
 				       $a cmp $b
 			} grep { /_test$/ } keys %{$config{$topdir}{$subdir}}) {
-		my ($vcs)=$vcs_test=~/(.*)_test/;
+		if ($vcs_test =~ /(.*)_dir_test/) {
+			my $vcs=$1;
+			if (! defined $vcs_dir_test{$vcs}) {
+				$dir_test.=$config{$topdir}{$subdir}{$vcs_test}."\n";
+			}
+			next;
+		}
+		my $vcs=$vcs_test =~ /(.*)_test/;
 		$test="my_$vcs_test() {\n$config{$topdir}{$subdir}{$vcs_test}\n}\n".$test;
 		$test.="if my_$vcs_test; then echo $vcs; fi\n";
 	}
 
-	my $vcs=runsh "vcs test", $topdir, $subdir, $test, [], sub {
-		my $sh=shift;
-		my $ret=`$sh`;
-		chomp $ret;
-		return $ret;
-	};
+	if (length $dir_test) {
+		runsh "vcs dir test", $topdir, $subdir, $dir_test, [], sub {
+			my $sh=shift;
+			foreach my $line (`$sh`) {
+				chomp $line;
+				my ($vcs, $dir)=split(" ", $line);
+				$vcs_dir_test{$vcs}=$dir;
+			}
+		}
+	}
+
+	foreach my $vcs (keys %vcs_dir_test) {
+		if (-d "$ENV{MR_REPO}/$vcs_dir_test{$vcs}") {
+			return $vcs{$dir}=$vcs;
+		}
+	}
+
+	my $vcs=runshpipe "vcs test", $topdir, $subdir, $test, [];
 	if ($vcs=~/\n/s) {
 		$vcs=~s/\n/, /g;
 		print STDERR "mr $action: found multiple possible repository types ($vcs) for ".fulldir($topdir, $subdir)."\n";
@@ -1815,12 +1855,12 @@ lib =
 		fi
 	}
 
-svn_test = test -d "$MR_REPO"/.svn
-git_test = test -d "$MR_REPO"/.git
-bzr_test = test -d "$MR_REPO"/.bzr
-cvs_test = test -d "$MR_REPO"/CVS
-hg_test  = test -d "$MR_REPO"/.hg
-darcs_test = test -d "$MR_REPO"/_darcs
+svn_dir_test = echo svn .svn
+git_dir_test = echo git .git
+bzr_dir_test = echo bzr .bzr
+cvs_dir_test = echo cvs CVS
+hg_dir_test  = echo hg .hg
+darcs_dir_test = echo darcs _darcs
 fossil_test = test -f "$MR_REPO"/_FOSSIL_
 git_bare_test =
 	test -d "$MR_REPO"/refs/heads && test -d "$MR_REPO"/refs/tags &&
