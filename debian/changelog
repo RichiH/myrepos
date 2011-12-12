@@ -10,6 +10,9 @@ mr (1.07) UNRELEASED; urgency=low
     (Thanks, Adam Spiers)
   * Optimizations.
   * Fix shell escaping of parameters passed to mr commands. Closes: #644672
+  * Added --force option that disables repository skipping.
+  * Repositories using skip = lazy will not be checked out by "mr update"
+    or "mr checkout" unless --force is used.
 
  -- Joey Hess <joeyh@debian.org>  Tue, 29 Nov 2011 18:15:51 -0400
 

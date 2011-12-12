@@ -212,6 +212,13 @@ Use the specified mrconfig file. The default is to use both F<~/.mrconfig>
 as well as look for a F<.mrconfig> file in the current directory, or in one
 of its parent directories.
 
+=item -f
+
+=item --force
+
+Force mr to act on repositories that would normally be skipped due to their
+configuration.
+
 =item -v
 
 =item --verbose
@@ -367,7 +374,7 @@ been at least 12 hours since the last update.
  
 Another way to use skip is for a lazy checkout. This makes mr skip
 operating on a repo unless it already exists. To enable the 
-repo, you have to explicitly check it out (using "mr -d foo checkout").
+repo, you have to explicitly check it out (using "mr --force -d foo checkout").
 
   [foo]
   checkout = ...
@@ -530,6 +537,7 @@ my $config_overridden=0;
 my $verbose=0;
 my $quiet=0;
 my $stats=0;
+my $force=0;
 my $insecure=0;
 my $interactive=0;
 my $max_depth;
@@ -693,6 +701,8 @@ sub action {
 	$ENV{MR_ACTION}=$action;
 	
 	foreach my $testname ("skip", "deleted") {
+		next if $force && $testname eq "skip";
+
 		my $testcommand=findcommand($testname, $dir, $topdir, $subdir, $is_checkout);
 
 		if (defined $testcommand) {
@@ -1732,6 +1742,7 @@ sub getopts {
 		"d|directory=s" => sub { $directory=abs_path($_[1]) },
 		"c|config=s" => sub { $ENV{MR_CONFIG}=$_[1]; $config_overridden=1 },
 		"p|path" => sub { }, # now default, ignore
+		"f|force" => \$force,
 		"v|verbose" => \$verbose,
 		"q|quiet" => \$quiet,
 		"s|stats" => \$stats,
@@ -1848,7 +1859,7 @@ lib =
 		LANG=C bzr info | egrep -q '^Checkout'
 	}
 	lazy() {
-		if [ "$MR_ACTION" = checkout ] || [ -d "$MR_REPO" ]; then
+		if [ -d "$MR_REPO" ]; then
 			return 1
 		else
 			return 0
