@@ -627,7 +627,7 @@ sub vcs_test {
 			}
 			next;
 		}
-		my $vcs=$vcs_test =~ /(.*)_test/;
+		my ($vcs)=$vcs_test =~ /(.*)_test/;
 		$test="my_$vcs_test() {\n$config{$topdir}{$subdir}{$vcs_test}\n}\n".$test;
 		$test.="if my_$vcs_test; then echo $vcs; fi\n";
 	}

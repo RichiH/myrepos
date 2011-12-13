@@ -1,3 +1,9 @@
+mr (1.08) UNRELEASED; urgency=low
+
+  * Fix vcs test code. Closes: #651976
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 13 Dec 2011 16:20:26 -0400
+
 mr (1.07) unstable; urgency=low
 
   * Added support for vcsh, enable with: include = cat /usr/share/mr/vcsh
