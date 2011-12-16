@@ -6,10 +6,10 @@
 #[$HOME/.config/vcsh/repo.d/zsh.git]
 #checkout = vcsh clone git://github.com/RichiH/zshrc.git zsh
 
-vcsh_test =
-	test -d "$MR_REPO"/refs/heads && test -d "$MR_REPO"/refs/tags &&
-	test -d "$MR_REPO"/objects && test -f "$MR_REPO"/config &&
-	test "`GIT_CONFIG="$MR_REPO"/config git config --get vcsh.vcsh`" = true
+vcsh_test = perl:
+	-d "$ENV{MR_REPO}/refs/heads" && -d "$ENV{MR_REPO}/refs/tags" &&
+	-d "$ENV{MR_REPO}/objects" && -f "$ENV{MR_REPO}/config" &&
+	`GIT_CONFIG="$ENV{MR_REPO}"/config git config --get vcsh.vcsh` =~ /true/
 
 vcsh_update = vcsh run "$MR_REPO" git pull "$@"
 

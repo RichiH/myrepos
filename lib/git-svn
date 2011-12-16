@@ -16,13 +16,13 @@ git_svn_record = git commit -a "$@"
 git_svn_diff = git diff "$@"
 git_svn_log = git svn log "$@"
 
-git_test =
-	test -d "$MR_REPO"/.git &&
-	test -z "$(GIT_CONFIG="$MR_REPO"/.git/config git config --get svn-remote.svn.url)"
+git_test = perl:
+	-d "$ENV{MR_REPO}/.git" &&
+	`GIT_CONFIG="$ENV{MR_REPO}"/.git/config git config --get svn-remote.svn.url` eq ""
 
-git_svn_test =
-	test -d "$MR_REPO"/.git &&
-	test -n "$(GIT_CONFIG="$MR_REPO"/.git/config git config --get svn-remote.svn.url)"
+git_svn_test = perl:
+	-d "$ENV{MR_REPO}/.git" &&
+	`GIT_CONFIG="$ENV{MR_REPO}"/.git/config git config --get svn-remote.svn.url` ne ""
 
 git_svn_register =
 	url="`LC_ALL=C git config --get svn-remote.svn.url`" || true

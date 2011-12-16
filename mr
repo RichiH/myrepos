@@ -467,13 +467,6 @@ can be constructed accumulatively.
 The name of the version control system is itself determined by
 running each defined "VCS_test" action, until one succeeds.
 
-=item VCS_dir_test
-
-This is a more optimised way to test for the version control system.
-Each "VCS_dir_test" action is run once, and can output lines consisting
-of the name of a VCS, and a directory to look for in the top of a repo
-to detect that VCS.
-
 =back
 
 =head1 UNTRUSTED MRCONFIG FILES
@@ -594,17 +587,22 @@ sub runsh {
 	$runner->($shellcode);
 }
 
-sub runshpipe {
-	runsh @_, sub {
-		my $sh=shift;
-		my $ret=`$sh`;
-		chomp $ret;
-		return $ret;
-	};
+my %perl_cache;
+sub perl {
+	my $id=shift;
+	my $s=shift;
+	if ($s =~ m/^perl:\s+(.*)/s) {
+		return $perl_cache{$1} if exists $perl_cache{$1};
+		my $sub=eval "sub {$1}";
+		if (! defined $sub) {
+			print STDERR "mr: bad perl code in $id: $@\n";
+		}
+		return $perl_cache{$1} = $sub;
+	}
+	return undef;
 }
 
 my %vcs;
-my %vcs_dir_test;
 sub vcs_test {
 	my ($action, $dir, $topdir, $subdir) = @_;
 
@@ -613,53 +611,46 @@ sub vcs_test {
 	}
 
 	my $test="";
-	my $dir_test="";
+	my %perltest;
 	foreach my $vcs_test (
 			sort {
 				length $a <=> length $b 
 				          ||
 				       $a cmp $b
 			} grep { /_test$/ } keys %{$config{$topdir}{$subdir}}) {
-		if ($vcs_test =~ /(.*)_dir_test/) {
-			my $vcs=$1;
-			if (! defined $vcs_dir_test{$vcs}) {
-				$dir_test.=$config{$topdir}{$subdir}{$vcs_test}."\n";
-			}
-			next;
-		}
 		my ($vcs)=$vcs_test =~ /(.*)_test/;
-		$test="my_$vcs_test() {\n$config{$topdir}{$subdir}{$vcs_test}\n}\n".$test;
-		$test.="if my_$vcs_test; then echo $vcs; fi\n";
+		my $p=perl($vcs_test, $config{$topdir}{$subdir}{$vcs_test});
+		if (defined $p) {
+			$perltest{$vcs}=$p;
+		}
+		else {
+			$test="my_$vcs_test() {\n$config{$topdir}{$subdir}{$vcs_test}\n}\n".$test;
+			$test.="if my_$vcs_test; then echo $vcs; fi\n";
+		}
 	}
 
-	if (length $dir_test) {
-		runsh "vcs dir test", $topdir, $subdir, $dir_test, [], sub {
+	my @vcs;
+	foreach my $vcs (keys %perltest) {
+		if ($perltest{$vcs}->()) {
+			push @vcs, $vcs;
+		}
+	}
+
+	push @vcs, split(/\n/,
+		runsh("vcs test", $topdir, $subdir, $test, [], sub {
 			my $sh=shift;
-			foreach my $line (`$sh`) {
-				chomp $line;
-				my ($vcs, $dir)=split(" ", $line);
-				$vcs_dir_test{$vcs}=$dir;
-			}
-		}
-	}
-
-	foreach my $vcs (keys %vcs_dir_test) {
-		if (-d "$ENV{MR_REPO}/$vcs_dir_test{$vcs}") {
-			return $vcs{$dir}=$vcs;
-		}
-	}
-
-	my $vcs=runshpipe "vcs test", $topdir, $subdir, $test, [];
-	if ($vcs=~/\n/s) {
-		$vcs=~s/\n/, /g;
-		print STDERR "mr $action: found multiple possible repository types ($vcs) for ".fulldir($topdir, $subdir)."\n";
+			my $ret=`$sh`;
+			return $ret;
+		})) if length $test;
+	if (@vcs > 1) {
+		print STDERR "mr $action: found multiple possible repository types (@vcs) for ".fulldir($topdir, $subdir)."\n";
 		return undef;
 	}
-	if (! length $vcs) {
+	if (! @vcs) {
 		return $vcs{$dir}=undef;
 	}
 	else {
-		return $vcs{$dir}=$vcs;
+		return $vcs{$dir}=$vcs[0];
 	}
 }
 	
@@ -1867,17 +1858,17 @@ lib =
 		fi
 	}
 
-svn_dir_test = echo svn .svn
-git_dir_test = echo git .git
-bzr_dir_test = echo bzr .bzr
-cvs_dir_test = echo cvs CVS
-hg_dir_test  = echo hg .hg
-darcs_dir_test = echo darcs _darcs
-fossil_test = test -f "$MR_REPO"/_FOSSIL_
-git_bare_test =
-	test -d "$MR_REPO"/refs/heads && test -d "$MR_REPO"/refs/tags &&
-	test -d "$MR_REPO"/objects && test -f "$MR_REPO"/config &&
-	test "`GIT_CONFIG="$MR_REPO"/config git config --get core.bare`" = true
+svn_test = perl: -d "$ENV{MR_REPO}/.svn"
+git_test = perl: -d "$ENV{MR_REPO}/.git"
+bzr_test = perl: -d "$ENV{MR_REPO}/.bzr"
+cvs_test = perl: -d "$ENV{MR_REPO}/CVS"
+hg_test  = perl: -d "$ENV{MR_REPO}/.hg"
+darcs_test = perl: -d "$ENV{MR_REPO}/_darcs"
+fossil_test = perl: -f "$ENV{MR_REPO}/_FOSSIL_"
+git_bare_test = perl: 
+	-d "$ENV{MR_REPO}/refs/heads" && -d "$ENV{MR_REPO}/refs/tags" &&
+	-d "$ENV{MR_REPO}/objects" && -f "$ENV{MR_REPO}/config" &&
+	`GIT_CONFIG="$ENV{MR_REPO}"/config git config --get core.bare` =~ /true/
 
 svn_update = svn update "$@"
 git_update = git pull "$@"

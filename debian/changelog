@@ -1,3 +1,11 @@
+mr (1.09) unstable; urgency=low
+
+  * Remove dir_test hack and add a way for vcs tests to run perl code,
+    using this for the same optimisation. Fixes support for git-svn
+    etc. Closes: #652317
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 16 Dec 2011 13:29:40 -0400
+
 mr (1.08) unstable; urgency=low
 
   * Fix vcs test code. Closes: #651976
