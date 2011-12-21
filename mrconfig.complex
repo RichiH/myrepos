@@ -9,8 +9,8 @@ include = cat /usr/share/mr/* 2>/dev/null || true
 # Teach mr to run a few git and svn specific commands.
 svn_cleanup = svn cleanup "$@"
 git_gc = git gc "$@"
-git_tag = git tag -l
-svn_tag = svn ls "$(LC_ALL=C svn info . | grep -i ^URL: | cut -d ' ' -f 2 | sed -e 's/trunk/tags/')"
+git_tags = git tag -l
+svn_tags = svn ls "$(LC_ALL=C svn info . | grep -i ^URL: | cut -d ' ' -f 2 | sed -e 's/trunk/tags/')"
 # I prefer to git-svn rebase to fetch
 git_svn_update = git svn rebase
 # Tests used below.
