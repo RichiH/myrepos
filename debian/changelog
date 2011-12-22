@@ -1,3 +1,9 @@
+mr (1.10) UNRELEASED; urgency=low
+
+  * Fix display of trust errors.
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 22 Dec 2011 11:52:19 -0400
+
 mr (1.09) unstable; urgency=low
 
   * Remove dir_test hack and add a way for vcs tests to run perl code,

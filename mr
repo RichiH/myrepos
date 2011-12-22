@@ -1284,15 +1284,14 @@ sub loadconfig {
 	};
 	my $trusterror = sub {
 		my $msg=shift;
-		my ($err, $file, $lineno, $url)=@_;
 	
 		if (defined $bootstrap_url) {
-			die "mr: $err in untrusted $bootstrap_url line $lineno\n".
+			die "mr: $msg in untrusted $bootstrap_url line $lineno\n".
 				"(To trust this url, --trust-all can be used; but please use caution;\n".
 				"this can allow arbitrary code execution!)\n";
 		}
 		else {
-			die "mr: $err in untrusted $file line $lineno\n".
+			die "mr: $msg in untrusted $f line $lineno\n".
 				"(To trust this file, list it in ~/.mrtrust.)\n";
 		}
 	};
