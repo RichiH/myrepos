@@ -1,8 +1,8 @@
-mr (1.10) UNRELEASED; urgency=low
+mr (1.10) unstable; urgency=low
 
   * Fix display of trust errors.
 
- -- Joey Hess <joeyh@debian.org>  Thu, 22 Dec 2011 11:52:19 -0400
+ -- Joey Hess <joeyh@debian.org>  Tue, 27 Dec 2011 12:13:15 -0400
 
 mr (1.09) unstable; urgency=low
 
