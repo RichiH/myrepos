@@ -41,7 +41,7 @@ B<mr> [options] remember action [params ...]
 B<mr> is a Multiple Repository management tool. It can checkout, update, or
 perform other actions on a set of repositories as if they were one combined
 repository. It supports any combination of subversion, git, cvs, mercurial,
-bzr, darcs and fossil repositories, and support for other version
+bzr, darcs, fossil and veracity repositories, and support for other version
 control systems can easily be added.
 
 B<mr> cds into and operates on all registered repositories at or below your
@@ -1868,6 +1868,7 @@ git_bare_test = perl:
 	-d "$ENV{MR_REPO}/refs/heads" && -d "$ENV{MR_REPO}/refs/tags" &&
 	-d "$ENV{MR_REPO}/objects" && -f "$ENV{MR_REPO}/config" &&
 	`GIT_CONFIG="$ENV{MR_REPO}"/config git config --get core.bare` =~ /true/
+veracity_test  = perl: -d "$ENV{MR_REPO}/.sgdrawer"
 
 svn_update = svn update "$@"
 git_update = git pull "$@"
@@ -1881,6 +1882,7 @@ cvs_update = cvs update "$@"
 hg_update  = hg pull "$@" && hg update "$@"
 darcs_update = darcs pull -a "$@"
 fossil_update = fossil pull "$@"
+veracity_update = vv pull "$@" && vv update "$@"
 
 svn_status = svn status "$@"
 git_status = git status -s "$@" || true
@@ -1889,6 +1891,7 @@ cvs_status = cvs status "$@"
 hg_status  = hg status "$@"
 darcs_status = darcs whatsnew -ls "$@" || true
 fossil_status = fossil changes "$@"
+veracity_status = vv status "$@"
 
 svn_commit = svn commit "$@"
 git_commit = git commit -a "$@" && git push --all
@@ -1902,6 +1905,7 @@ cvs_commit = cvs commit "$@"
 hg_commit  = hg commit -m "$@" && hg push
 darcs_commit = darcs record -a -m "$@" && darcs push -a
 fossil_commit = fossil commit "$@"
+veracity_commit = vv commit -m "@"
 
 git_record = git commit -a "$@"
 bzr_record =
@@ -1913,6 +1917,7 @@ bzr_record =
 hg_record  = hg commit -m "$@"
 darcs_record = darcs record -a -m "$@"
 fossil_record = fossil commit "$@"
+veracity_record = vv commit -m "@"
 
 svn_push = :
 git_push = git push "$@"
@@ -1921,6 +1926,7 @@ cvs_push = :
 hg_push = hg push "$@"
 darcs_push = darcs push -a "$@"
 fossil_push = fossil push "$@"
+veracity_push = vv push "$@"
 
 svn_diff = svn diff "$@"
 git_diff = git diff "$@"
@@ -1929,6 +1935,7 @@ cvs_diff = cvs diff "$@"
 hg_diff  = hg diff "$@"
 darcs_diff = darcs diff -u "$@"
 fossil_diff = fossil diff "$@"
+veracity_diff = vv diff "$@"
 
 svn_log = svn log "$@"
 git_log = git log "$@"
@@ -1938,6 +1945,7 @@ hg_log  = hg log "$@"
 darcs_log = darcs changes "$@"
 git_bare_log = git log "$@"
 fossil_log = fossil timeline "$@"
+veracity_log = vv log "$@"
 
 run = "$@"
 
@@ -1990,6 +1998,11 @@ fossil_register =
 	repo=`fossil info | grep repository | sed -e 's/repository:*.//g' -e 's/ //g'`
 	echo "Registering fossil repository $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="mkdir -p '$MR_REPO' && cd '$MR_REPO' && fossil open '$repo'"
+veracity_register =
+	url=`vv config | grep sync_targets | sed -e 's/sync_targets:*.//g' -e 's/ //g'`
+	repo=`vv repo info | grep repository | sed -e 's/Current repository:*.//g' -e 's/ //g'`
+	echo "Registering veracity repository $url in $MR_CONFIG"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="mkdir -p '$MR_REPO' && cd '$MR_REPO' && vv checkout '$repo'"
 
 svn_trusted_checkout = svn co $url $repo
 svn_alt_trusted_checkout = svn checkout $url $repo
@@ -2000,6 +2013,7 @@ hg_trusted_checkout = hg clone $url $repo
 darcs_trusted_checkout = darcs get $url $repo
 git_bare_trusted_checkout = git clone --bare $url $repo
 # fossil: messy to do
+veracity_trusted_checkout = vv clone $url $repo
 
 
 help =
