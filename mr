@@ -1905,7 +1905,7 @@ cvs_commit = cvs commit "$@"
 hg_commit  = hg commit -m "$@" && hg push
 darcs_commit = darcs record -a -m "$@" && darcs push -a
 fossil_commit = fossil commit "$@"
-veracity_commit = vv commit -m "@"
+veracity_commit = vv commit -m "@" && vv push
 
 git_record = git commit -a "$@"
 bzr_record =
