@@ -1,3 +1,9 @@
+mr (1.11) UNRELEASED; urgency=low
+
+  * Now supports the veracity vcs. Thanks, Jimmy Tang.
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 09 Jan 2012 17:12:58 -0400
+
 mr (1.10) unstable; urgency=low
 
   * Fix display of trust errors.
