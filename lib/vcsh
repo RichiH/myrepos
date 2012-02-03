@@ -2,39 +2,9 @@
 # section of your ~/.mrconfig
 #include = cat /usr/share/mr/vcsh
 
+# But, that's pointless to do, since the vcsh support has been moved from
+# this plugin into mr.
+
 # And an example repo using it would look something like:
 #[$HOME/.config/vcsh/repo.d/zsh.git]
 #checkout = vcsh clone git://github.com/RichiH/zshrc.git zsh
-
-vcsh_test = perl:
-	-d "$ENV{MR_REPO}/refs/heads" && -d "$ENV{MR_REPO}/refs/tags" &&
-	-d "$ENV{MR_REPO}/objects" && -f "$ENV{MR_REPO}/config" &&
-	`GIT_CONFIG="$ENV{MR_REPO}"/config git config --get vcsh.vcsh` =~ /true/
-
-vcsh_update = vcsh run "$MR_REPO" git pull "$@"
-
-vcsh_status = cd $(vcsh run "$MR_REPO" git config --get core.worktree); vcsh run "$MR_REPO" git status -s "$@" || true
-
-vcsh_commit = vcsh run "$MR_REPO" git commit -a "$@" && vcsh run "$MR_REPO" git push --all
-
-vcsh_record = vcsh run "$MR_REPO" git commit -a "$@"
-
-vcsh_push = vcsh run "$MR_REPO" git push "$@"
-
-vcsh_diff = vcsh run "$MR_REPO" git diff "$@"
-
-vcsh_log = vcsh run "$MR_REPO" git log "$@"
-
-vcsh_run = vcsh run "$MR_REPO" "$@"
-
-vcsh_gc = vcsh run "$MR_REPO" git gc "$@"
-
-vcsh_register =
-	url="`LC_ALL=C vcsh run "$MR_REPO" git config --get remote.origin.url`" || true
-	if [ -z "$url" ]; then
-		error "cannot determine git url"
-	fi
-	echo "Registering git url: $url in $MR_CONFIG"
-	mr -c "$MR_CONFIG" config "`pwd`" checkout="vcsh clone '$url' '$MR_REPO'"
-
-vcsh_trusted_checkout = vcsh run "$MR_REPO" git clone $url $repo

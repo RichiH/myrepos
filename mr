@@ -405,7 +405,7 @@ Unlike all other parameters, this parameter does not need to be placed
 within a section.
 
 B<mr> ships several libraries that can be included to add support for
-additional version control type things (unison, git-svn, vcsh, git-fake-bare,
+additional version control type things (unison, git-svn, git-fake-bare,
 git-subtree). To include them all, you could use:
 
   include = cat /usr/share/mr/*
@@ -1868,6 +1868,10 @@ git_bare_test = perl:
 	-d "$ENV{MR_REPO}/refs/heads" && -d "$ENV{MR_REPO}/refs/tags" &&
 	-d "$ENV{MR_REPO}/objects" && -f "$ENV{MR_REPO}/config" &&
 	`GIT_CONFIG="$ENV{MR_REPO}"/config git config --get core.bare` =~ /true/
+vcsh_test = perl:
+	-d "$ENV{MR_REPO}/refs/heads" && -d "$ENV{MR_REPO}/refs/tags" &&
+	-d "$ENV{MR_REPO}/objects" && -f "$ENV{MR_REPO}/config" &&
+	`GIT_CONFIG="$ENV{MR_REPO}"/config git config --get vcsh.vcsh` =~ /true/
 veracity_test  = perl: -d "$ENV{MR_REPO}/.sgdrawer"
 
 svn_update = svn update "$@"
@@ -1882,6 +1886,7 @@ cvs_update = cvs update "$@"
 hg_update  = hg pull "$@" && hg update "$@"
 darcs_update = darcs pull -a "$@"
 fossil_update = fossil pull "$@"
+vcsh_update = vcsh run "$MR_REPO" git pull "$@"
 veracity_update = vv pull "$@" && vv update "$@"
 
 svn_status = svn status "$@"
@@ -1891,6 +1896,7 @@ cvs_status = cvs status "$@"
 hg_status  = hg status "$@"
 darcs_status = darcs whatsnew -ls "$@" || true
 fossil_status = fossil changes "$@"
+vcsh_status = cd $(vcsh run "$MR_REPO" git config --get core.worktree); vcsh run "$MR_REPO" git status -s "$@" || true
 veracity_status = vv status "$@"
 
 svn_commit = svn commit "$@"
@@ -1905,6 +1911,7 @@ cvs_commit = cvs commit "$@"
 hg_commit  = hg commit -m "$@" && hg push
 darcs_commit = darcs record -a -m "$@" && darcs push -a
 fossil_commit = fossil commit "$@"
+vcsh_commit = vcsh run "$MR_REPO" git commit -a "$@" && vcsh run "$MR_REPO" git push --all
 veracity_commit = vv commit -m "@" && vv push
 
 git_record = git commit -a "$@"
@@ -1917,6 +1924,7 @@ bzr_record =
 hg_record  = hg commit -m "$@"
 darcs_record = darcs record -a -m "$@"
 fossil_record = fossil commit "$@"
+vcsh_record = vcsh run "$MR_REPO" git commit -a "$@"
 veracity_record = vv commit -m "@"
 
 svn_push = :
@@ -1926,6 +1934,7 @@ cvs_push = :
 hg_push = hg push "$@"
 darcs_push = darcs push -a "$@"
 fossil_push = fossil push "$@"
+vcsh_push = vcsh run "$MR_REPO" git push "$@"
 veracity_push = vv push "$@"
 
 svn_diff = svn diff "$@"
@@ -1935,6 +1944,7 @@ cvs_diff = cvs diff "$@"
 hg_diff  = hg diff "$@"
 darcs_diff = darcs diff -u "$@"
 fossil_diff = fossil diff "$@"
+vcsh_diff = vcsh run "$MR_REPO" git diff "$@"
 veracity_diff = vv diff "$@"
 
 svn_log = svn log "$@"
@@ -1945,6 +1955,7 @@ hg_log  = hg log "$@"
 darcs_log = darcs changes "$@"
 git_bare_log = git log "$@"
 fossil_log = fossil timeline "$@"
+vcsh_log = vcsh run "$MR_REPO" git log "$@"
 veracity_log = vv log "$@"
 
 run = "$@"
@@ -1993,6 +2004,13 @@ git_bare_register =
 	fi
 	echo "Registering git url: $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone --bare '$url' '$MR_REPO'"
+vcsh_register =
+	url="`LC_ALL=C vcsh run "$MR_REPO" git config --get remote.origin.url`" || true
+	if [ -z "$url" ]; then
+		error "cannot determine git url"
+	fi
+	echo "Registering git url: $url in $MR_CONFIG"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="vcsh clone '$url' '$MR_REPO'"
 fossil_register =
 	url=`fossil remote-url`
 	repo=`fossil info | grep repository | sed -e 's/repository:*.//g' -e 's/ //g'`
@@ -2012,6 +2030,7 @@ bzr_trusted_checkout = bzr checkout|clone|branch|get $url $repo
 hg_trusted_checkout = hg clone $url $repo
 darcs_trusted_checkout = darcs get $url $repo
 git_bare_trusted_checkout = git clone --bare $url $repo
+vcsh_trusted_checkout = vcsh run "$MR_REPO" git clone $url $repo
 # fossil: messy to do
 veracity_trusted_checkout = vv clone $url $repo
 
