@@ -684,6 +684,7 @@ sub fulldir {
 sub action {
 	my ($action, $dir, $topdir, $subdir, $force_checkout) = @_;
 	my $fulldir=fulldir($topdir, $subdir);
+	my $checkout_dir;
 
 	$ENV{MR_CONFIG}=$configfiles{$topdir};
 	my $is_checkout=($action eq 'checkout');
@@ -725,6 +726,7 @@ sub action {
 	}
 
 	if ($is_checkout) {
+		$checkout_dir=$dir;
 		if (! $force_checkout) {
 			if (-d $dir) {
 				print "mr $action: $dir already exists, skipping checkout\n" if $verbose;
@@ -828,7 +830,13 @@ sub action {
 			my $ret=hook("post_$action", $topdir, $subdir);
 			return $ret if $ret != OK;
 			
-			if (($is_checkout || $is_update)) {
+			if ($is_checkout || $is_update) {
+				if ($is_checkout && ! $no_chdir) {
+					if (! chdir($checkout_dir)) {
+				                print STDERR "mr $action: failed to chdir to $checkout_dir: $!\n";
+						return FAILED;
+					}
+				}
 				my $ret=hook("fixups", $topdir, $subdir);
 				return $ret if $ret != OK;
 			}
