@@ -1,10 +1,10 @@
-mr (1.11) UNRELEASED; urgency=low
+mr (1.11) unstable; urgency=low
 
   * Now supports the veracity vcs. Thanks, Jimmy Tang.
   * vcsh is now supported without including a plugin.
   * After checkout, run fixups chdired to the just checked out directory.
 
- -- Joey Hess <joeyh@debian.org>  Mon, 09 Jan 2012 17:12:58 -0400
+ -- Joey Hess <joeyh@debian.org>  Tue, 14 Feb 2012 18:13:29 -0400
 
 mr (1.10) unstable; urgency=low
 
