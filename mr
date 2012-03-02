@@ -1891,7 +1891,7 @@ bzr_update =
 		bzr merge --pull "$@"
 	fi
 cvs_update = cvs update "$@"
-hg_update  = hg pull "$@" && hg update "$@"
+hg_update  = hg pull "$@"; hg update "$@"
 darcs_update = darcs pull -a "$@"
 fossil_update = fossil pull "$@"
 vcsh_update = vcsh run "$MR_REPO" git pull "$@"
