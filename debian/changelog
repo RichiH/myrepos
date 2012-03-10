@@ -2,6 +2,7 @@ mr (1.12) UNRELEASED; urgency=low
 
   * Ignore nonzero exit status of hg pull, which can happen
     when there were no changes to pull. Closes: #661870 
+  * Add vcsh to Suggests.
 
  -- Joey Hess <joeyh@debian.org>  Fri, 02 Mar 2012 00:33:08 -0400
 
