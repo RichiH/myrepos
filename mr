@@ -1866,7 +1866,7 @@ lib =
 	}
 
 svn_test = perl: -d "$ENV{MR_REPO}/.svn"
-git_test = perl: -d "$ENV{MR_REPO}/.git"
+git_test = perl: -e "$ENV{MR_REPO}/.git"
 bzr_test = perl: -d "$ENV{MR_REPO}/.bzr"
 cvs_test = perl: -d "$ENV{MR_REPO}/CVS"
 hg_test  = perl: -d "$ENV{MR_REPO}/.hg"
