@@ -1,4 +1,4 @@
-mr (1.12) UNRELEASED; urgency=low
+mr (1.12) unstable; urgency=low
 
   * Ignore nonzero exit status of hg pull, which can happen
     when there were no changes to pull. Closes: #661870 
@@ -7,7 +7,7 @@ mr (1.12) UNRELEASED; urgency=low
   * Improve bzr register's heuristics to determine upstream repo.
     Closes: #672843
 
- -- Joey Hess <joeyh@debian.org>  Fri, 02 Mar 2012 00:33:08 -0400
+ -- Joey Hess <joeyh@debian.org>  Mon, 14 May 2012 10:42:52 -0400
 
 mr (1.11) unstable; urgency=low
 
