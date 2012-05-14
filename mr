@@ -1983,7 +1983,7 @@ git_register =
 	echo "Registering git url: $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone '$url' '$MR_REPO'"
 bzr_register =
-	url="`LC_ALL=C bzr info . | egrep -i 'checkout of branch|parent branch' | awk '{print $NF}'`"
+	url="`LC_ALL=C bzr info . | egrep -i 'checkout of branch|parent branch' | awk '{print $NF}' | head -n 1`"
 	if [ -z "$url" ]; then
 		error "cannot determine bzr url"
 	fi

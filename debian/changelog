@@ -4,6 +4,8 @@ mr (1.12) UNRELEASED; urgency=low
     when there were no changes to pull. Closes: #661870 
   * Add vcsh to Suggests.
   * Recognize a repo with a .git file as a git repo.
+  * Improve bzr register's heuristics to determine upstream repo.
+    Closes: #672843
 
  -- Joey Hess <joeyh@debian.org>  Fri, 02 Mar 2012 00:33:08 -0400
 
