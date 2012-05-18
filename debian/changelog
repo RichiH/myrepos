@@ -1,3 +1,9 @@
+mr (1.13) UNRELEASED; urgency=low
+
+  * Pass -q to cvs diff and update. Closes: #673367
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 18 May 2012 12:27:45 -0400
+
 mr (1.12) unstable; urgency=low
 
   * Ignore nonzero exit status of hg pull, which can happen

@@ -1890,7 +1890,7 @@ bzr_update =
 	else
 		bzr merge --pull "$@"
 	fi
-cvs_update = cvs update "$@"
+cvs_update = cvs -q update "$@"
 hg_update  = hg pull "$@"; hg update "$@"
 darcs_update = darcs pull -a "$@"
 fossil_update = fossil pull "$@"
@@ -1948,7 +1948,7 @@ veracity_push = vv push "$@"
 svn_diff = svn diff "$@"
 git_diff = git diff "$@"
 bzr_diff = bzr diff "$@"
-cvs_diff = cvs diff "$@"
+cvs_diff = cvs -q diff "$@"
 hg_diff  = hg diff "$@"
 darcs_diff = darcs diff -u "$@"
 fossil_diff = fossil diff "$@"
