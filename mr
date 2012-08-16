@@ -1913,7 +1913,7 @@ cvs_status = cvs status "$@"
 hg_status  = hg status "$@"
 darcs_status = darcs whatsnew -ls "$@" || true
 fossil_status = fossil changes "$@"
-vcsh_status = cd $(vcsh run "$MR_REPO" git config --get core.worktree); vcsh run "$MR_REPO" git status -s "$@" || true
+vcsh_status = vcsh run "$MR_REPO" git -c status.relativePaths=false status -s "$@" || true
 veracity_status = vv status "$@"
 
 svn_commit = svn commit "$@"

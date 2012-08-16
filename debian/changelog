@@ -2,6 +2,7 @@ mr (1.13) UNRELEASED; urgency=low
 
   * Pass -q to cvs diff and update. Closes: #673367
   * mr bootstrap: Now supports ssh:// urls.
+  * Simpler vcsh status command line. Closes: #685089
 
  -- Joey Hess <joeyh@debian.org>  Fri, 18 May 2012 12:27:45 -0400
 
