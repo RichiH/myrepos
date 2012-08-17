@@ -1975,6 +1975,13 @@ fossil_log = fossil timeline "$@"
 vcsh_log = vcsh run "$MR_REPO" git log "$@"
 veracity_log = vv log "$@"
 
+hg_grep = hg grep "$@"
+cvs_grep = ack-grep "$@"
+svn_grep = ack-grep "$@"
+git_svn_grep = git grep "$@"
+git_grep = git grep "$@"
+bzr_grep = ack-grep "$@"
+
 run = "$@"
 
 svn_register =
