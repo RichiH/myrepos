@@ -1,4 +1,4 @@
-mr (1.13) UNRELEASED; urgency=low
+mr (1.13) unstable; urgency=low
 
   * Pass -q to cvs diff and update. Closes: #673367
   * mr bootstrap: Now supports ssh:// urls.
@@ -6,7 +6,7 @@ mr (1.13) UNRELEASED; urgency=low
   * Add grep subcommand. Uses ack-grep on VCS that do not have their own.
     Closes: #685122
 
- -- Joey Hess <joeyh@debian.org>  Fri, 18 May 2012 12:27:45 -0400
+ -- Joey Hess <joeyh@debian.org>  Sat, 25 Aug 2012 11:14:41 -0400
 
 mr (1.12) unstable; urgency=low
 
