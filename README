@@ -2,7 +2,7 @@ mr is a Multiple Repository management tool for git, svn, mercurial, bzr,
 darcs, cvs, fossil and veracity.
 
 Author: Joey Hess
-Homepage: http://kitenet.net/~joey/code/mr/
+Homepage: http://joeyh.name/code/mr/
 
 mr is intended to be very self-contained, since it might be useful to check
 it into ~/bin when keeping your home in version control. It has no
