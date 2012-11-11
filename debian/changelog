@@ -1,3 +1,9 @@
+mr (1.14) UNRELEASED; urgency=low
+
+  * Added a fetch command. Closes: #480580
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 11 Nov 2012 11:33:05 -0400
+
 mr (1.13) unstable; urgency=low
 
   * Pass -q to cvs diff and update. Closes: #673367

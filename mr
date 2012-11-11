@@ -16,6 +16,8 @@ B<mr> [options] commit [-m "message"]
 
 B<mr> [options] record [-m "message"]
 
+B<mr> [options] fetch
+
 B<mr> [options] push
 
 B<mr> [options] diff
@@ -90,6 +92,12 @@ Records changes to the local repository, but does not push them to the
 remote repository. Only supported for distributed version control systems.
 
 The optional -m parameter allows specifying a commit message.
+
+=item fetch
+
+Fetches from each repository's remote repository, but does not
+update the working copy. Only supported for some distributed version
+control systems.
 
 =item push
 
@@ -1905,6 +1913,11 @@ darcs_update = darcs pull -a "$@"
 fossil_update = fossil pull "$@"
 vcsh_update = vcsh run "$MR_REPO" git pull "$@"
 veracity_update = vv pull "$@" && vv update "$@"
+
+git_fetch = git fetch --all --prune --tags
+git_svn_fetch = git svn fetch
+darcs_fetch = darcs fetch
+hg_fetch = hg pull
 
 svn_status = svn status "$@"
 git_status = git status -s "$@" || true
