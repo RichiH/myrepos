@@ -75,7 +75,8 @@ If a repository isn't checked out yet, it will first check it out.
 =item status
 
 Displays a status report for each repository, showing what
-uncommitted changes are present in the repository.
+uncommitted changes are present in the repository. For distributed version
+control systems, also shows unpushed local branches.
 
 =item commit (or ci)
 
