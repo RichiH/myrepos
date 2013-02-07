@@ -1,0 +1,12 @@
+# Adds a "mr vis" command to visualise repository history.
+
+# To make mr use this file, add a line like this inside the [DEFAULT]
+# section of your ~/.mrconfig
+#include = cat /usr/share/mr/vis
+
+cvs_vis = cvs diff | $EDITOR -
+svn_vis = svn status | $EDITOR -
+git_svn_vis = gitk --all
+git_vis = gitk --all
+bzr_vis = bzr visualize
+hg_vis = hg view
