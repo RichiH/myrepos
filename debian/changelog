@@ -5,6 +5,8 @@ mr (1.14) UNRELEASED; urgency=low
     for git, git-svn, hg, and bzr. Closes: #693021
   * Added lib/vis, an add-on to visualise repo history.
     Closes: #693022 Thanks, Paul Wise
+  * Drop an extra -m from various commit/record commands.
+    Closes: #695478 Thanks, Paul Wise
 
  -- Joey Hess <joeyh@debian.org>  Sun, 11 Nov 2012 11:33:05 -0400
 
