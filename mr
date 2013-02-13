@@ -1939,11 +1939,11 @@ bzr_commit =
 		bzr commit "$@" && bzr push
 	fi
 cvs_commit = cvs commit "$@"
-hg_commit  = hg commit -m "$@" && hg push
-darcs_commit = darcs record -a -m "$@" && darcs push -a
+hg_commit  = hg commit "$@" && hg push
+darcs_commit = darcs record -a "$@" && darcs push -a
 fossil_commit = fossil commit "$@"
 vcsh_commit = vcsh run "$MR_REPO" git commit -a "$@" && vcsh run "$MR_REPO" git push --all
-veracity_commit = vv commit -m "@" && vv push
+veracity_commit = vv commit "@" && vv push
 
 git_record = git commit -a "$@"
 bzr_record =
@@ -1952,11 +1952,11 @@ bzr_record =
 	else
 		bzr commit "$@"
 	fi
-hg_record  = hg commit -m "$@"
-darcs_record = darcs record -a -m "$@"
+hg_record  = hg commit "$@"
+darcs_record = darcs record -a "$@"
 fossil_record = fossil commit "$@"
 vcsh_record = vcsh run "$MR_REPO" git commit -a "$@"
-veracity_record = vv commit -m "@"
+veracity_record = vv commit "@"
 
 svn_push = :
 git_push = git push "$@"
