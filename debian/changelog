@@ -1,4 +1,4 @@
-mr (1.14) UNRELEASED; urgency=low
+mr (1.14) unstable; urgency=low
 
   * Added a fetch command. Closes: #480580
   * status: Now includes information about unpushed changes,
@@ -8,7 +8,7 @@ mr (1.14) UNRELEASED; urgency=low
   * Drop an extra -m from various commit/record commands.
     Closes: #695478 Thanks, Paul Wise
 
- -- Joey Hess <joeyh@debian.org>  Sun, 11 Nov 2012 11:33:05 -0400
+ -- Joey Hess <joeyh@debian.org>  Wed, 13 Feb 2013 14:48:34 -0400
 
 mr (1.13) unstable; urgency=low
 
