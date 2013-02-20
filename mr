@@ -1007,7 +1007,7 @@ sub record {
 			system((getpwuid($<))[8], "-i");
 		}
 		push @failed, $dir;
-		print "\n" unless $quiet;
+		print "\n";
 	}
 	elsif ($ret == SKIPPED) {
 		push @skipped, $dir;
