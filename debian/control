@@ -14,7 +14,7 @@ Depends: ${misc:Depends}
 Suggests: subversion, git-core | git (>= 1:1.7), cvs, bzr, mercurial, darcs, fossil, vcsh, liburi-perl, curl, ack-grep
 Provides: mr
 Replaces: mr
-Recommends: libwww-perl, libhtml-parser-perl, perl
+Recommends: libwww-perl, libhtml-parser-perl, libio-pty-easy-perl, perl
 Description: tool to manage all your version control repos
  The mr(1) command can checkout, update, or perform other actions on
  a set of repositories as if they were one combined respository. It

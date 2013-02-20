@@ -578,6 +578,7 @@ my $no_chdir=0;
 my $jobs=1;
 my $trust_all=0;
 my $directory=getcwd();
+my $terminal=-t STDOUT && eval{require IO::Pty::Easy;IO::Pty::Easy->import();1;} eq 1;
 
 my $HOME_MR_CONFIG = "$ENV{HOME}/.mrconfig";
 $ENV{MR_CONFIG}=find_mrconfig();
@@ -721,6 +722,33 @@ sub fulldir {
 	return $subdir =~ /^\// ? $subdir : $topdir.$subdir;
 }
 
+sub terminal_friendly_spawn {
+	my $actionmsg = shift;
+	my $sh = shift;
+	my $quiet = shift;
+	my $output = "";
+	if ($terminal) {
+		my $pty = IO::Pty::Easy->new;
+		$pty->spawn($sh);
+		while ($pty->is_active) {
+			my $data = $pty->read();
+			$output .= $data if defined $data;
+		}
+		$pty->close;
+	} else {
+		$output = qx/$sh 2>&1/;
+	}
+	my $ret = $?;
+	if ($quiet && $ret != 0) {
+		print "$actionmsg\n" if $actionmsg;
+		print STDERR $output;
+	} elsif (!$quiet) {
+		print "$actionmsg\n" if $actionmsg;
+		print $output;
+	}
+	return $ret;
+}
+
 sub action {
 	my ($action, $dir, $topdir, $subdir, $force_checkout) = @_;
 	my $fulldir=fulldir($topdir, $subdir);
@@ -822,14 +850,8 @@ sub action {
 		my $ret=runsh $action, $topdir, $subdir,
 			$command, \@ARGV, sub {
 				my $sh=shift;
-				if ($quiet) {
-					my $output = qx/$sh 2>&1/;
-					my $ret = $?;
-					if ($ret != 0) {
-						print "$actionmsg\n";
-						print STDERR $output;
-					}
-					return $ret;
+				if (!$jobs || $jobs > 1 || $quiet) {
+					return terminal_friendly_spawn($actionmsg, $sh, $quiet);
 				}
 				else {
 					system($sh);
@@ -893,13 +915,8 @@ sub hook {
 	return OK unless defined $command;
 	my $ret=runsh $hook, $topdir, $subdir, $command, [], sub {
 			my $sh=shift;
-			if ($quiet) {
-				my $output = qx/$sh 2>&1/;
-				my $ret = $?;
-				if ($ret != 0) {
-					print STDERR $output;
-				}
-				return $ret;
+			if (!$jobs || $jobs > 1 || $quiet) {
+				return terminal_friendly_spawn(undef, $sh, $quiet);
 			}
 			else {
 				system($sh);
