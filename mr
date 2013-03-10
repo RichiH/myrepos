@@ -12,6 +12,8 @@ B<mr> [options] update
 
 B<mr> [options] status
 
+B<mr> [options] clean [-f]
+
 B<mr> [options] commit [-m "message"]
 
 B<mr> [options] record [-m "message"]
@@ -79,6 +81,12 @@ If a repository isn't checked out yet, it will first check it out.
 Displays a status report for each repository, showing what
 uncommitted changes are present in the repository. For distributed version
 control systems, also shows unpushed local branches.
+
+=item clean
+
+Print ignored files, untracked files and other cruft in the working directory.
+
+The optional -f parameter allows removing the files as well as printing them.
 
 =item commit (or ci)
 
@@ -2011,6 +2019,64 @@ git_fetch = git fetch --all --prune --tags
 git_svn_fetch = git svn fetch
 darcs_fetch = darcs fetch
 hg_fetch = hg pull
+
+svn_clean = 
+	if [ "x$1" = x-f ] ; then
+		shift
+		svn-clean "$@"
+	else
+		svn-clean --print "$@"
+	fi
+git_clean = 
+	if [ "x$1" = x-f ] ; then
+		shift
+		git clean -dx --force "$@"
+	else
+		git clean -dx --dry-run "$@"
+	fi
+git_svn_clean = 
+	if [ "x$1" = x-f ] ; then
+		shift
+		git clean -dx --force "$@"
+	else
+		git clean -dx --dry-run "$@"
+	fi
+bzr_clean = 
+	if [ "x$1" = x-f ] ; then
+		shift
+		bzr clean-tree --verbose --force --ignored --unknown --detritus "$@"
+	else
+		bzr clean-tree --verbose --dry-run --ignored --unknown --detritus "$@"
+	fi
+cvs_clean = 
+        if [ "x$1" = x-f ] ; then
+		shift
+		cvs-clean "$@"
+	else
+		cvs-clean --dry-run "$@"
+	fi
+hg_clean = 
+	if [ "x$1" = x-f ] ; then
+		shift
+		hg purge --print --all "$@"
+		hg purge --all "$@"
+	else
+		hg purge --print --all "$@"
+	fi
+fossil_clean = 
+	if [ "x$1" = x-f ] ; then
+		shift
+		fossil clean --dry-run --dotfiles --emptydirs "$@"
+	else
+		fossil clean --force --dotfiles --emptydirs "$@"
+	fi
+vcsh_commit = 
+	if [ "x$1" = x-f ] ; then
+		shift
+		vcsh run "$MR_REPO" git clean -dx "$@"
+	else
+		vcsh run "$MR_REPO" git clean -dx --dry-run "$@"
+	fi
 
 svn_status = svn status "$@"
 git_status = git status -s "$@" || true; git --no-pager log --branches --not --remotes --simplify-by-decoration --decorate --oneline || true
