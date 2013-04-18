@@ -1,0 +1,12 @@
+# Adds support for repo repositories.
+# http://source.android.com/source/version-control.html
+
+# To make mr use this file, add a line like this inside the [DEFAULT]
+# section of your ~/.mrconfig
+#include = cat /usr/share/mr/repo
+
+repo_test = perl: -d "$ENV{MR_REPO}/.repo"
+repo_diff = repo diff "$@"
+repo_grep = repo grep "$@"
+repo_status = repo status "$@"
+repo_update = repo sync "$@"
