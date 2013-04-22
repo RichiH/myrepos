@@ -1,5 +1,9 @@
 # Add support for Avery Pennarun's git-subtree
 #
+# To make mr use this file, add a line like this inside the [DEFAULT]
+# section of your ~/.mrconfig
+#include = cat /usr/share/mr/git-subtree
+#
 # Example:
 #
 # [repo]
