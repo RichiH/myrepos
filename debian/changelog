@@ -1,11 +1,11 @@
-mr (1.15) UNRELEASED; urgency=low
+mr (1.15) unstable; urgency=low
 
   * Added lib/repo, for support for repo (as used in Android)
     Closes: #705652 Thanks, Peter Eisentraut
   * Better cvs status.
     Closes: #694037 Thanks, Paul Wise
 
- -- Joey Hess <joeyh@debian.org>  Wed, 17 Apr 2013 23:40:20 -0400
+ -- Joey Hess <joeyh@debian.org>  Sat, 04 May 2013 23:47:50 -0400
 
 mr (1.14) unstable; urgency=low
 
