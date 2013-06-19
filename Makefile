@@ -1,6 +1,8 @@
 PREFIX:=/usr
 
-build: mr.1 webcheckout.1
+mans=mr.1 webcheckout.1
+
+build: $(mans)
 
 mr.1: mr
 	pod2man -c mr mr > mr.1
@@ -25,3 +27,6 @@ install: build
 	install -m0644 webcheckout.1 ${DESTDIR}${PREFIX}/share/man/man1/
 
 	install -m0644 lib/* ${DESTDIR}${PREFIX}/share/mr/
+
+clean:
+	rm -f $(mans)
