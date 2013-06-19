@@ -1,7 +1,11 @@
-PREFIX:=/usr/local
+PREFIX:=/usr
 
-build:
+build: mr.1 webcheckout.1
+
+mr.1: mr
 	pod2man -c mr mr > mr.1
+
+webcheckout.1: webcheckout
 	pod2man -c webcheckout webcheckout > webcheckout.1
 
 test:
