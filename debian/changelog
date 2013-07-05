@@ -1,11 +1,11 @@
-myrepos (1.16) UNRELEASED; urgency=low
+myrepos (1.20130705) unstable; urgency=low
 
   * The package is renamed to myrepos. It Provides mr, so can still be
     installed by that name. The mr command is not renamed.
   * Add make install rule.
     Thanks, v4hn
 
- -- Joey Hess <joeyh@debian.org>  Tue, 18 Jun 2013 20:16:25 -0400
+ -- Joey Hess <joeyh@debian.org>  Fri, 05 Jul 2013 14:42:39 -0400
 
 mr (1.15) unstable; urgency=low
 
