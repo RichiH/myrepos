@@ -3,3 +3,5 @@ easier to search for.
 
 The `mr` command itself will not be renamed, this is only a renaming of the
 package.
+
+[[!meta author=Joey]]
