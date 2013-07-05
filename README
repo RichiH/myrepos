@@ -1,14 +1,19 @@
-mr is a Multiple Repository management tool for git, svn, mercurial, bzr,
-darcs, cvs, fossil and veracity.
+You have a lot of version control repositories. Sometimes you want to
+update them all at once. Or push out all your local changes. You use
+special command lines in some repositories to implement specific workflows.
+Myrepos provides a `mr` command, which is a tool to manage all your version
+control repositories.
+
+It supports git, svn, mercurial, bzr, darcs, cvs, fossil and veracity.
 
 Author: Joey Hess
-Homepage: http://joeyh.name/code/mr/
+Homepage: http://myrepos.branchable.com/
 
-mr is intended to be very self-contained, since it might be useful to check
-it into ~/bin when keeping your home in version control. It has no
-dependencies aside from basic perl. (The included webcheckout command has
-more dependencies, specifically the LWP::Simple and HTML::Parser CPAN
-modules, and optionally the URI module.)
+The mr command is intended to be very self-contained, since it might be
+useful to check it into ~/bin when keeping your home in version control. It
+has no dependencies aside from basic perl. (The included webcheckout
+command has more dependencies, specifically the LWP::Simple and
+HTML::Parser CPAN modules, and optionally the URI module.)
 
 To install mr, just copy mr into your PATH somewhere.
 
@@ -23,4 +28,4 @@ each, run "mr commit". To check the status of each, you could run
 "mr status".
 
 For further details, and lots of configuration options, see the mr(1) man
-page.
+page or the website, http://myrepos.branchable.com/

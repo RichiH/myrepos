@@ -78,7 +78,7 @@ Some more examples of things it can do include:
 ## install
 
 `git clone git://myrepos.branchable.com/ myrepos`  
-Or get it [from github]().
+Or get it [from github](https://github.com/joeyh/mr).
 
 It's a simple perl script, which can be copied anywhere to install.
 
