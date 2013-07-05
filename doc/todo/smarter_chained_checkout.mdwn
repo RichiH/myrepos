@@ -1,0 +1,7 @@
+When there are chained mrconfig files, mr could be smarter about
+checkouts and updates. Ie, when a new version of an mrconfig file is
+checked out or updated, throw all the info from the old one away, and
+process the new one.
+
+Until this is fixed, checkouts and updates need to be manually repeated
+after mrconfig files have changes. (See #447553)
