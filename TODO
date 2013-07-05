@@ -1,3 +1,0 @@
-* a way to detect repos in a tree that are not registered, and warn
-  about or even auto-register them. (svn externals make this quite
-  difficult!)
