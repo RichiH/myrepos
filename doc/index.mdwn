@@ -78,9 +78,3 @@ Some more examples of things it can do include:
 ## news
 
 [[!inline pages="news/* and !*/Discussion" show="4" archive=yes]]
-
-[[!sidebar content="""
-* [[install]]
-* [[todo]]
-* <a href="https://flattr.com/thing/39937/mr1" target="_blank"><img src="http://api.flattr.com/button/button-static-50x60.png" alt="Flattr this" title="Flattr this" border="0" /></a>
-"""]]
