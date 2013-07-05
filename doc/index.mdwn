@@ -57,8 +57,8 @@ or even globally so `mr` can use them in all repositories.
 		git push origin master
 
 	[DEFAULT]
-	# Teach mr how to `mr reup` to update with rebasing.
-	git_reup = git pull --rebase
+	# Teach mr how to `mr gc` in git repos.
+	git_gc = git gc "$@"
 
 This only scratches the surface of the ways you can use myrepos to automate
 and mange your repositories!
