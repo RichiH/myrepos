@@ -1,39 +1,95 @@
-The mr(1) command can checkout, update, or perform other actions on a set
-of repositories as if they were one combined respository. It supports any
-combination of subversion, git, cvs, mercurial, bzr, darcs, cvs, vcsh,
-fossil and veracity repositories, and support for other revision control
-systems can easily be added. (There are extensions adding support for
-unison and git-svn.)
+You have a lot of version control repositories. Sometimes you want to
+update them all at once. Or push out all your local changes. You use
+special command lines in some repositories to implement specific workflows.
+Myrepos provides a `mr` command, which is a tool to manage all your version
+control repositories.
 
-It is extremely configurable via simple shell scripting. Some examples
-of things it can do include:
+## getting started
+
+All you need to get started is some already checked out repos.
+These could be using git, or bzr, mercurial or darcs, or many other version
+control systems. Doesn't matter, they're all supported!
+
+Inside each of your repositories, run `mr register`.
+That sets up a `~/.mrconfig` file listing your repositories.
+
+Now you can run `mr update` in your home directory, and it'll update
+every one of your repositories that you've registered with myrepos.
+
+Want to update repositories in parallel? `mr update -j5` will run 5
+concurrent jobs!
+
+If you run `mr update` inside a repository, it'll only act on that
+repository. In general, any `mr` command runs recursively over any
+repository located somewhere in or under the current directory.
+
+You can also run `mr commit`, `mr push`, `mr status`, `mr diff`, and a lot
+of other commands. These work no matter which version control system is
+used for a repository. Of course, you can still use the native version
+control commands too.
+
+Oh, and you can abbreviate any command to any unambiguous abbreviation. 
+`mr up`, `mr pu`, etc.
+
+Now, maybe you find that you always want to update one repository using
+`git pull --rebase`, instead of the default `git pull` that `mr update` runs. 
+No problem: The `~/.mrconfig` file makes it easy to override the command
+run for any repository. It's like a `Makefile` for repositories.
+
+	[foo]
+	checkout = git@github.com:joeyh/foo.git
+	update = git pull --rebase
+
+You can make up your own commands too, and add them to a single repository,
+or even globally so `mr` can use them in all repositories.
+
+	[bar]
+	# This repository has an upstream, which I've forked; 
+	# set up a remote on checkout.
+	checkout = 
+		git clone git@github.com:joeyh/bar.git
+		cd bar
+		git remote add upstream git@github.com:barbar/bar.git
+	# make `mr zap` integrate from upstream
+	zap = 
+		git pull upstream
+		git merge upstream/master
+		git push origin master
+
+	[DEFAULT]
+	# Teach mr how to `mr reup` to update with rebasing.
+	git_reup = git pull --rebase
+
+This only scratches the surface of the ways you can use myrepos to automate
+and mange your repositories!
+
+Some more examples of things it can do include:
 
 * Update a repository no more frequently than once every twelve hours.
 * Run an arbitrary command before committing to a repository.
-* When updating a git repository, pull from two different upstreams
-  and merge the two together.
-* Run several repository updates in parallel, greatly speeding up
-  the update process.
 * Remember actions that failed due to a laptop being offline, so they
   can be retried when it comes back online.
+* Combine several related repositories into a single logical repository,
+  with its own top-level `.mrconfig` file that lists them and can be
+  chain loaded from `~/.mrconfig`.
+* Manage your whole home directory in version control.
+  (See [VCS-Home](http://vcs-home.branchable.com/))
 
-## Get mr
+## install
 
-mr is available in git at `git://git.kitenet.net/mr`, or
-[in gitweb](http://git.kitenet.net/?p=mr.git). It's in all recent versions
-of Debian. If you want a tarball, the best place to get one is from
-<http://packages.debian.org/unstable/source/mr>. Unofficial RPMs are
-provided by [Douglas E. Warner](http://www.silfreed.net/download/repo/packages/mr/).
-It's also in Mac Homebrew.
+`git clone git://myrepos.branchable.com/ myrepos`  
+Or get it [from github]().
 
-## Discuss mr
+It's a simple perl script, which can be copied anywhere to install.
 
-The [VCS-Home](http://vcs-home.madduck.net/) group has a mailing list that
-is probably the best place to discuss mr.
+Myrepos is included in all recent versions of Debian. `apt-get install mr`  
+It's also in Mac Homebrew as `mr`.
+
+## bugs
 
 Bugs should be filed to the [Debian BTS](http://bugs.debian.org/mr).
 
-## News
+## news
 
 [[!inline pages="news/* and !*/Discussion" show="4" archive=yes]]
 
