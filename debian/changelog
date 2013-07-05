@@ -1,3 +1,9 @@
+myrepos (1.20130705.1) unstable; urgency=low
+
+  * Conflict and Replaces mr.
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 05 Jul 2013 16:55:30 -0400
+
 myrepos (1.20130705) unstable; urgency=low
 
   * The package is renamed to myrepos. It Provides mr, so can still be
