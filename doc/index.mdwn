@@ -40,8 +40,7 @@ run for any repository. It's like a `Makefile` for repositories.
 	checkout = git@github.com:joeyh/foo.git
 	update = git pull --rebase
 
-You can make up your own commands too, and add them to a single repository,
-or even globally so `mr` can use them in all repositories.
+You can make up your own commands too:
 
 	[bar]
 	# This repository has an upstream, which I've forked; 
@@ -55,6 +54,8 @@ or even globally so `mr` can use them in all repositories.
 		git pull upstream
 		git merge upstream/master
 		git push origin master
+
+You can even define commands globally, so `mr` can use them in all repositories.
 
 	[DEFAULT]
 	# Teach mr how to `mr gc` in git repos.
