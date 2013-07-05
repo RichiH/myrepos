@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-mr - a Multiple Repository management tool
+mr - a tool to manage all your version control repos
 
 =head1 SYNOPSIS
 
@@ -40,11 +40,11 @@ B<mr> [options] remember action [params ...]
 
 =head1 DESCRIPTION
 
-B<mr> is a Multiple Repository management tool. It can checkout, update, or
-perform other actions on a set of repositories as if they were one combined
-repository. It supports any combination of subversion, git, cvs, mercurial,
-bzr, darcs, fossil and veracity repositories, and support for other version
-control systems can easily be added.
+B<mr> is a tool to manage all your version control repos. It can checkout,
+update, or perform other actions on a set of repositories as if they were
+one combined repository. It supports any combination of subversion, git,
+cvs, mercurial, bzr, darcs, fossil and veracity repositories, and support
+for other version control systems can easily be added.
 
 B<mr> cds into and operates on all registered repositories at or below your
 working directory. Or, if you are in a subdirectory of a repository that

@@ -1,5 +1,7 @@
-mr (1.16) UNRELEASED; urgency=low
+myrepos (1.16) UNRELEASED; urgency=low
 
+  * The package is renamed to myrepos. It Provides mr, so can still be
+    installed by that name. The mr command is not renamed.
   * Add make install rule.
     Thanks, v4hn
 
