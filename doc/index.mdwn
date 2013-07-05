@@ -35,7 +35,7 @@ Bugs should be filed to the [Debian BTS](http://bugs.debian.org/mr).
 
 ## News
 
-[[!inline pages="news/* and !*/Discussion" show="3"]]
+[[!inline pages="news/* and !*/Discussion" show="4" archive=yes]]
 
 [[!sidebar content="""
 <a href="https://flattr.com/thing/39937/mr1" target="_blank">
