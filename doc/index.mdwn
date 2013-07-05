@@ -1,0 +1,43 @@
+The mr(1) command can checkout, update, or perform other actions on a set
+of repositories as if they were one combined respository. It supports any
+combination of subversion, git, cvs, mercurial, bzr, darcs, cvs, vcsh,
+fossil and veracity repositories, and support for other revision control
+systems can easily be added. (There are extensions adding support for
+unison and git-svn.)
+
+It is extremely configurable via simple shell scripting. Some examples
+of things it can do include:
+
+* Update a repository no more frequently than once every twelve hours.
+* Run an arbitrary command before committing to a repository.
+* When updating a git repository, pull from two different upstreams
+  and merge the two together.
+* Run several repository updates in parallel, greatly speeding up
+  the update process.
+* Remember actions that failed due to a laptop being offline, so they
+  can be retried when it comes back online.
+
+## Get mr
+
+mr is available in git at `git://git.kitenet.net/mr`, or
+[in gitweb](http://git.kitenet.net/?p=mr.git). It's in all recent versions
+of Debian. If you want a tarball, the best place to get one is from
+<http://packages.debian.org/unstable/source/mr>. Unofficial RPMs are
+provided by [Douglas E. Warner](http://www.silfreed.net/download/repo/packages/mr/).
+It's also in Mac Homebrew.
+
+## Discuss mr
+
+The [VCS-Home](http://vcs-home.madduck.net/) group has a mailing list that
+is probably the best place to discuss mr.
+
+Bugs should be filed to the [Debian BTS](http://bugs.debian.org/mr).
+
+## News
+
+[[!inline pages="news/* and !*/Discussion" show="3"]]
+
+[[!sidebar content="""
+<a href="https://flattr.com/thing/39937/mr1" target="_blank">
+<img src="http://api.flattr.com/button/button-static-50x60.png" alt="Flattr this" title="Flattr this" border="0" /></a>
+"""]]
