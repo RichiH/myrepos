@@ -1,0 +1,276 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+webcheckout - check out repositories referenced on a web page
+
+=head1 SYNOPSIS
+
+B<webcheckout> [options] url [destdir]
+
+=head1 DESCRIPTION
+
+B<webcheckout> downloads an url and parses it, looking for version control 
+repositories referenced by the page. It checks out each repository into
+a subdirectory of the current directory, using whatever VCS program is
+appropriate for that repository (git, svn, etc).
+
+The information about the repositories is embedded in the web page using
+the rel=vcs-* microformat, which is documented at
+<http://kitenet.net/~joey/rfc/rel-vcs/>.
+
+If the optional destdir parameter is specified, VCS programs will be asked
+to check out repositories into that directory. If there are multiple
+repositories to check out, each will be checked out into a separate
+subdirectory of the destdir.
+
+=head1 OPTIONS
+
+=over 4
+
+=item -a, --auth
+
+Prefer authenticated repositories. By default, webcheckout will use
+anonymous repositories when possible. If you have an account that
+allows you to use authenticated repositories, you might want to use this
+option.
+
+=item --no-act, -n
+
+Do not actually check anything out, just print out the commands that would
+be run to check out the repositories.
+
+=item --quiet, -q
+
+Quiet mode. Do not print out the commands being run. (The VCS commands
+may still be noisy however.)
+
+=back
+
+=head1 PREREQUISITES
+
+To use this program you will need lots of VCS programs installed,
+obviously. It also depends on the perl LWP and HTML::Parser modules.
+
+If the perl URI module is installed, webcheckout can heuristically guess
+what you mean by partial URLs, such as "kitenet.net/~joey"'
+
+=head1 AUTHOR
+
+Copyright 2009 Joey Hess <joey@kitenet.net>
+
+Licensed under the GNU GPL version 2 or higher.
+
+This program is included in mr <http://kitenet.net/~joey/code/mr/>
+
+=cut
+
+use LWP::Simple;
+use HTML::Parser;
+use Getopt::Long;
+use warnings;
+use strict;
+
+# What to download.
+my $url;
+
+# Controls whether to print what is being done.
+my $quiet=0;
+
+# Controls whether to actually check anything out.
+my $noact=0;
+
+# Controls whether to perfer repos that use authentication.
+my $want_auth=0;
+
+# Controls where to check out to. If not set, the VCS is allowed to
+# decide.
+my $destdir;
+
+# how to perform checkouts
+my %handlers=(
+	git => sub { doit("git", "clone", shift, $destdir) },
+	svn => sub { doit("svn", "checkout", shift, $destdir) },
+	bzr => sub { doit("bzr", "branch", shift, $destdir) },
+);
+
+# Regexps matching urls that are used for anonymous
+# repository checkouts. The order is significant:
+# urls matching earlier in the list are preferred over
+# those matching later.
+my @anon_urls=(
+	qr/^git:\/\//i,
+	qr/^bzr:\/\//i,
+	qr/^svn:\/\//i,
+	qr/^http:\/\//i, # generally the worst transport
+);
+
+sub getopts {
+	Getopt::Long::Configure("bundling", "no_permute");
+	my $result=GetOptions(
+		"q|quiet" => \$quiet,
+		"n|noact" => \$noact,
+		"a|auth", => \$want_auth,
+	);
+	if (! $result || @ARGV < 1) {
+		die "usage: webcheckout [options] url [destdir]\n";
+	}
+
+	$url=shift @ARGV;
+	$destdir=shift @ARGV;
+
+	eval q{use URI::Heuristic};
+	if (! $@) {
+		$url=URI::Heuristic::uf_uristr($url);
+	}
+
+	if ($noact) {
+		$quiet=0;
+	}
+}
+
+sub doit {
+	my @args=grep { defined } @_;
+	print join(" ", @args)."\n" unless $quiet;
+	return 0 if $noact;
+	return system(@args);
+}
+
+# Is repo a better than repo b?
+sub better {
+	my ($a, $b)=@_;
+
+	my @anon;
+	foreach my $r (@anon_urls) {
+		if ($a->{href} =~ /$r/) {
+			push @anon, $a;
+		}
+		elsif ($b->{href} =~ /$r/) {
+			push @anon, $b;
+		}
+	}
+
+	if ($want_auth) {
+		# Whichever is authed is better.
+		return 1 if ! @anon || ! grep { $_ eq $a } @anon;
+		return 0 if ! grep { $_ eq $b } @anon;
+		# Neither is authed, so the better anon method wins.
+		return $anon[0] == $a;
+	}
+	else {
+		# Better anon method wins.
+		return @anon && $anon[0] == $a;
+	}
+}
+
+# Eliminate duplicate repositories from list.
+# Duplicate repositories have the same title, or the same href.
+sub dedup {
+	my %seenhref;
+	my %bytitle;
+	my @others;
+	foreach my $repo (@_) {
+		if (exists $repo->{title} &&
+		    length $repo->{title}) {
+		 	if (exists $bytitle{$repo->{title}}) {
+				my $other=$bytitle{$repo->{title}};
+				next unless better($repo, $other);
+				delete $bytitle{$other->{title}}
+			}
+
+			if (! $seenhref{$repo->{href}}++) {
+				$bytitle{$repo->{title}}=$repo;
+			}
+		}
+		else {
+			push @others, $repo;
+		}
+	}
+
+	return values %bytitle, @others;
+}
+
+sub parse {
+	my $page=shift;
+
+	my @ret;
+	my $parser=HTML::Parser->new(api_version => 3);
+	my $abody=undef;
+	my $aref=undef;
+	$parser->handler(start => sub {
+		my $tagname=shift;
+		my $attr=shift;
+
+		return if ! exists $attr->{href} || ! length $attr->{href};
+		return if ! exists $attr->{rel} || $attr->{rel} !~ /^vcs-(.+)/i;
+		$attr->{type}=lc($1);
+
+		# need to collect the body of the <a> tag if there is no title
+		if ($tagname eq "a" && ! exists $attr->{title}) {
+			$abody="";
+			$aref=$attr;
+		}
+
+		push @ret, $attr;
+	}, "tagname, attr");
+	$parser->handler(text => sub {
+		if (defined $aref) {
+			$abody.=join(" ", @_);
+		}
+	}, "text");
+	$parser->handler(end => sub {
+		my $tagname=shift;
+		if ($tagname eq "a" && defined $aref) {
+			$aref->{title}=$abody;
+			$aref=undef;
+			$abody=undef;
+		}
+	}, "tagname");
+	$parser->report_tags(qw{link a});
+	$parser->parse($page);
+	$parser->eof;
+
+	return @ret;
+}
+
+getopts();
+
+my $page=get($url);
+if (! defined $page) {
+	die "failed to download $url\n";
+}
+
+my @repos=dedup(parse($page));
+if (! @repos) {
+	die "no repositories found on $url\n";
+}
+
+#use Data::Dumper;
+#print Dumper(\@repos);
+#exit;
+
+if (defined $destdir && @repos > 1) {
+	# create subdirs of $destdir for the multiple repos
+	if (! $noact) {
+		mkdir($destdir);
+		chdir($destdir) || die "failed to chdir to $destdir: $!";
+	}
+	$destdir=undef;
+}
+
+my $errors=0;
+foreach my $repo (@repos) {
+	my $handler=$handlers{$repo->{type}};
+	if ($handler) {
+		if ($handler->($repo->{href}) != 0) {
+			print STDERR "failed to checkout ".$repo->{href}."\n";
+			$errors++;
+		}
+	}
+	else {
+		print STDERR "unknown repository type ".$repo->{type}.
+			" for ".$repo->{href}."\n";
+		$errors++;
+	}
+}
+exit($errors > 0);
