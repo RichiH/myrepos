@@ -1,0 +1,10 @@
+# To make mr use this file, add a line like this inside the [DEFAULT]
+# section of your ~/.mrconfig
+#include = cat /usr/share/mr/vcsh
+
+# But, that's pointless to do, since the vcsh support has been moved from
+# this plugin into mr.
+
+# And an example repo using it would look something like:
+#[$HOME/.config/vcsh/repo.d/zsh.git]
+#checkout = vcsh clone git://github.com/RichiH/zshrc.git zsh

@@ -1,0 +1,137 @@
+# An example config file for the mr(1) command.
+#
+# This is fairly close to the config file used by the author
+# although slightly cut down.
+
+[DEFAULT]
+# Include all available libs.
+include = cat /usr/share/mr/* 2>/dev/null || true
+# Teach mr to run a few git and svn specific commands.
+svn_cleanup = svn cleanup "$@"
+git_gc = git gc "$@"
+git_tags = git tag -l
+svn_tags = svn ls "$(LC_ALL=C svn info . | grep -i ^URL: | cut -d ' ' -f 2 | sed -e 's/trunk/tags/')"
+# I prefer to git-svn rebase to fetch
+git_svn_update = git svn rebase
+# Tests used below.
+# - anon checks whether this is an anonymous checkout, by testing what url
+#   $HOME uses
+# - full checks whether I probably want a full checkout (quite large),
+#   if not, the checkout is minimal
+# - on checks whether the given host basename is one of the listed
+#   values. A value can also have a username in it, ie "joey@dodo".
+# - mylaptop only succeeds if it's on my main development laptop, which 
+#   gets lots of extra cruft
+lib = 
+	hostname="$(hostname)"
+	whoami="$(whoami)"
+	anon() {
+		( GIT_CONFIG=$HOME/.git/config git config remote.origin.url || cat .git/remotes/origin ) | grep -q 'git://'
+	}
+	full() {
+		test "$whoami" = joey && ! anon
+	}
+	on() {
+		for host in $@; do
+			if [ "${host%@*}" != "${host#*@}" ]; then
+				if [ "$whoami" != "${host%@*}" ]; then
+					continue
+				fi
+				host="${host#*@}"
+			fi
+			if [ "$hostname" = "$host" ]; then
+				return 0
+			fi
+		done
+		return 1
+	}
+	mylaptop() {
+		on joey@gnu
+	}
+
+# The root of my home directory.
+[.]
+order = 1
+checkout =
+	if anon; then
+		git clone git://git.kitenet.net/joey/home joey
+	else
+		git clone ssh://git.kitenet.net/srv/git/kitenet.net/joey/home joey
+	fi
+
+[Maildir]
+# Dummy target to create Maildir. Doesn't run offlineimap since I have that
+# cronned on machines where I want it.
+update = :
+skip = ! full
+checkout = mkdir Maildir Maildir/cur Maildir/new Maildir/tmp; chmod 700 Maildir
+status = :
+
+[mail]
+checkout = git clone ssh://joey@git.kitenet.net/srv/git/joey/private/mail
+# I use mairix to index my mail archive; keep its index up-to-date.
+fixups = if [ "$(which mairix)" ]; then ionice -c 3 mairix -Q; fi
+skip = ! mylaptop
+
+[tmp]
+# This is a dummy target, all it does is run fixups at the end of
+# an update.
+fixups = $HOME/bin/fixups
+checkout = mkdir -p $HOME/tmp
+status = :
+order = 25
+
+[.etc]
+order = 2
+checkout = 
+	if anon; then
+		git clone git://git.kitenet.net/joey/home-etc .etc
+	else
+		git clone ssh://git.kitenet.net/srv/git/kitenet.net/joey/home-etc .etc
+	fi
+
+[.cron]
+checkout =
+	if anon; then
+		git clone git://git.kitenet.net/joey/cron .cron
+	else
+		git clone ssh://git.kitenet.net/srv/git/kitenet.net/joey/cron .cron
+	fi
+
+[packages/perl]
+order = 30
+checkout = svn co svn+ssh://joeyh@svn.debian.org/svn/pkg-perl/trunk perl
+skip = ! mylaptop || ([ "$1" = update ] && ! hours_since "$1" 12)
+
+[linux-2.6]
+order = 20
+checkout = git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+skip = ! mylaptop || ([ "$1" = update ] && ! hours_since "$1" 12)
+push = error "as if!"
+
+[/etc]
+# I use etckeeper to keep /etc in git. But it only works if I'm root, 
+# and if it's not already in etc, skip it.
+skip = ! test -d /etc/.git || ! test "$(whoami)" = root
+
+[dpkg]
+# A merge of the upstream dpkg git repo and my own personal branch.
+checkout = 
+	git clone git://git.debian.org/git/dpkg/dpkg.git &&
+	cd dpkg &&
+	git remote add kite ssh://git.kitenet.net/srv/git/kitenet.net/dpkg &&
+	git fetch kite &&
+	git checkout -b sourcev3 kite/sourcev3
+update = git pull origin master && git pull kite sourcev3
+commit = git commit -a && git push kite
+push = git push kite
+skip = ! mylaptop
+
+[html/www.debian.org]
+# Still in CVS..urk!
+checkout = cvs -d ':ext:joeyh@cvs.debian.org:/cvs/webwml' co -d www.debian.org webwml
+# cvs sucks sufficiently that I prefer to run these commands by hand,
+# and only rarely
+update = echo "skipping cvs update (too slow)"
+status = echo "skipping cvs status (too ugly)"
+skip = ! mylaptop || ! full

@@ -1,0 +1,648 @@
+myrepos (1.20130710) unstable; urgency=low
+
+  * Avoid conflicting with mr so the dummy package can be installed and pull
+    in this one.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 10 Jul 2013 13:50:48 -0400
+
+myrepos (1.20130705.1) unstable; urgency=low
+
+  * Conflict and Replaces mr.
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 05 Jul 2013 16:55:30 -0400
+
+myrepos (1.20130705) unstable; urgency=low
+
+  * The package is renamed to myrepos. It Provides mr, so can still be
+    installed by that name. The mr command is not renamed.
+  * Add make install rule.
+    Thanks, v4hn
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 05 Jul 2013 14:42:39 -0400
+
+mr (1.15) unstable; urgency=low
+
+  * Added lib/repo, for support for repo (as used in Android)
+    Closes: #705652 Thanks, Peter Eisentraut
+  * Better cvs status.
+    Closes: #694037 Thanks, Paul Wise
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 04 May 2013 23:47:50 -0400
+
+mr (1.14) unstable; urgency=low
+
+  * Added a fetch command. Closes: #480580
+  * status: Now includes information about unpushed changes,
+    for git, git-svn, hg, and bzr. Closes: #693021
+  * Added lib/vis, an add-on to visualise repo history.
+    Closes: #693022 Thanks, Paul Wise
+  * Drop an extra -m from various commit/record commands.
+    Closes: #695478 Thanks, Paul Wise
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 13 Feb 2013 14:48:34 -0400
+
+mr (1.13) unstable; urgency=low
+
+  * Pass -q to cvs diff and update. Closes: #673367
+  * mr bootstrap: Now supports ssh:// urls.
+  * Simpler vcsh status command line. Closes: #685089
+  * Add grep subcommand. Uses ack-grep on VCS that do not have their own.
+    Closes: #685122
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 25 Aug 2012 11:14:41 -0400
+
+mr (1.12) unstable; urgency=low
+
+  * Ignore nonzero exit status of hg pull, which can happen
+    when there were no changes to pull. Closes: #661870 
+  * Add vcsh to Suggests.
+  * Recognize a repo with a .git file as a git repo.
+  * Improve bzr register's heuristics to determine upstream repo.
+    Closes: #672843
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 14 May 2012 10:42:52 -0400
+
+mr (1.11) unstable; urgency=low
+
+  * Now supports the veracity vcs. Thanks, Jimmy Tang.
+  * vcsh is now supported without including a plugin.
+  * After checkout, run fixups chdired to the just checked out directory.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 14 Feb 2012 18:13:29 -0400
+
+mr (1.10) unstable; urgency=low
+
+  * Fix display of trust errors.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 27 Dec 2011 12:13:15 -0400
+
+mr (1.09) unstable; urgency=low
+
+  * Remove dir_test hack and add a way for vcs tests to run perl code,
+    using this for the same optimisation. Fixes support for git-svn
+    etc. Closes: #652317
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 16 Dec 2011 13:29:40 -0400
+
+mr (1.08) unstable; urgency=low
+
+  * Fix vcs test code. Closes: #651976
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 13 Dec 2011 16:21:19 -0400
+
+mr (1.07) unstable; urgency=low
+
+  * Added support for vcsh, enable with: include = cat /usr/share/mr/vcsh
+    Thanks, Richard Hartmann 
+  * Block tty control codes in untrusted mr config files.
+  * Correct printing of line numbers when includes are used. Closes: #650952
+  * The previous fix for chaining to absolute paths broke chaining to relative
+    paths with more than one path segment. Thanks, Adam Spiers
+  * Support _append to add on to the existing value of a parameter.
+    Thanks, Adam Spiers
+  * Optimizations. Commands like "mr list" run up to 5 times faster.
+  * Fix shell escaping of parameters passed to mr commands. Closes: #644672
+  * Added --force option that disables repository skipping.
+  * Repositories using skip = lazy will not be checked out by "mr update"
+    or "mr checkout" unless --force is used.
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 12 Dec 2011 15:52:16 -0400
+
+mr (1.06) unstable; urgency=low
+
+  * Fix propigation of failure from pre and post hooks and from fixups.
+  * Support chaining to absolute paths.
+  * Add support for skip = lazy, a mode where mr only operates on repositories
+    that are checked out.
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 04 Nov 2011 17:03:17 -0400
+
+mr (1.05) unstable; urgency=low
+
+  * README now gives a quick into to using mr.
+  * Brought back the "deleted" parameter, which provides an easy way to
+    mark repositories that should be removed.
+  * Allow untrusted mrconfig files to set parameters to true/false.
+    So skip=true or deleted=true can be used in an untrusted mrconfig file.
+  * Also allow order=N in an untrusted mrconfig file.
+  * Support bzr checkouts, which are updated with "bzr update",
+    and to which bzr automatically pushes commits. Closes: #643589
+  * Use bzr branch, not deprecated bzr clone when registering bzr
+    repositories. Closes: #643591
+  * Allow bzr branch|clone|get|checkout in untrusted mrconfig files.
+  * Avoid using sed -r in git-fake-bare, for OSX portability.
+  * git-fake-bare: handle fake bare repositories with core.bare not set
+    (Thanks, Julien Rebetez)
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 27 Sep 2011 17:28:35 -0400
+
+mr (1.04) unstable; urgency=low
+
+  * Improve trust errors displayed while bootstrapping. Closes: #628234
+  * Allow mr register to be used with mrconfig file that does not yet
+    exist. Closes: #629217
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 19 Jun 2011 15:52:42 -0400
+
+mr (1.03) unstable; urgency=low
+
+  * Added git-subtree library. Thanks, Svend Sorensen
+  * Now --quiet supresses all output from commands run, as well
+    as from mr, unless a command fails. Closes: #529296
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 01 May 2011 19:09:35 -0400
+
+mr (1.02) unstable; urgency=low
+
+  * Fix bug in escaping.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 22 Jan 2011 01:18:23 -0400
+
+mr (1.01) unstable; urgency=low
+
+  * Add "mr run", which can run an arbitrary command in each repository.
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 20 Jan 2011 16:50:49 -0400
+
+mr (1.00) unstable; urgency=low
+
+  * Trust flag day. All mrconfig files except the main ~/.mrconfig are
+    now untrusted by default, until listed in ~/.mrtrust.
+  * The -p flag is now enabled by default. mr first reads ~/.mrconfig,
+    and then looks for an additional .mrconfig file in the current
+    directory or one of its parent directories. Closes: #557963
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 19 Jan 2011 14:28:38 -0400
+
+mr (0.51) unstable; urgency=low
+
+  * Fix display when absolute directories are configured in mrconfig.
+  * Add push to manpage synopsis. Closes: #603029
+  * Do not return a nonzero exit status when all repositories were skipped.
+    Closes: #607287
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 16 Dec 2010 12:53:32 -0400
+
+mr (0.50) unstable; urgency=low
+
+  * Now supports the Fossil VCS. (Thanks, Jimmy Tang)
+  * Added fixups hook, which can be used to run a command after
+    a repository is checked out or updated. Closes: #590868
+  * Added support for arbitrary pre and post hooks for all defined mr
+    commands. For example, pre_commit is run before all commits; post_update
+    is run after all updates. Closes: #481341
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 29 Aug 2010 15:00:01 -0400
+
+mr (0.49) unstable; urgency=low
+
+  * Update suggests for git-core to git transition.
+  * Use short mode status output for git and bzr.
+  * Typo. Closes: #586233, #588913
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 18 Jul 2010 23:08:06 -0400
+
+mr (0.48) unstable; urgency=low
+
+  * Fix the hours_since function built into mr's shell library to
+    not exit, but return a true/false exit status. This allows it to be
+    used outside of skip tests.
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 05 Feb 2010 17:12:01 -0500
+
+mr (0.47) unstable; urgency=low
+
+  * Pass -L to curl to allow it to follow redirects when bootstrapping.
+    (Pavel Avgustinov)
+  * Allow empty sections to be used in mrconfig files.
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 05 Feb 2010 16:40:29 -0500
+
+mr (0.46) unstable; urgency=low
+
+  * Avoid using abs_path to determine canonical repo path, as that fails
+    when the repo has not yet been checked out.
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 10 Dec 2009 17:28:26 -0500
+
+mr (0.45) unstable; urgency=low
+
+  * Fix pod error. Closes: #558012
+  * bootstrap: Improve stats display.
+  * Add --insecure option that can be used to ignore SSL cert errors
+    when bootstrapping. (Pavel Avgustinov)
+  * Fix handling of a repository in "."
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 08 Dec 2009 14:58:21 -0500
+
+mr (0.44) unstable; urgency=low
+
+  * Make mr -i pass -i to the shell, to ensure it knows it should be an
+    interactive shell.
+  * mr help: Support man on SunOS and OS X. (Geoff Davis)
+  * mr bootstrap: Fix cross-device rename failure. Closes: #557962
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 25 Nov 2009 12:39:08 -0500
+
+mr (0.43) unstable; urgency=low
+
+  * Set User-Agent to "mr" when downloading the mrconfig file
+    with mr bootstrap. Closes: #541778
+  * Man page typo. Closes: #545412
+  * mr bootstrap: Allow a directory to checkout into to be specified,
+    and create it if necessary.
+  * mr bootstrap: If the mrconfig file contains a repository named ".",
+    check it out into the top level of the directory bootstrapped.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 08 Sep 2009 20:22:32 -0400
+
+mr (0.42) unstable; urgency=low
+
+  * Add support for ~/.mrtrust, which can be used to list trusted mrconfig
+    files. If you create this file, all files not listed in it will be treated
+    as untrusted, and carefully limited in what they can do. This improves
+    security when using mrconfig files provided by others.
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 07 Aug 2009 16:38:31 -0400
+
+mr (0.41) unstable; urgency=low
+
+  * Add -p switch, that makes mr search the current directory and its
+    parents for a .mrconfig file to use.
+  * Add `mr bootstrap`, which downloads an url to a .mrconfig file
+    in the current directory and then checks out all repositories configured
+    in it. This is intended for projects that want to publish a mrconfig file
+    to automate use of their several repositories.
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 06 Aug 2009 22:38:58 -0400
+
+mr (0.40) unstable; urgency=low
+
+  * Pass --pull to bzr merge to avoid needing to commit
+    merged changes. Closes: #524352
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 31 Jul 2009 13:47:22 -0400
+
+mr (0.39) unstable; urgency=low
+
+  * Determine current branch for fake-bare update (martin f. krafft)
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 09 Mar 2009 22:50:54 -0400
+
+mr (0.38) unstable; urgency=low
+
+  * Remove gitless lib. It turned out to be better to simply
+    use git clone --shared when checking out. Sorry for the churn..
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 22 Jan 2009 15:39:33 -0500
+
+mr (0.37) unstable; urgency=low
+
+  * Add "gitless" file to lib. 
+    This adds a special type of git repository, where the .git directory
+    is stored on a file server, to avoid wasting space with it on the client.
+  * Revert buggy change to directory printing code.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 21 Jan 2009 01:40:59 -0500
+
+mr (0.36) unstable; urgency=low
+
+  * Add webcheckout command. See <http://kitenet.net/~joey/rfc/rel-vcs/>
+  * Fix display of repos configured at absolute path locations.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 10 Jan 2009 16:42:07 -0500
+
+mr (0.35) unstable; urgency=low
+
+  * Warn if an include command fails nonzero. Closes: #495306
+  * Remove stray character in pod that uglified man page. Closes: #495731
+  * Create ~/.mrlog not world readable.
+  * Pass additional options to darcs push when pushing. Closes: #495734
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 16 Oct 2008 14:51:00 -0400
+
+mr (0.34) unstable; urgency=low
+
+  * Fix bug when remembering failed commands in offline mode.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 02 Aug 2008 12:27:21 -0400
+
+mr (0.33) unstable; urgency=low
+
+  * Add a push subcommand, which pushes committed changes for DCVS, and 
+    does nothing for svn/cvs. Closes: #491865
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 22 Jul 2008 15:22:01 -0400
+
+mr (0.32) unstable; urgency=low
+
+  * Include the right (v2) version of GPL in the source.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 22 Jul 2008 00:28:55 -0400
+
+mr (0.31) unstable; urgency=low
+
+  * Add an offline mode. When in offline mode, mr will remember commands
+    that failed (presumably due to lack of network access), and will run
+    them again once back online. (This is for all the laptop users
+    like me who don't want to have to remember which git repos to mr push
+    when they come back from a nice long hack in the woods. :-)
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 27 Jun 2008 23:19:23 -0400
+
+mr (0.30) unstable; urgency=low
+
+  [ martin f. krafft ]
+  * Several git-fake-bare improvements.
+
+  [ Joey Hess ]
+  * Fix mr -c <config> register. (Thanks, Daniel Bungert)
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 25 Jun 2008 13:38:31 -0400
+
+mr (0.29) unstable; urgency=low
+
+  * Allow environment variables in section headers. Pass such headers
+    through the shell to expand them. Closes: #480421
+  * For the checkout command, MR_REPO was set to the name of the parent
+    directory of the directory to checkout. It is supposed to be the
+    path to the directory itself though; fixed this. Closes: #480424
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 14 May 2008 19:38:18 -0400
+
+mr (0.28) unstable; urgency=low
+
+  * Use debhelper v7, rules file minimisation.
+  * Add a Makefile.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 23 Apr 2008 21:56:06 -0400
+
+mr (0.27) unstable; urgency=low
+
+  * Ignore exit code from darcs whatsnew, which can be nonzero if there
+    are no changes. Closes: #476650
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 19 Apr 2008 16:47:04 -0400
+
+mr (0.26) unstable; urgency=low
+
+  * Add -i option to start a shell if an operation fails. Closes: #474962
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 08 Apr 2008 20:58:44 -0400
+
+mr (0.25) unstable; urgency=low
+
+  * git-fake-bare: Add support for diff, commit, and record. (madduck)
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 10 Mar 2008 15:56:17 -0400
+
+mr (0.24) unstable; urgency=low
+
+  * Correct GIT_CONFIG settings in git-svn. Closes: #463941
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 06 Feb 2008 13:04:30 -0500
+
+mr (0.23) unstable; urgency=low
+
+  * Fix tests in git-svn include file to use MR_REPO. Closes: #463941
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 05 Feb 2008 13:26:05 -0500
+
+mr (0.22) unstable; urgency=low
+
+  * Update bzr registration code to work with current version of bzr,
+    using bzr info to get the url. Closes: #463867
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 03 Feb 2008 17:04:59 -0500
+
+mr (0.21) unstable; urgency=low
+
+  * Add a git-svn file, which can be included to add support for git-svn
+    repositories. Thanks to Clifford W. Hansen and Bastian Kleineidam
+    for implementations. Closes: #462408
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 24 Jan 2008 13:45:05 -0500
+
+mr (0.20) unstable; urgency=low
+
+  * Add -q flag.
+  * darcs: Add -u to diff to get a more usual unified diff.
+  * Add a "record" subcommand, borrowing termonology from darcs. This does a
+    local commit, but does not push changes to remote repos.
+  * Improve unison support.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 02 Jan 2008 22:49:53 -0500
+
+mr (0.19) unstable; urgency=low
+
+  * Support versions of man that don't use -l.
+  * Updating git repos no longer uses git-pull -t by default. Git makes it
+    to much of a PITA to do this, since -t makes git-pull require the
+    repository and refspec be specified at the command line (which is a bug in
+    git (#456035). mr used to hardcode those to "origin" and "master", but
+    that's not always the right choice. So give up on forcing git to be sane
+    about pulling down all tags. It's insane. Live with it, or configure your
+    own update command.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 12 Dec 2007 21:30:45 -0500
+
+mr (0.18) unstable; urgency=low
+
+  * darcs: Use record subcommand, there is no commit subcommand. Closes: #453501
+  * darcs: De-p register code. Closes: #453502
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 29 Nov 2007 17:48:09 -0500
+
+mr (0.17) unstable; urgency=low
+
+  * Even bigger hammer: Set LC_ALL. Closes: #453305
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 29 Nov 2007 11:18:40 -0500
+
+mr (0.16) unstable; urgency=low
+
+  * Use LC_MESSAGES=C not LANG=C, as if the user has LC_MESSAGES set, LANG
+    won't override it. Closes: #453305
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 28 Nov 2007 15:46:38 -0500
+
+mr (0.15) unstable; urgency=low
+
+  [ Joey Hess ]
+  * Allow -n to be passed a number to specify how deep to go into
+    subdirectories to find repositories to act on. Closes: #450621
+
+  [ Josh Triplett ]
+  * Make -j with no argument run unlimited jobs in parallel, like make -j
+    Closes: #452467
+
+  [ Joey Hess ]
+  * Add a warning about runing too many jobs at a time.
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 25 Nov 2007 13:13:47 -0500
+
+mr (0.14) unstable; urgency=low
+
+  * Portability fixes for the non-POSIX shell of SunOS 5. Patch from Ken
+    Bloom. Closes: #449592
+  * Cut number of rcs tests run in half.
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 11 Nov 2007 01:10:18 -0500
+
+mr (0.13) unstable; urgency=low
+
+  * -c was broken, fix. Closes: #449539
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 06 Nov 2007 11:39:04 -0500
+
+mr (0.12) unstable; urgency=low
+
+  * Avoid creating parent directory for a checkout that will ultimately be
+    skipped.
+  * Don't try to test the repo type when doing a checkout, that can't work
+    since the repo isn't there yet. It was actually checking the repo type
+    of the parent directory, which caused several unexpected behaviors.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 03 Nov 2007 14:22:00 -0400
+
+mr (0.11) unstable; urgency=low
+
+  * Avoid using commands like git-config and instead use "git config".
+    In some configurations, only the main git command is in the path.
+  * Allow option bundling, mostly so "-j2" will work.
+  * Better error message if more than one repo type test matches a single
+    directory.
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 02 Nov 2007 23:28:52 -0400
+
+mr (0.10) unstable; urgency=low
+
+  * Add a lib file for using unison with mr.
+  * Make registration work when no config file yet exists. Closes: #448422
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 28 Oct 2007 19:55:03 -0400
+
+mr (0.9) unstable; urgency=low
+
+  * Split up actions, so each rcs has its own set of action commands,
+    and mr tests to see what rcs is used by a repository, and dispatches
+    the command.
+
+    This will make it much easier to add new rcses, or modify just the
+    command that mr uses for one command for one rcs, without duplicating a
+    lot of code, and without needing to modify mr at all.
+
+    The old style unsplit actions are still supported, and are what most
+    mrconfig files will still use; this change is fully backwards compatible.
+  * Changed some things in the enviroment for the register action.
+    It's now run in the directory that the user specifies, and MR_REPO
+    is set to contain the basename of the directory that the checkout
+    command should check out. These changes should be backware compatible
+    to existing register actions.
+  * Add info and warning functions to the shell library. (madduck)
+  * Add git_bare and git_fake_bare rcs types to handle
+    bare and fake bare (non-bare with a detached worktree) git repositories.
+    (Diff and commit do not work yet to fake bare repos). (madduck)
+  * Add a vim modeline to preserve joey's tabbing prefs. (madduck)
+  * Add support for including one mrconfig file from another. Unlike chaining,
+    this doesn't change the paths, and is not tied to a particular
+    subdirectory. It's useful for loading up library mrconfig files.
+  * Split git fake-bare support out into a lib/git-fake-bare.
+    Partly because it's a good example of how to add a new revision control
+    type and use includes, and partly because it's currently too ugly to be
+    in mr itself due to bugs and limitations in git.
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 26 Oct 2007 03:00:40 -0400
+
+mr (0.8) unstable; urgency=low
+
+  * Improve "in subdir" message.
+  * Patch from Simon McVittie, to pass -a to darcs commands to avoid
+    interactive updates. Closes: #447999
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 25 Oct 2007 06:22:45 -0400
+
+mr (0.7) unstable; urgency=low
+
+  * Fix inverted tests in tags command. (madduck)
+  * Patch from Simon McVittie, adding support for darcs repositories.
+    Closes: #447729
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 24 Oct 2007 01:18:27 -0400
+
+mr (0.6) unstable; urgency=low
+
+  * Add to the example mrconfig a "tags" command that lists tags.
+    (Currently only for svn and git.)
+  * hours_since was broken by design, and fixing it involved changing
+    its calling convention. If you used the old version, the new version
+    will error out.
+  * Add ability to reorder repos, if you want mr to act on a given repo first
+    or last.
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 21 Oct 2007 21:53:28 -0400
+
+mr (0.5) unstable; urgency=low
+
+  [ Joey Hess ]
+  * Removed special case repository deletion handling code. The same
+    thing can be accomplished in a mrconfig by skipping a repo unless
+    it exists, and printing a reminder on update. See the mrconfig file
+    for an example.
+  * Fix output of "mr config DEFAULT lib".
+  * Change mr update to use git pull -t origin master, to make sure new tags
+    are pulled. And since those might not always be the right parameters
+    for git pull, any parameters passed to mr update will replace them.
+
+  [ Alexander Wirt ]
+  * Add support for mercurial.
+
+  [ Joey Hess ]
+  * Incorporate code based on Anthony Towns's mrs, to allow running
+    multiple jobs in parallel. The -j flag controls this.
+    This can produce enormous speedups. For me, mr update takes
+    12 minutes, while mr -j 10 update takes 1 minute!
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 21 Oct 2007 01:27:23 -0400
+
+mr (0.4) unstable; urgency=low
+
+  * Fix mr register of a subdir to also work with -c.
+  * Signal handling for commands run by mr, including handling of SIGINT
+    to stop mr.
+  * Ensure parent dirs exist prior to checkout. (madduck)
+  * Output list of failed repos to stderr when -s is used.
+  * Fix a bug caused by a stupid typo.
+  * Add the -n switch, for disabling recursion.
+  * Allow for more complex deleted tests, such as marking a repo deleted on
+    some hosts, while not on others.
+  * Support registering CVS repositories. Closes: #447171
+  * MR_CONFIG now points to the config file that contains the repo mr is
+    acting on.
+  * Make mr register smarter about what mrconfig file to write to.
+    (It probably does what you'd expect it to do now; if it doesn't, -c
+    can still override.)
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 18 Oct 2007 16:20:34 -0400
+
+mr (0.3) unstable; urgency=low
+
+  * Add a check to make sure the expected directory exists after checkout.
+  * mr register will now write to whatever config file is specified with -c
+  * Typo fixes from madduck.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 17 Oct 2007 12:48:55 -0400
+
+mr (0.2) unstable; urgency=low
+
+  * Fix line number display for config file parse errors.
+  * Fix a bug in inheritance of default settings in chained .mrconfig files.
+  * Add the -s option.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 16 Oct 2007 02:39:08 -0400
+
+mr (0.1) unstable; urgency=low
+
+  * First release.
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 14 Oct 2007 14:14:40 -0400

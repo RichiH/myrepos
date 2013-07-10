@@ -1,0 +1,6 @@
+myrepos 1.20130705 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+   * The package is renamed to myrepos. It Provides mr, so can still be
+     installed by that name. The mr command is not renamed.
+   * Add make install rule.
+     Thanks, v4hn"""]]

@@ -1,0 +1,44 @@
+# Add support for Avery Pennarun's git-subtree
+#
+# To make mr use this file, add a line like this inside the [DEFAULT]
+# section of your ~/.mrconfig
+#include = cat /usr/share/mr/git-subtree
+#
+# Example:
+#
+# [repo]
+# checkout = git clone git.example.org:repo.git
+#
+# [repo/lib]
+# git_subtree_test = true
+# checkout = git subtree add --prefix=lib git.example.org:lib.git master
+# update = git_subtree_update --prefix=lib git.example.org:lib.git master
+# push = git_subtree_push --prefix=lib git.example.org:lib.git master
+
+lib =
+	git_get_toplevel() {
+		local toplevel
+		toplevel="$(git rev-parse --show-toplevel)" || true
+		if [ -z "$toplevel" ]; then
+			error "git toplevel is not set"
+		fi
+		toplevel="${toplevel%%/}/"
+		if [ ! -d "$toplevel" ]; then
+			error "git toplevel $toplevel does not exist"
+		fi
+		echo "$toplevel"
+	}
+	git_subtree_update() {
+		cd "$(git_get_toplevel)"
+		git subtree pull "$@"
+	}
+	git_subtree_push() {
+		cd "$(git_get_toplevel)"
+		git subtree push "$@"
+	}
+
+git_subtree_status = git status -s "$@" . || true
+git_subtree_commit = git add . && git commit "$@" && git_subtree_push
+git_subtree_record = git add . && git commit "$@"
+git_subtree_diff = git diff .
+git_subtree_log = git log .

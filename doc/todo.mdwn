@@ -1,0 +1,6 @@
+This is myrepos's todo list. Link items to [[todo/done]] when done.
+
+See also: [Debian BTS](http://bugs.debian.org/mr).
+
+[[!inline pages="./todo/* and !./todo/done and !link(done)
+and !*/Discussion" actions=yes postform=yes show=0 archive=yes]]

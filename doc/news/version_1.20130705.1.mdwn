@@ -1,0 +1,3 @@
+myrepos 1.20130705.1 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+   * Conflict and Replaces mr."""]]

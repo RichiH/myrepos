@@ -1,0 +1,86 @@
+# An example of how to add a new version control system type to mr.
+# git fake bare repositories have a detached workspace. One potential
+# application is storing dotfiles in git, keeping them checked out in
+# ones $HOME, but checked into different git repositories. This file adds
+# support for them, separate from the normal git support.
+
+# To make mr use this file, add a line like this inside the [DEFAULT]
+# section of your ~/.mrconfig
+#include = cat /usr/share/mr/git-fake-bare
+
+# And an example repo using it would look something like:
+#[.dotfiles]
+#checkout = git_fake_bare_checkout git://... .dotfiles <worktree, eg. ..>
+
+lib =
+	# git doesn't have an easy way to check out such a repo, so
+	# do it by hand
+	git_fake_bare_checkout() {
+		local url; url="$1"
+		local repo; repo="$2"
+		local worktree; worktree="$3"
+		git clone --no-checkout "$url" "$repo"
+		cd "$repo"
+		mkdir -p "$worktree"
+		PWD="`pwd`"
+		mv .git/* .
+		rmdir .git
+		GIT_DIR="$PWD" git read-tree HEAD
+		GIT_DIR="$PWD" git checkout-index -a --prefix="$worktree" || true
+		GIT_DIR="$PWD" git config core.worktree "$worktree"
+	}
+	git_get_worktree() {
+		local worktree
+		worktree="$(git config --get core.worktree)" || true
+		if [ -z "$worktree" ]; then
+			error "git worktree is not set"
+		fi
+		worktree="${worktree%%/}/"
+		if [ ! -d "$worktree" ]; then
+			error "git worktree $worktree does not exist"
+		fi
+		echo "$worktree"
+	}
+
+git_fake_bare_test = perl:
+	-d "$ENV{MR_REPO}/refs/heads" && -d "$ENV{MR_REPO}/refs/tags" &&
+	-d "$ENV{MR_REPO}/objects" && -f "$ENV{MR_REPO}/config" &&
+	`GIT_DIR="$ENV{MR_REPO}" git config --get core.worktree` ne ""
+
+git_fake_bare_update =
+	args="$@"
+	branch="$(GIT_DIR="$MR_REPO" git symbolic-ref HEAD | sed -e 's,.*/,,')"
+	[ -z "$args" ] && args="-t origin $branch"
+	GIT_DIR="$MR_REPO" git pull $args
+
+git_fake_bare_status = GIT_DIR="$MR_REPO" git status -s "$@" || true
+
+git_fake_bare_commit =
+	cd "$(git_get_worktree)"
+	GIT_DIR="$MR_REPO" git commit -a "$@"
+	GIT_DIR="$MR_REPO" git push --all
+
+git_fake_bare_push =
+	GIT_DIR="$MR_REPO" git push --all
+
+git_fake_bare_record = 
+	cd "$(git_get_worktree)"
+	GIT_DIR="$MR_REPO" git commit -a "$@"
+
+git_fake_bare_diff =
+	cd "$(git_get_worktree)"
+	GIT_DIR="$MR_REPO" git diff "$@"
+
+git_fake_bare_log = GIT_DIR="$MR_REPO" git log "$@"
+
+git_fake_bare_register = 
+	url="$(LC_ALL=C GIT_CONFIG=config git config --get remote.origin.url)" || true
+	if [ -z "$url" ]; then
+		error "cannot determine git url"
+	fi
+	worktree="$(git_get_worktree)"
+	echo "Registering git url: $url in $MR_CONFIG (with worktree $worktree)"
+	mr -c "$MR_CONFIG" config "`pwd`" \
+		checkout="git_fake_bare_checkout '$url' '$MR_REPO' '$worktree'"
+
+# vim:sw=8:sts=0:ts=8:noet
