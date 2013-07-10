@@ -1,3 +1,10 @@
+myrepos (1.20130710) unstable; urgency=low
+
+  * Avoid conflicting with mr so the dummy package can be installed and pull
+    in this one.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 10 Jul 2013 13:50:48 -0400
+
 myrepos (1.20130705.1) unstable; urgency=low
 
   * Conflict and Replaces mr.
