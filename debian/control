@@ -11,7 +11,7 @@ Package: myrepos
 Architecture: all
 Section: vcs
 Depends: ${misc:Depends}
-Suggests: subversion, git-core | git (>= 1:1.7), cvs, bzr, mercurial, darcs, fossil, vcsh, liburi-perl, curl
+Suggests: subversion, git-core | git (>= 1:1.7), cvs, bzr, mercurial, darcs, fossil, vcsh, liburi-perl, curl, ack-grep
 Provides: mr
 Replaces: mr
 Recommends: libwww-perl, libhtml-parser-perl, perl
