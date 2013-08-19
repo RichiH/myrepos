@@ -24,6 +24,8 @@ B<mr> [options] diff
 
 B<mr> [options] log
 
+B<mr> [options] grep pattern
+
 B<mr> [options] run command [param ...]
 
 B<mr> [options] bootstrap url [directory]
@@ -112,6 +114,11 @@ Show a diff of uncommitted changes.
 =item log
 
 Show the commit log.
+
+=item grep pattern
+
+Searches for a pattern in each repository using the grep subcommand. Uses
+ack-grep on VCS that do not have their own.
 
 =item run command [param ...]
 
