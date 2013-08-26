@@ -1,0 +1,4 @@
+myrepos 1.20130826 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+   * Update of manpage and Suggests field for 'mr grep'.
+     Closes: #[720128](http://bugs.debian.org/720128)"""]]
