@@ -1,9 +1,9 @@
-myrepos (1.20130711) UNRELEASED; urgency=low
+myrepos (1.20130826) unstable; urgency=low
 
   * Update of manpage and Suggests field for 'mr grep'.
     Closes: #720128
 
- -- Joey Hess <joeyh@debian.org>  Mon, 19 Aug 2013 14:04:06 -0400
+ -- Joey Hess <joeyh@debian.org>  Mon, 26 Aug 2013 12:32:39 -0400
 
 myrepos (1.20130710) unstable; urgency=low
 
