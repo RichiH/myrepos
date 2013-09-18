@@ -1,6 +1,6 @@
 debian/files
-debian/mr.debhelper.log
-debian/mr.substvars
-debian/mr/
+debian/myrepos.debhelper.log
+debian/myrepos.substvars
+debian/myrepos/
 mr.1
 webcheckout.1
