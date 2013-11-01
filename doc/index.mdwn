@@ -16,7 +16,7 @@ That sets up a `~/.mrconfig` file listing your repositories.
 Now you can run `mr update` in your home directory, and it'll update
 every one of your repositories that you've registered with myrepos.
 
-Want to update repositories in parallel? `mr update -j5` will run 5
+Want to update repositories in parallel? `mr -j5 update` will run 5
 concurrent jobs!
 
 If you run `mr update` inside a repository, it'll only act on that
