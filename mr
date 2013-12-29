@@ -2089,7 +2089,7 @@ help =
 		SHOWMANFILE="man"
 		;;
 		*)
-		SHOWMANFILE="man -l"
+		SHOWMANFILE="man"
 		;;
 	esac
 	if [ ! -e "$MR_PATH" ]; then
