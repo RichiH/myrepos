@@ -2,6 +2,8 @@ myrepos (1.20130827) UNRELEASED; urgency=medium
 
   * Avoid using man -l, relying on both versions of man for linux working
     when a file is passed, with no switches.
+  * When blocking control codes in untrusted mrconfig files, ignore
+    ones inside comments. (Thanks, Philipp Ittershagen)
 
  -- Joey Hess <joeyh@debian.org>  Sat, 28 Dec 2013 20:04:38 -0400
 
