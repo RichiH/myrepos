@@ -1,11 +1,11 @@
-myrepos (1.20130827) UNRELEASED; urgency=medium
+myrepos (1.20140227) unstable; urgency=medium
 
   * Avoid using man -l, relying on both versions of man for linux working
     when a file is passed, with no switches.
   * When blocking control codes in untrusted mrconfig files, ignore
     ones inside comments. (Thanks, Philipp Ittershagen)
 
- -- Joey Hess <joeyh@debian.org>  Sat, 28 Dec 2013 20:04:38 -0400
+ -- Joey Hess <joeyh@debian.org>  Thu, 27 Feb 2014 12:03:22 -0400
 
 myrepos (1.20130826) unstable; urgency=low
 
