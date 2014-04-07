@@ -1,0 +1,31 @@
+# A handler for git-annex clones.
+#
+# To make mr use this file, add a line like this inside the [DEFAULT]
+# section of your ~/.mrconfig
+#include = cat /usr/share/mr/git-annex
+#
+# Do note that this presumes that you have your preferred/required content
+# settings configured as you want them, because otherwise *all* annexed data
+# will be fetched on update/commit/push.
+#
+# An example usage of this would look e.g.
+#
+# [tunes]
+# checkout =
+# 	git clone git://example.org/my_tunes $MR_REPO
+# 	cd $MR_REPO
+# 	git annex init
+# 	git_annex_sync
+
+lib = git_annex_sync() { git annex --quiet sync --content; }
+
+git_test = cd ${MR_REPO} && test -d .git && ! git annex wanted . >/dev/null 2>&1
+git_annex_test = cd ${MR_REPO} && test -d .git && git annex wanted . >/dev/null 2>&1
+git_annex_fetch = git annex --quiet fetch
+git_annex_update = git_annex_sync
+git_annex_status = git annex --quiet status
+git_annex_commit = git commit -a "$@" && git_annex_sync
+git_annex_record = git commit -a "$@"
+git_annex_push = git_annex_sync
+git_annex_log = git log "$@"
+git_annex_diff = git diff "$@"
