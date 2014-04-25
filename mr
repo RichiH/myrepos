@@ -1715,6 +1715,10 @@ sub bootstrap {
 			if $downloader[0] eq 'curl' && $status >> 8 == 60;
 		die "mr bootstrap: download of $src failed\n" if $status != 0;
 	}
+	elsif ($src eq '-') {
+		# Config file is read from stdin.
+		copy(\*STDIN, $tmpconfig) || die "stdin: $!";
+	}
 	else {
 		# Config file is local.
 		die "mr bootstrap: cannot read file '$src'"
