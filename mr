@@ -28,7 +28,7 @@ B<mr> [options] grep pattern
 
 B<mr> [options] run command [param ...]
 
-B<mr> [options] bootstrap url [directory]
+B<mr> [options] bootstrap src [directory]
 
 B<mr> [options] register [repository]
 
@@ -130,17 +130,34 @@ These commands are also available:
 
 =over 4
 
-=item bootstrap url [directory]
+=item bootstrap src [directory]
 
-Causes mr to download the url, and use it as a .mrconfig file to checkout
-the repositories listed in it, into the specified directory.
+Causes mr to retrieve the source C<src> and use it as a .mrconfig file to
+checkout the repositories listed in it, into the specified directory.
 
-To use scp to download, the url may have the form ssh://[user@]host:file
+B<mr> understands several types of sources:
+
+=over 4
+
+=item URL for curl
+
+C<src> may be an URL understood by B<curl>.
+
+=item copy via ssh
+
+To use B<scp> to download, the C<src> may have the form
+C<ssh://[user@]host:file>.
+
+=item local file
+
+You can retrieve the config file by other means and pass its B<path> as C<src>.
+
+=back
 
 The directory will be created if it does not exist. If no directory is
 specified, the current directory will be used.
 
-If the .mrconfig file includes a repository named ".", that
+As a special case, if source C<src> includes a repository named ".", that
 is checked out into the top of the specified directory.
 
 =item list (or ls)
@@ -1676,7 +1693,7 @@ sub bootstrap {
 	my $dir=shift @ARGV || ".";
 	
 	if (! defined $url || ! length $url) {
-		die "mr: bootstrap requires url\n";
+		die "mr: bootstrap requires source\n";
 	}
 
 	# Retrieve config file.
