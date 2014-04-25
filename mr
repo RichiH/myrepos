@@ -152,6 +152,11 @@ C<ssh://[user@]host:file>.
 
 You can retrieve the config file by other means and pass its B<path> as C<src>.
 
+=item standard input
+
+If source C<src> consists in a single dash C<->, config file is read from
+standard input.
+
 =back
 
 The directory will be created if it does not exist. If no directory is
