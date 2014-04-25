@@ -1240,7 +1240,7 @@ my %loaded;
 sub loadconfig {
 	my $f=shift;
 	my $dir=shift;
-	my $bootstrap_url=shift;
+	my $bootstrap_src=shift;
 
 	my @toload;
 
@@ -1328,8 +1328,8 @@ sub loadconfig {
 	my $trusterror = sub {
 		my $msg=shift;
 	
-		if (defined $bootstrap_url) {
-			die "mr: $msg in untrusted $bootstrap_url line $lineno\n".
+		if (defined $bootstrap_src) {
+			die "mr: $msg in untrusted $bootstrap_src line $lineno\n".
 				"(To trust this url, --trust-all can be used; but please use caution;\n".
 				"this can allow arbitrary code execution!)\n";
 		}
@@ -1689,10 +1689,10 @@ sub bootstrap {
 	eval q{use File::Copy};
 	die $@ if $@;
 
-	my $url=shift @ARGV;
+	my $src=shift @ARGV;
 	my $dir=shift @ARGV || ".";
 	
-	if (! defined $url || ! length $url) {
+	if (! defined $src || ! length $src) {
 		die "mr: bootstrap requires source\n";
 	}
 
@@ -1700,26 +1700,26 @@ sub bootstrap {
 	eval q{use File::Temp};
 	die $@ if $@;
 	my $tmpconfig=File::Temp->new();
-	if ($url =~ m!^[\w\d]+://!) {
+	if ($src =~ m!^[\w\d]+://!) {
 		# Download the config file to a temporary location.
 		my @downloader;
-		if ($url =~ m!^ssh://(.*)!) {
+		if ($src =~ m!^ssh://(.*)!) {
 			@downloader = ("scp", $1, $tmpconfig);
 		}
 		else {
-			@downloader = ("curl", "-A", "mr", "-L", "-s", $url, "-o", $tmpconfig);
+			@downloader = ("curl", "-A", "mr", "-L", "-s", $src, "-o", $tmpconfig);
 			push(@downloader, "-k") if $insecure;
 		}
 		my $status = system(@downloader);
-		die "mr bootstrap: invalid SSL certificate for $url (consider -k)\n"
+		die "mr bootstrap: invalid SSL certificate for $src (consider -k)\n"
 			if $downloader[0] eq 'curl' && $status >> 8 == 60;
-		die "mr bootstrap: download of $url failed\n" if $status != 0;
+		die "mr bootstrap: download of $src failed\n" if $status != 0;
 	}
 	else {
 		# Config file is local.
-		die "mr bootstrap: cannot read file '$url'"
-			unless -r $url;
-		copy($url, $tmpconfig) || die "copy: $!";
+		die "mr bootstrap: cannot read file '$src'"
+			unless -r $src;
+		copy($src, $tmpconfig) || die "copy: $!";
 	}
 
 	# Sanity check on destination directory.
@@ -1732,12 +1732,12 @@ sub bootstrap {
 	# would normally be skipped.
 	my $topdir=abs_path(".")."/";
 	my @repo=($topdir, $topdir, ".");
-	loadconfig($tmpconfig, $topdir, $url);
+	loadconfig($tmpconfig, $topdir, $src);
 	record(\@repo, action("checkout", @repo, 1))
 		if exists $config{$topdir}{"."}{"checkout"};
 
 	if (-e ".mrconfig") {
-		print STDERR "mr bootstrap: .mrconfig file already exists, not overwriting with $url\n";
+		print STDERR "mr bootstrap: .mrconfig file already exists, not overwriting with $src\n";
 	}
 	else {
 		move($tmpconfig, ".mrconfig") || die "rename: $!";
