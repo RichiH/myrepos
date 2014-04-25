@@ -1669,30 +1669,43 @@ sub register {
 }
 
 sub bootstrap {
+	eval q{use File::Copy};
+	die $@ if $@;
+
 	my $url=shift @ARGV;
 	my $dir=shift @ARGV || ".";
 	
 	if (! defined $url || ! length $url) {
 		die "mr: bootstrap requires url\n";
 	}
-	
-	# Download the config file to a temporary location.
+
+	# Retrieve config file.
 	eval q{use File::Temp};
 	die $@ if $@;
 	my $tmpconfig=File::Temp->new();
-	my @downloader;
-	if ($url =~ m!^ssh://(.*)!) {
-		@downloader = ("scp", $1, $tmpconfig);
+	if ($url =~ m!^[\w\d]+://!) {
+		# Download the config file to a temporary location.
+		my @downloader;
+		if ($url =~ m!^ssh://(.*)!) {
+			@downloader = ("scp", $1, $tmpconfig);
+		}
+		else {
+			@downloader = ("curl", "-A", "mr", "-L", "-s", $url, "-o", $tmpconfig);
+			push(@downloader, "-k") if $insecure;
+		}
+		my $status = system(@downloader);
+		die "mr bootstrap: invalid SSL certificate for $url (consider -k)\n"
+			if $downloader[0] eq 'curl' && $status >> 8 == 60;
+		die "mr bootstrap: download of $url failed\n" if $status != 0;
 	}
 	else {
-		@downloader = ("curl", "-A", "mr", "-L", "-s", $url, "-o", $tmpconfig);
-		push(@downloader, "-k") if $insecure;
+		# Config file is local.
+		die "mr bootstrap: cannot read file '$url'"
+			unless -r $url;
+		copy($url, $tmpconfig) || die "copy: $!";
 	}
-	my $status = system(@downloader);
-	die "mr bootstrap: invalid SSL certificate for $url (consider -k)\n"
-		if $downloader[0] eq 'curl' && $status >> 8 == 60;
-	die "mr bootstrap: download of $url failed\n" if $status != 0;
 
+	# Sanity check on destination directory.
 	if (! -e $dir) {
 		system("mkdir", "-p", $dir);
 	}
@@ -1710,8 +1723,6 @@ sub bootstrap {
 		print STDERR "mr bootstrap: .mrconfig file already exists, not overwriting with $url\n";
 	}
 	else {
-		eval q{use File::Copy};
-		die $@ if $@;
 		move($tmpconfig, ".mrconfig") || die "rename: $!";
 	}
 
