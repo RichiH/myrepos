@@ -1551,10 +1551,7 @@ sub dispatch {
 	my $action=shift;
 
 	# actions that do not operate on all repos
-	if ($action eq 'help') {
-		help(@ARGV);
-	}
-	elsif ($action eq 'config') {
+	if ($action eq 'config') {
 		config(@ARGV);
 	}
 	elsif ($action eq 'register') {
@@ -1582,7 +1579,27 @@ sub dispatch {
 }
 
 sub help {
-	exec($config{''}{DEFAULT}{help}) || die "exec: $!";
+	my $help=q#
+		case `uname -s` in
+			SunOS)
+			SHOWMANFILE="man -f"
+			;;
+			Darwin)
+			SHOWMANFILE="man"
+			;;
+			*)
+			SHOWMANFILE="man"
+			;;
+		esac
+		if [ ! -e "$MR_PATH" ]; then
+			error "cannot find program path"
+		fi
+		tmp=$(mktemp -t mr.XXXXXXXXXX) || error "mktemp failed"
+		trap "rm -f $tmp" exit
+		pod2man -c mr "$MR_PATH" > "$tmp" || error "pod2man failed"
+		$SHOWMANFILE "$tmp" || error "man failed"
+	#;
+	exec($help) || die "exec: $!";
 }
 
 sub config {
@@ -1825,6 +1842,7 @@ sub exitstats {
 sub main {
 	getopts();
 	init();
+	help(@ARGV) if $ARGV[0] eq 'help';
 
 	startingconfig();
 	loadconfig($HOME_MR_CONFIG);
@@ -2081,25 +2099,6 @@ vcsh_trusted_checkout = vcsh run "$MR_REPO" git clone $url $repo
 veracity_trusted_checkout = vv clone $url $repo
 
 
-help =
- 	case `uname -s` in
-		SunOS)
-		SHOWMANFILE="man -f"
-		;;
-		Darwin)
-		SHOWMANFILE="man"
-		;;
-		*)
-		SHOWMANFILE="man"
-		;;
-	esac
-	if [ ! -e "$MR_PATH" ]; then
-		error "cannot find program path"
-	fi
-	tmp=$(mktemp -t mr.XXXXXXXXXX) || error "mktemp failed"
-	trap "rm -f $tmp" exit
-	pod2man -c mr "$MR_PATH" > "$tmp" || error "pod2man failed"
-	$SHOWMANFILE "$tmp" || error "man failed"
 list = true
 config = 
 bootstrap = 
