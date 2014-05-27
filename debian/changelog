@@ -2,6 +2,8 @@ myrepos (1.20140228) UNRELEASED; urgency=medium
 
   * Added lib/git-annex. Thanks, martin f krafft.
     Closes: #743882
+  * Make mr help work even if the mrconfig file is busted.
+    Thanks, Lorenzo Cappelletti
 
  -- Joey Hess <joeyh@debian.org>  Mon, 07 Apr 2014 17:58:58 -0400
 
