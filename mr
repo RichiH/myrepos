@@ -2094,7 +2094,8 @@ bzr_trusted_checkout = bzr checkout|clone|branch|get $url $repo
 hg_trusted_checkout = hg clone $url $repo
 darcs_trusted_checkout = darcs get $url $repo
 git_bare_trusted_checkout = git clone --bare $url $repo
-vcsh_trusted_checkout = vcsh run "$MR_REPO" git clone $url $repo
+vcsh_old_trusted_checkout = vcsh run "$MR_REPO" git clone $url $repo
+vcsh_trusted_checkout = vcsh clone $url $repo
 # fossil: messy to do
 veracity_trusted_checkout = vv clone $url $repo
 
