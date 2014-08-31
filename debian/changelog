@@ -1,4 +1,4 @@
-myrepos (1.20140931) unstable; urgency=medium
+myrepos (1.20140831) unstable; urgency=medium
 
   * Deal with abs_path change in new version of perl, now it returns undefined
     when the directory does not exist.
