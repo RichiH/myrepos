@@ -586,7 +586,7 @@ my $no_chdir=0;
 my $jobs=1;
 my $trust_all=0;
 my $directory=getcwd();
-my $terminal=-t STDOUT && eval{require IO::Pty::Easy;IO::Pty::Easy->import();1;} eq 1;
+my $terminal=-t STDOUT && eval{require IO::Pty::Easy;IO::Pty::Easy->import();1;};
 
 my $HOME_MR_CONFIG = "$ENV{HOME}/.mrconfig";
 $ENV{MR_CONFIG}=find_mrconfig();
