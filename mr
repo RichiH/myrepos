@@ -853,7 +853,7 @@ sub action {
 		}
 		print "$actionmsg\n" unless $quiet || $minimal;
 
-		my $hookret=hook("pre_$action", $topdir, $subdir);
+		my ($hookret, $hook_out)=hook("pre_$action", $topdir, $subdir);
 		return $hookret if $hookret != OK;
 
 		my ($ret, $out)=runsh $action, $topdir, $subdir,
@@ -908,7 +908,7 @@ sub action {
 						return FAILED;
 					}
 				}
-				my $ret=hook("fixups", $topdir, $subdir);
+				my ($ret, $hook_out)=hook("fixups", $topdir, $subdir);
 				return $ret if $ret != OK;
 			}
 			

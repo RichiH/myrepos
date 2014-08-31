@@ -1,3 +1,9 @@
+myrepos (1.20140831.1) unstable; urgency=medium
+
+  * Fix breakage introduced by --minimal patch.
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 31 Aug 2014 14:05:56 -0700
+
 myrepos (1.20140831) unstable; urgency=medium
 
   * Deal with abs_path change in new version of perl, now it returns undefined
