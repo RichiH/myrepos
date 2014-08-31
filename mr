@@ -1154,7 +1154,8 @@ sub is_trusted_config {
 			while (<TRUST>) {
 				chomp;
 				s/^~\//$ENV{HOME}\//;
-				$trusted{abs_path($_)}=1;
+				my $d=abs_path($_);
+				$trusted{$d}=1 if defined $d;
 			}
 			close TRUST;
 		}
