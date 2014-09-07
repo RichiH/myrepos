@@ -2087,6 +2087,7 @@ svn_grep = ack-grep "$@"
 git_svn_grep = git grep "$@"
 git_grep = git grep "$@"
 bzr_grep = ack-grep "$@"
+darcs_grep = ack-grep "$@"
 
 run = "$@"
 
