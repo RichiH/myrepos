@@ -2,6 +2,8 @@ myrepos (1.20140831.2) UNRELEASED; urgency=medium
 
   * Add darcs grep command using ack-grep.
     Thanks, Paul Wise.
+  * Add a clean command.
+    Thanks, Paul Wise. Closes: #702685
 
  -- Joey Hess <joeyh@debian.org>  Sun, 07 Sep 2014 12:08:40 -0400
 
