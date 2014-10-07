@@ -34,7 +34,7 @@ B<mr> [options] bootstrap src [directory]
 
 B<mr> [options] register [repository]
 
-B<mr> [options] config section ["parameter=[value]" ...]
+B<mr> [options] config section ["setting=[value]" ...]
 
 B<mr> [options] action [params ...]
 
@@ -190,8 +190,8 @@ looking for the closest known one at or in a parent of the current directory.
 
 Adds, modifies, removes, or prints a value from a mrconfig file. The next
 parameter is the name of the section the value is in. To add or modify
-values, use one or more instances of "parameter=value". Use "parameter=" to
-remove a parameter. Use just "parameter" to get the value of a parameter.
+values, use one or more instances of "setting=value". Use "setting=" to
+remove a setting. Use just "setting" to get the value of a that setting.
 
 For example, to add (or edit) a repository in src/foo:
 
@@ -367,7 +367,7 @@ following line by indenting the line with whitespace.
 The C<DEFAULT> section allows setting default values for the sections that
 come after it.
 
-The C<ALIAS> section allows adding aliases for actions. Each parameter
+The C<ALIAS> section allows adding aliases for actions. Each setting
 is an alias, and its value is the action to use.
 
 All other sections add repositories. The section header specifies the
@@ -377,7 +377,7 @@ paths. (Note that you can use environment variables in section names; they
 will be passed through the shell for expansion. For example, 
 C<[$HOSTNAME]>, or C<[${HOSTNAME}foo]>).
 
-Within a section, each parameter defines a shell command to run to handle a
+Within a section, each setting defines a shell command to run to handle a
 given action. mr contains default handlers for "update", "status",
 "commit", and other standard actions.
 
@@ -404,13 +404,13 @@ file, the F<.mrconfig> file that should be modified to register the repo.
 The C<MR_ACTION> environment variable is set to the command being run
 (update, checkout, etc).
 
-A few parameters have special meanings:
+A few settings have special meanings:
 
 =over 4
 
 =item skip
 
-If the "skip" parameter is set and its command returns true, then B<mr>
+If "skip" is set and its command returns true, then B<mr>
 will skip acting on that repository. The command is passed the action
 name in C<$1>.
 
@@ -437,7 +437,7 @@ repo, you have to explicitly check it out (using "mr --force -d foo checkout").
 
 =item order
 
-The "order" parameter can be used to override the default ordering of
+The "order" setting can be used to override the default ordering of
 repositories. The default order value is 10. Use smaller values to make
 repositories be processed earlier, and larger values to make repositories
 be processed later.
@@ -447,17 +447,16 @@ repository, ordering it to be processed earlier is not recommended.
 
 =item chain
 
-If the "chain" parameter is set and its command returns true, then B<mr>
+If "chain" is set and its command returns true, then B<mr>
 will try to load a F<.mrconfig> file from the root of the repository.
 
 =item include
 
-If the "include" parameter is set, its command is ran, and should output
+If "include" is set, its command is ran, and should output
 additional mrconfig file content. The content is included as if it were
 part of the including file.
 
-Unlike all other parameters, this parameter does not need to be placed
-within a section.
+Unlike everything else, "include" does not need to be placed within a section.
 
 B<mr> ships several libraries that can be included to add support for
 additional version control type things (unison, git-svn, git-fake-bare,
@@ -469,7 +468,7 @@ See the individual files for details.
 
 =item deleted
 
-If the "deleted" parameter is set and its command returns true, then
+If "deleted" is set and its command returns true, then
 B<mr> will treat the repository as deleted. It won't ever actually delete
 the repository, but it will warn if it sees the repository's directory.
 This is useful when one mrconfig file is shared among multiple machines,
@@ -477,17 +476,17 @@ to keep track of and remember to delete old repositories.
 
 =item lib
 
-The "lib" parameter can specify some shell code that will be run
+The "lib" setting can contain some shell code that will be run
 before each command, this can be a useful way to define shell
 functions for other commands to use. 
 
-Unlike most other parameters, this can be specified multiple times, in
+Unlike most other settings, this can be specified multiple times, in
 which case the chunks of shell code are accumulatively concatenated
 together.
 
 =item fixups
 
-If the "fixups" parameter is set, its command is run whenever a repository
+If "fixups" is set, its command is run whenever a repository
 is checked out, or updated. This provides an easy way to do things
 like permissions fixups, or other tweaks to the repository content,
 whenever the repository is changed.
@@ -495,8 +494,8 @@ whenever the repository is changed.
 =item VCS_action
 
 When looking for a command to run for a given action, mr first looks for
-a parameter with the same name as the action. If that is not found, it
-looks for a parameter named "VCS_action" (substituting in the name of the
+a setting with the same name as the action. If that is not found, it
+looks for a setting named "VCS_action" (substituting in the name of the
 version control system and the action).
 
 Internally, mr has settings for "git_update", "svn_update", etc. To change
@@ -506,15 +505,15 @@ you can just add VCS specific actions for it.
 
 =item pre_ and post_
 
-If a "pre_action" parameter is set, its command is run before mr performs the
-specified action. Similarly, "post_action" parameters are run after mr
+If "pre_action" is set, its command is run before mr performs the
+specified action. Similarly, "post_action" commands are run after mr
 successfully performs the specified action. For example, "pre_commit" is
 run before committing; "post_update" is run after updating.
 
 =item _append
 
-Any parameter can be suffixed with C<_append>, to add an additional value
-to the existing value of the parameter. In this way, actions 
+Any setting can be suffixed with C<_append>, to add an additional value
+to the existing value of the setting. In this way, actions 
 can be constructed accumulatively.
 
 =item VCS_test
