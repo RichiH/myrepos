@@ -1,11 +1,11 @@
-myrepos (1.20140831.2) UNRELEASED; urgency=medium
+myrepos (1.20141023) unstable; urgency=medium
 
   * Add darcs grep command using ack-grep.
     Thanks, Paul Wise.
   * Add a clean command.
     Thanks, Paul Wise. Closes: #702685
 
- -- Joey Hess <joeyh@debian.org>  Sun, 07 Sep 2014 12:08:40 -0400
+ -- Joey Hess <joeyh@debian.org>  Thu, 23 Oct 2014 22:17:25 -0400
 
 myrepos (1.20140831.1) unstable; urgency=medium
 
