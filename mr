@@ -2069,7 +2069,7 @@ fossil_clean =
 	else
 		fossil clean --force --dotfiles --emptydirs "$@"
 	fi
-vcsh_commit = 
+vcsh_clean = 
 	if [ "x$1" = x-f ] ; then
 		shift
 		vcsh run "$MR_REPO" git clean -dx "$@"
