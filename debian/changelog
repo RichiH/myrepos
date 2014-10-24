@@ -1,3 +1,9 @@
+myrepos (1.20141024) unstable; urgency=medium
+
+  * Fix name for vcsh_clean. Closes: #766655
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 24 Oct 2014 13:10:50 -0400
+
 myrepos (1.20141023) unstable; urgency=medium
 
   * Add darcs grep command using ack-grep.
