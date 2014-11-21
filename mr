@@ -1880,7 +1880,7 @@ sub getopts {
 }
 
 sub check {
-	my @env = qw(GIT_DIR VCSH_COMMAND);
+	my @env = qw(GIT_DIR GIT_WORK_TREE VCSH_COMMAND);
 	foreach (@env) {
 		die ("mr: environment variable '$_' is set. You are about to shoot your own foot.\n") if ($ENV{$_});
 	}
