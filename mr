@@ -1879,6 +1879,13 @@ sub getopts {
 	}
 }
 
+sub check {
+	my @env = qw(GIT_DIR VCSH_COMMAND);
+	foreach (@env) {
+		die ("mr: environment variable '$_' is set. You are about to shoot your own foot.\n") if ($ENV{$_});
+	}
+}
+
 sub init {
 	$SIG{INT}=sub {
 		print STDERR "mr: interrupted\n";
@@ -1914,6 +1921,7 @@ sub exitstats {
 
 sub main {
 	getopts();
+	check();
 	init();
 	help(@ARGV) if $ARGV[0] eq 'help';
 
