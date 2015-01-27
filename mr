@@ -1649,7 +1649,7 @@ sub help {
 				man -f "$tmp"
 				;;
 				OpenBSD)
-				mandoc "$tmp" | ${PAGER:more}
+				mandoc "$tmp" | ${PAGER:-more}
 				;;
 				*)
 				man "$tmp"
