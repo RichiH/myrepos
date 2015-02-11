@@ -1881,9 +1881,15 @@ sub getopts {
 
 sub check {
 	my @env = qw(GIT_DIR GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_WORK_TREE VCSH_COMMAND VCSH_DIRECTORY VCSH_REPO_NAME);
+	my $error;
 	foreach (@env) {
-		die ("mr: environment variable '$_' is set. You were about to shoot your own foot.\n") if ($ENV{$_});
+		if ($ENV{$_}) {
+			$error=1;
+			print STDERR "mr: environment variable '$_' is set.\n";
+		}
 	}
+	die ("mr: The variables above would lead to very interesting effects.
+    Unfortunately, most of those effects result in data loss so we stop here.\n") if $error;
 }
 
 sub init {
