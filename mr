@@ -1863,7 +1863,7 @@ lib =
 		if [ -z "$1" ] || [ -z "$2" ]; then
 			error "mr: usage: hours_since action num"
 		fi
-		for dir in .git .svn .bzr CVS .hg _darcs _FOSSIL_; do
+		for dir in .git .svn .bzr CVS .hg _darcs _FOSSIL_ .fslckout; do
 			if [ -e "$MR_REPO/$dir" ]; then
 				flagfile="$MR_REPO/$dir/.mr_last$1"
 				break
@@ -1897,7 +1897,7 @@ bzr_test = perl: -d "$ENV{MR_REPO}/.bzr"
 cvs_test = perl: -d "$ENV{MR_REPO}/CVS"
 hg_test  = perl: -d "$ENV{MR_REPO}/.hg"
 darcs_test = perl: -d "$ENV{MR_REPO}/_darcs"
-fossil_test = perl: -f "$ENV{MR_REPO}/_FOSSIL_"
+fossil_test = perl: -f "$ENV{MR_REPO}/_FOSSIL_" || -f "$ENV{MR_REPO}/.fslckout"
 git_bare_test = perl: 
 	-d "$ENV{MR_REPO}/refs/heads" && -d "$ENV{MR_REPO}/refs/tags" &&
 	-d "$ENV{MR_REPO}/objects" && -f "$ENV{MR_REPO}/config" &&
