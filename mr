@@ -12,6 +12,8 @@ B<mr> [options] update
 
 B<mr> [options] status
 
+B<mr> [options] clean [-f]
+
 B<mr> [options] commit [-m "message"]
 
 B<mr> [options] record [-m "message"]
@@ -28,11 +30,11 @@ B<mr> [options] grep pattern
 
 B<mr> [options] run command [param ...]
 
-B<mr> [options] bootstrap url [directory]
+B<mr> [options] bootstrap src [directory]
 
 B<mr> [options] register [repository]
 
-B<mr> [options] config section ["parameter=[value]" ...]
+B<mr> [options] config section ["setting=[value]" ...]
 
 B<mr> [options] action [params ...]
 
@@ -79,6 +81,12 @@ If a repository isn't checked out yet, it will first check it out.
 Displays a status report for each repository, showing what
 uncommitted changes are present in the repository. For distributed version
 control systems, also shows unpushed local branches.
+
+=item clean
+
+Print ignored files, untracked files and other cruft in the working directory.
+
+The optional -f parameter allows removing the files as well as printing them.
 
 =item commit (or ci)
 
@@ -130,17 +138,39 @@ These commands are also available:
 
 =over 4
 
-=item bootstrap url [directory]
+=item bootstrap src [directory]
 
-Causes mr to download the url, and use it as a .mrconfig file to checkout
-the repositories listed in it, into the specified directory.
+Causes mr to retrieve the source C<src> and use it as a .mrconfig file to
+checkout the repositories listed in it, into the specified directory.
 
-To use scp to download, the url may have the form ssh://[user@]host:file
+B<mr> understands several types of sources:
+
+=over 4
+
+=item URL for curl
+
+C<src> may be an URL understood by B<curl>.
+
+=item copy via ssh
+
+To use B<scp> to download, the C<src> may have the form
+C<ssh://[user@]host:file>.
+
+=item local file
+
+You can retrieve the config file by other means and pass its B<path> as C<src>.
+
+=item standard input
+
+If source C<src> consists in a single dash C<->, config file is read from
+standard input.
+
+=back
 
 The directory will be created if it does not exist. If no directory is
 specified, the current directory will be used.
 
-If the .mrconfig file includes a repository named ".", that
+As a special case, if source C<src> includes a repository named ".", that
 is checked out into the top of the specified directory.
 
 =item list (or ls)
@@ -160,8 +190,8 @@ looking for the closest known one at or in a parent of the current directory.
 
 Adds, modifies, removes, or prints a value from a mrconfig file. The next
 parameter is the name of the section the value is in. To add or modify
-values, use one or more instances of "parameter=value". Use "parameter=" to
-remove a parameter. Use just "parameter" to get the value of a parameter.
+values, use one or more instances of "setting=value". Use "setting=" to
+remove a setting. Use just "setting" to get the value of a that setting.
 
 For example, to add (or edit) a repository in src/foo:
 
@@ -242,6 +272,13 @@ configuration.
 =item --verbose
 
 Be verbose.
+
+=item -m
+
+=item --minimal
+
+Minimise output. If a command fails or there is any output then the usual
+output will be shown.
 
 =item -q
 
@@ -330,7 +367,7 @@ following line by indenting the line with whitespace.
 The C<DEFAULT> section allows setting default values for the sections that
 come after it.
 
-The C<ALIAS> section allows adding aliases for actions. Each parameter
+The C<ALIAS> section allows adding aliases for actions. Each setting
 is an alias, and its value is the action to use.
 
 All other sections add repositories. The section header specifies the
@@ -340,7 +377,7 @@ paths. (Note that you can use environment variables in section names; they
 will be passed through the shell for expansion. For example, 
 C<[$HOSTNAME]>, or C<[${HOSTNAME}foo]>).
 
-Within a section, each parameter defines a shell command to run to handle a
+Within a section, each setting defines a shell command to run to handle a
 given action. mr contains default handlers for "update", "status",
 "commit", and other standard actions.
 
@@ -367,13 +404,13 @@ file, the F<.mrconfig> file that should be modified to register the repo.
 The C<MR_ACTION> environment variable is set to the command being run
 (update, checkout, etc).
 
-A few parameters have special meanings:
+A few settings have special meanings:
 
 =over 4
 
 =item skip
 
-If the "skip" parameter is set and its command returns true, then B<mr>
+If "skip" is set and its command returns true, then B<mr>
 will skip acting on that repository. The command is passed the action
 name in C<$1>.
 
@@ -400,7 +437,7 @@ repo, you have to explicitly check it out (using "mr --force -d foo checkout").
 
 =item order
 
-The "order" parameter can be used to override the default ordering of
+The "order" setting can be used to override the default ordering of
 repositories. The default order value is 10. Use smaller values to make
 repositories be processed earlier, and larger values to make repositories
 be processed later.
@@ -410,17 +447,16 @@ repository, ordering it to be processed earlier is not recommended.
 
 =item chain
 
-If the "chain" parameter is set and its command returns true, then B<mr>
+If "chain" is set and its command returns true, then B<mr>
 will try to load a F<.mrconfig> file from the root of the repository.
 
 =item include
 
-If the "include" parameter is set, its command is ran, and should output
+If "include" is set, its command is ran, and should output
 additional mrconfig file content. The content is included as if it were
 part of the including file.
 
-Unlike all other parameters, this parameter does not need to be placed
-within a section.
+Unlike everything else, "include" does not need to be placed within a section.
 
 B<mr> ships several libraries that can be included to add support for
 additional version control type things (unison, git-svn, git-fake-bare,
@@ -432,7 +468,7 @@ See the individual files for details.
 
 =item deleted
 
-If the "deleted" parameter is set and its command returns true, then
+If "deleted" is set and its command returns true, then
 B<mr> will treat the repository as deleted. It won't ever actually delete
 the repository, but it will warn if it sees the repository's directory.
 This is useful when one mrconfig file is shared among multiple machines,
@@ -440,17 +476,17 @@ to keep track of and remember to delete old repositories.
 
 =item lib
 
-The "lib" parameter can specify some shell code that will be run
+The "lib" setting can contain some shell code that will be run
 before each command, this can be a useful way to define shell
 functions for other commands to use. 
 
-Unlike most other parameters, this can be specified multiple times, in
+Unlike most other settings, this can be specified multiple times, in
 which case the chunks of shell code are accumulatively concatenated
 together.
 
 =item fixups
 
-If the "fixups" parameter is set, its command is run whenever a repository
+If "fixups" is set, its command is run whenever a repository
 is checked out, or updated. This provides an easy way to do things
 like permissions fixups, or other tweaks to the repository content,
 whenever the repository is changed.
@@ -458,8 +494,8 @@ whenever the repository is changed.
 =item VCS_action
 
 When looking for a command to run for a given action, mr first looks for
-a parameter with the same name as the action. If that is not found, it
-looks for a parameter named "VCS_action" (substituting in the name of the
+a setting with the same name as the action. If that is not found, it
+looks for a setting named "VCS_action" (substituting in the name of the
 version control system and the action).
 
 Internally, mr has settings for "git_update", "svn_update", etc. To change
@@ -469,15 +505,15 @@ you can just add VCS specific actions for it.
 
 =item pre_ and post_
 
-If a "pre_action" parameter is set, its command is run before mr performs the
-specified action. Similarly, "post_action" parameters are run after mr
+If "pre_action" is set, its command is run before mr performs the
+specified action. Similarly, "post_action" commands are run after mr
 successfully performs the specified action. For example, "pre_commit" is
 run before committing; "post_update" is run after updating.
 
 =item _append
 
-Any parameter can be suffixed with C<_append>, to add an additional value
-to the existing value of the parameter. In this way, actions 
+Any setting can be suffixed with C<_append>, to add an additional value
+to the existing value of the setting. In this way, actions 
 can be constructed accumulatively.
 
 =item VCS_test
@@ -546,6 +582,7 @@ use constant {
 # configurables
 my $config_overridden=0;
 my $verbose=0;
+my $minimal=0;
 my $quiet=0;
 my $stats=0;
 my $force=0;
@@ -556,6 +593,7 @@ my $no_chdir=0;
 my $jobs=1;
 my $trust_all=0;
 my $directory=getcwd();
+my $terminal=-t STDOUT && eval{require IO::Pty::Easy;IO::Pty::Easy->import();1;};
 
 my $HOME_MR_CONFIG = "$ENV{HOME}/.mrconfig";
 $ENV{MR_CONFIG}=find_mrconfig();
@@ -699,6 +737,34 @@ sub fulldir {
 	return $subdir =~ /^\// ? $subdir : $topdir.$subdir;
 }
 
+sub terminal_friendly_spawn {
+	my $actionmsg = shift;
+	my $sh = shift;
+	my $quiet = shift;
+	my $minimal = shift;
+	my $output = "";
+	if ($terminal) {
+		my $pty = IO::Pty::Easy->new;
+		$pty->spawn($sh);
+		while ($pty->is_active) {
+			my $data = $pty->read();
+			$output .= $data if defined $data;
+		}
+		$pty->close;
+	} else {
+		$output = qx/$sh 2>&1/;
+	}
+	my $ret = $?;
+	if ($quiet && $ret != 0) {
+		print "$actionmsg\n" if $actionmsg;
+		print STDERR $output;
+	} elsif (!$quiet && (!$minimal || $output)) {
+		print "$actionmsg\n" if $actionmsg;
+		print $output;
+	}
+	return ($ret, $output ? 1 : 0);
+}
+
 sub action {
 	my ($action, $dir, $topdir, $subdir, $force_checkout) = @_;
 	my $fulldir=fulldir($topdir, $subdir);
@@ -778,7 +844,7 @@ sub action {
 			return FAILED;
 		}
 		else {
-			print STDERR "mr $action: no defined action for $vcs repository $fulldir, skipping\n";
+			print STDERR "mr $action: no defined action for $vcs repository $fulldir, skipping\n" unless $minimal;
 			return SKIPPED;
 		}
 	}
@@ -792,22 +858,16 @@ sub action {
 			$s=~s/^\Q$fulldir\E\/?//;
 			$actionmsg="mr $action: $fulldir (in subdir $s)";
 		}
-		print "$actionmsg\n" unless $quiet;
+		print "$actionmsg\n" unless $quiet || $minimal;
 
-		my $hookret=hook("pre_$action", $topdir, $subdir);
+		my ($hookret, $hook_out)=hook("pre_$action", $topdir, $subdir);
 		return $hookret if $hookret != OK;
 
-		my $ret=runsh $action, $topdir, $subdir,
+		my ($ret, $out)=runsh $action, $topdir, $subdir,
 			$command, \@ARGV, sub {
 				my $sh=shift;
-				if ($quiet) {
-					my $output = qx/$sh 2>&1/;
-					my $ret = $?;
-					if ($ret != 0) {
-						print "$actionmsg\n";
-						print STDERR $output;
-					}
-					return $ret;
+				if (!$jobs || $jobs > 1 || $quiet || $minimal) {
+					return terminal_friendly_spawn($actionmsg, $sh, $quiet, $minimal);
 				}
 				else {
 					system($sh);
@@ -845,7 +905,7 @@ sub action {
 				return FAILED;
 			}
 
-			my $ret=hook("post_$action", $topdir, $subdir);
+			my ($ret, $hook_out)=hook("post_$action", $topdir, $subdir);
 			return $ret if $ret != OK;
 			
 			if ($is_checkout || $is_update) {
@@ -855,11 +915,11 @@ sub action {
 						return FAILED;
 					}
 				}
-				my $ret=hook("fixups", $topdir, $subdir);
+				my ($ret, $hook_out)=hook("fixups", $topdir, $subdir);
 				return $ret if $ret != OK;
 			}
 			
-			return OK;
+			return (OK, $out || $hook_out);
 		}
 	}
 }
@@ -869,15 +929,10 @@ sub hook {
 
 	my $command=$config{$topdir}{$subdir}{$hook};
 	return OK unless defined $command;
-	my $ret=runsh $hook, $topdir, $subdir, $command, [], sub {
+	my ($ret,$out)=runsh $hook, $topdir, $subdir, $command, [], sub {
 			my $sh=shift;
-			if ($quiet) {
-				my $output = qx/$sh 2>&1/;
-				my $ret = $?;
-				if ($ret != 0) {
-					print STDERR $output;
-				}
-				return $ret;
+			if (!$jobs || $jobs > 1 || $quiet || $minimal) {
+				return terminal_friendly_spawn(undef, $sh, $quiet, $minimal);
 			}
 			else {
 				system($sh);
@@ -897,7 +952,7 @@ sub hook {
 		}
 	}
 
-	return OK;
+	return (OK, $out);
 }
 
 # run actions on multiple repos, in parallel
@@ -925,7 +980,7 @@ sub mrs {
 				close CHILD_STDERR;
 				close $outfh;
 				close $errfh;
-				exit action($action, @$repo);
+				exit +(action($action, @$repo))[0];
 			}
 			close CHILD_STDOUT;
 			close CHILD_STDERR;
@@ -956,7 +1011,7 @@ sub mrs {
 						    	waitpid($active[$i][0], 0);
 							print STDOUT $out[$i][0];
 							print STDERR $out[$i][1];
-							record($active[$i][1], $? >> 8);
+							record($active[$i][1], $? >> 8, $out[$i][0] || $out[$i][1]);
 						    	splice(@fhs, $i, 1);
 						    	splice(@active, $i, 1);
 						    	splice(@out, $i, 1);
@@ -973,10 +1028,11 @@ sub mrs {
 sub record {
 	my $dir=shift()->[0];
 	my $ret=shift;
+	my $out=shift;
 
 	if ($ret == OK) {
 		push @ok, $dir;
-		print "\n" unless $quiet;
+		print "\n" unless $quiet || ($minimal && !$out);
 	}
 	elsif ($ret == FAILED) {
 		if ($interactive) {
@@ -985,7 +1041,7 @@ sub record {
 			system((getpwuid($<))[8], "-i");
 		}
 		push @failed, $dir;
-		print "\n" unless $quiet;
+		print "\n";
 	}
 	elsif ($ret == SKIPPED) {
 		push @skipped, $dir;
@@ -1007,10 +1063,10 @@ sub showstats {
 		showstat($#ok+1, "ok", "ok"),
 		showstat($#failed+1, "failed", "failed"),
 		showstat($#skipped+1, "skipped", "skipped"),
-	).")\n" unless $quiet;
+	).")\n" unless $quiet || $minimal;
 	if ($stats) {
 		if (@skipped) {
-			print "mr $action: (skipped: ".join(" ", @skipped).")\n" unless $quiet;
+			print "mr $action: (skipped: ".join(" ", @skipped).")\n" unless $quiet || $minimal;
 		}
 		if (@failed) {
 			print STDERR "mr $action: (failed: ".join(" ", @failed).")\n";
@@ -1132,7 +1188,8 @@ sub is_trusted_config {
 			while (<TRUST>) {
 				chomp;
 				s/^~\//$ENV{HOME}\//;
-				$trusted{abs_path($_)}=1;
+				my $d=abs_path($_);
+				$trusted{$d}=1 if defined $d;
 			}
 			close TRUST;
 		}
@@ -1223,7 +1280,7 @@ my %loaded;
 sub loadconfig {
 	my $f=shift;
 	my $dir=shift;
-	my $bootstrap_url=shift;
+	my $bootstrap_src=shift;
 
 	my @toload;
 
@@ -1311,8 +1368,8 @@ sub loadconfig {
 	my $trusterror = sub {
 		my $msg=shift;
 	
-		if (defined $bootstrap_url) {
-			die "mr: $msg in untrusted $bootstrap_url line $lineno\n".
+		if (defined $bootstrap_src) {
+			die "mr: $msg in untrusted $bootstrap_src line $lineno\n".
 				"(To trust this url, --trust-all can be used; but please use caution;\n".
 				"this can allow arbitrary code execution!)\n";
 		}
@@ -1392,6 +1449,16 @@ sub loadconfig {
 				next;
 			}
 
+			if ($parameter eq 'jobs') {
+				print "mr: setting --jobs to \"$value\"\n" if $verbose;
+				unless ($value =~ /^\d+$/) {
+					print "mr: error: --jobs must be numeric\n";
+					exit 2
+				}
+				$jobs=$value;
+				next;
+			}
+
 			if (! defined $section) {
 				$lineerror->("parameter ($parameter) not in section");
 			}
@@ -1430,7 +1497,7 @@ sub loadconfig {
 							push @toload, ["$chaindir/.mrconfig", $chaindir];
 						}
 					}
-			        }
+				}
 			}
 		}
 		else {
@@ -1551,10 +1618,7 @@ sub dispatch {
 	my $action=shift;
 
 	# actions that do not operate on all repos
-	if ($action eq 'help') {
-		help(@ARGV);
-	}
-	elsif ($action eq 'config') {
+	if ($action eq 'config') {
 		config(@ARGV);
 	}
 	elsif ($action eq 'register') {
@@ -1582,7 +1646,29 @@ sub dispatch {
 }
 
 sub help {
-	exec($config{''}{DEFAULT}{help}) || die "exec: $!";
+	my $help=q#
+		if [ ! -e "$MR_PATH" ]; then
+			error "cannot find program path"
+		fi
+		tmp=$(mktemp -t mr.XXXXXXXXXX) || error "mktemp failed"
+		trap "rm -f $tmp" exit
+		pod2man -c mr "$MR_PATH" > "$tmp" || error "pod2man failed"
+		showman() {
+			case `uname -s` in
+				SunOS)
+				man -f "$tmp"
+				;;
+				OpenBSD)
+				mandoc "$tmp" | ${PAGER:-more}
+				;;
+				*)
+				man "$tmp"
+				;;
+			esac
+		}
+		showman "$tmp" || error "man failed"
+	#;
+	exec($help) || die "exec: $!";
 }
 
 sub config {
@@ -1669,30 +1755,47 @@ sub register {
 }
 
 sub bootstrap {
-	my $url=shift @ARGV;
+	eval q{use File::Copy};
+	die $@ if $@;
+
+	my $src=shift @ARGV;
 	my $dir=shift @ARGV || ".";
 	
-	if (! defined $url || ! length $url) {
-		die "mr: bootstrap requires url\n";
+	if (! defined $src || ! length $src) {
+		die "mr: bootstrap requires source\n";
 	}
-	
-	# Download the config file to a temporary location.
+
+	# Retrieve config file.
 	eval q{use File::Temp};
 	die $@ if $@;
 	my $tmpconfig=File::Temp->new();
-	my @downloader;
-	if ($url =~ m!^ssh://(.*)!) {
-		@downloader = ("scp", $1, $tmpconfig);
+	if ($src =~ m!^[\w\d]+://!) {
+		# Download the config file to a temporary location.
+		my @downloader;
+		if ($src =~ m!^ssh://(.*)!) {
+			@downloader = ("scp", $1, $tmpconfig);
+		}
+		else {
+			@downloader = ("curl", "-A", "mr", "-L", "-s", $src, "-o", $tmpconfig);
+			push(@downloader, "-k") if $insecure;
+		}
+		my $status = system(@downloader);
+		die "mr bootstrap: invalid SSL certificate for $src (consider -k)\n"
+			if $downloader[0] eq 'curl' && $status >> 8 == 60;
+		die "mr bootstrap: download of $src failed\n" if $status != 0;
+	}
+	elsif ($src eq '-') {
+		# Config file is read from stdin.
+		copy(\*STDIN, $tmpconfig) || die "stdin: $!";
 	}
 	else {
-		@downloader = ("curl", "-A", "mr", "-L", "-s", $url, "-o", $tmpconfig);
-		push(@downloader, "-k") if $insecure;
+		# Config file is local.
+		die "mr bootstrap: cannot read file '$src'"
+			unless -r $src;
+		copy($src, $tmpconfig) || die "copy: $!";
 	}
-	my $status = system(@downloader);
-	die "mr bootstrap: invalid SSL certificate for $url (consider -k)\n"
-		if $downloader[0] eq 'curl' && $status >> 8 == 60;
-	die "mr bootstrap: download of $url failed\n" if $status != 0;
 
+	# Sanity check on destination directory.
 	if (! -e $dir) {
 		system("mkdir", "-p", $dir);
 	}
@@ -1702,16 +1805,14 @@ sub bootstrap {
 	# would normally be skipped.
 	my $topdir=abs_path(".")."/";
 	my @repo=($topdir, $topdir, ".");
-	loadconfig($tmpconfig, $topdir, $url);
+	loadconfig($tmpconfig, $topdir, $src);
 	record(\@repo, action("checkout", @repo, 1))
 		if exists $config{$topdir}{"."}{"checkout"};
 
 	if (-e ".mrconfig") {
-		print STDERR "mr bootstrap: .mrconfig file already exists, not overwriting with $url\n";
+		print STDERR "mr bootstrap: .mrconfig file already exists, not overwriting with $src\n";
 	}
 	else {
-		eval q{use File::Copy};
-		die $@ if $@;
 		move($tmpconfig, ".mrconfig") || die "rename: $!";
 	}
 
@@ -1769,6 +1870,7 @@ sub getopts {
 		"p|path" => sub { }, # now default, ignore
 		"f|force" => \$force,
 		"v|verbose" => \$verbose,
+		"m|minimal" => \$minimal,
 		"q|quiet" => \$quiet,
 		"s|stats" => \$stats,
 		"k|insecure" => \$insecure,
@@ -1787,6 +1889,19 @@ sub getopts {
 		last if $option eq $ARGV[0];
 		$ENV{MR_SWITCHES}.="$option ";
 	}
+}
+
+sub check {
+	my @env = qw(GIT_DIR GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_WORK_TREE VCSH_COMMAND VCSH_DIRECTORY VCSH_REPO_NAME);
+	my $error;
+	foreach (@env) {
+		if ($ENV{$_}) {
+			$error=1;
+			print STDERR "mr: environment variable '$_' is set.\n";
+		}
+	}
+	die ("mr: The variables above would lead to very interesting effects.
+    Unfortunately, most of those effects result in data loss so we stop here.\n") if $error;
 }
 
 sub init {
@@ -1824,7 +1939,9 @@ sub exitstats {
 
 sub main {
 	getopts();
+	check();
 	init();
+	help(@ARGV) if $ARGV[0] eq 'help';
 
 	startingconfig();
 	loadconfig($HOME_MR_CONFIG);
@@ -1928,6 +2045,64 @@ git_svn_fetch = git svn fetch
 darcs_fetch = darcs fetch
 hg_fetch = hg pull
 
+svn_clean = 
+	if [ "x$1" = x-f ] ; then
+		shift
+		svn-clean "$@"
+	else
+		svn-clean --print "$@"
+	fi
+git_clean = 
+	if [ "x$1" = x-f ] ; then
+		shift
+		git clean -dx --force "$@"
+	else
+		git clean -dx --dry-run "$@"
+	fi
+git_svn_clean = 
+	if [ "x$1" = x-f ] ; then
+		shift
+		git clean -dx --force "$@"
+	else
+		git clean -dx --dry-run "$@"
+	fi
+bzr_clean = 
+	if [ "x$1" = x-f ] ; then
+		shift
+		bzr clean-tree --verbose --force --ignored --unknown --detritus "$@"
+	else
+		bzr clean-tree --verbose --dry-run --ignored --unknown --detritus "$@"
+	fi
+cvs_clean = 
+        if [ "x$1" = x-f ] ; then
+		shift
+		cvs-clean "$@"
+	else
+		cvs-clean --dry-run "$@"
+	fi
+hg_clean = 
+	if [ "x$1" = x-f ] ; then
+		shift
+		hg purge --print --all "$@"
+		hg purge --all "$@"
+	else
+		hg purge --print --all "$@"
+	fi
+fossil_clean = 
+	if [ "x$1" = x-f ] ; then
+		shift
+		fossil clean --dry-run --dotfiles --emptydirs "$@"
+	else
+		fossil clean --force --dotfiles --emptydirs "$@"
+	fi
+vcsh_clean = 
+	if [ "x$1" = x-f ] ; then
+		shift
+		vcsh run "$MR_REPO" git clean -dx "$@"
+	else
+		vcsh run "$MR_REPO" git clean -dx --dry-run "$@"
+	fi
+
 svn_status = svn status "$@"
 git_status = git status -s "$@" || true; git --no-pager log --branches --not --remotes --simplify-by-decoration --decorate --oneline || true
 bzr_status = bzr status --short "$@"; bzr missing
@@ -2003,6 +2178,7 @@ svn_grep = ack-grep "$@"
 git_svn_grep = git grep "$@"
 git_grep = git grep "$@"
 bzr_grep = ack-grep "$@"
+darcs_grep = ack-grep "$@"
 
 run = "$@"
 
@@ -2076,30 +2252,12 @@ bzr_trusted_checkout = bzr checkout|clone|branch|get $url $repo
 hg_trusted_checkout = hg clone $url $repo
 darcs_trusted_checkout = darcs get $url $repo
 git_bare_trusted_checkout = git clone --bare $url $repo
-vcsh_trusted_checkout = vcsh run "$MR_REPO" git clone $url $repo
+vcsh_old_trusted_checkout = vcsh run "$MR_REPO" git clone $url $repo
+vcsh_trusted_checkout = vcsh clone $url $repo
 # fossil: messy to do
 veracity_trusted_checkout = vv clone $url $repo
 
 
-help =
- 	case `uname -s` in
-		SunOS)
-		SHOWMANFILE="man -f"
-		;;
-		Darwin)
-		SHOWMANFILE="man"
-		;;
-		*)
-		SHOWMANFILE="man"
-		;;
-	esac
-	if [ ! -e "$MR_PATH" ]; then
-		error "cannot find program path"
-	fi
-	tmp=$(mktemp -t mr.XXXXXXXXXX) || error "mktemp failed"
-	trap "rm -f $tmp" exit
-	pod2man -c mr "$MR_PATH" > "$tmp" || error "pod2man failed"
-	$SHOWMANFILE "$tmp" || error "man failed"
 list = true
 config = 
 bootstrap = 

@@ -2,7 +2,7 @@ Source: myrepos
 Section: vcs
 Priority: optional
 Build-Depends: debhelper (>= 9), dpkg-dev (>= 1.9.0)
-Maintainer: Joey Hess <joeyh@debian.org>
+Maintainer: Richard Hartmann <richih@debian.org>
 Standards-Version: 3.9.5
 Homepage: http://myrepos.branchable.com/
 Vcs-Git: git://myrepos.branchable.com/
@@ -11,10 +11,10 @@ Package: myrepos
 Architecture: all
 Section: vcs
 Depends: ${misc:Depends}
-Suggests: subversion, git-core | git (>= 1:1.7), cvs, bzr, mercurial, darcs, fossil, vcsh, liburi-perl, curl, ack-grep
+Suggests: subversion, subversion-tools, git-core | git (>= 1:1.7), cvs, kdesdk-scripts, bzr, mercurial, darcs, fossil, vcsh, liburi-perl, curl, ack-grep
 Provides: mr
 Replaces: mr
-Recommends: libwww-perl, libhtml-parser-perl, perl
+Recommends: libwww-perl, libhtml-parser-perl, libio-pty-easy-perl, perl
 Description: tool to manage all your version control repos
  The mr(1) command can checkout, update, or perform other actions on
  a set of repositories as if they were one combined respository. It

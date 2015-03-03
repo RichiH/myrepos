@@ -1,0 +1,6 @@
+myrepos 1.20141023 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+   * Add darcs grep command using ack-grep.
+     Thanks, Paul Wise.
+   * Add a clean command.
+     Thanks, Paul Wise. Closes: #[702685](http://bugs.debian.org/702685)"""]]

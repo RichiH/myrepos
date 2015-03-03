@@ -1,0 +1,3 @@
+myrepos 1.20141024 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+   * Fix name for vcsh\_clean. Closes: #[766655](http://bugs.debian.org/766655)"""]]

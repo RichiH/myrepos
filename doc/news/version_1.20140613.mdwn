@@ -1,0 +1,11 @@
+myrepos 1.20140613 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+   * Added lib/git-annex. Thanks, martin f krafft.
+     Closes: #[743882](http://bugs.debian.org/743882)
+   * Make mr help work even if the mrconfig file is busted.
+     Thanks, Lorenzo Cappelletti
+   * Support "vcsh clone url repo" as trusted checkout syntax,
+     while still supporting the old syntax.
+   * bootstrap: Support reading bootstrap mrconfig file from both a local
+     file, and from stdin.
+     Thanks, Lorenzo Cappelletti"""]]

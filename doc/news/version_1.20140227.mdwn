@@ -1,6 +1,0 @@
-myrepos 1.20140227 released with [[!toggle text="these changes"]]
-[[!toggleable text="""
-   * Avoid using man -l, relying on both versions of man for linux working
-     when a file is passed, with no switches.
-   * When blocking control codes in untrusted mrconfig files, ignore
-     ones inside comments. (Thanks, Philipp Ittershagen)"""]]
