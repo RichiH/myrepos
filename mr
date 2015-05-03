@@ -491,6 +491,15 @@ is checked out, or updated. This provides an easy way to do things
 like permissions fixups, or other tweaks to the repository content,
 whenever the repository is changed.
 
+=item jobs
+
+If "jobs" is set, run the specified number of jobs in parallel.
+This can greatly speed up operations such as updates.
+
+Note that running more than 10 jobs at a time is likely to run afoul of
+ssh connection limits. Running between 3 and 5 jobs at a time will yield
+a good speedup in updates without loading the machine too much.
+
 =item VCS_action
 
 When looking for a command to run for a given action, mr first looks for
