@@ -1,0 +1,9 @@
+myrepos 1.20150503 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+ * [ Joey Hess ]
+   * Rework help command to work on OpenBSD.
+ * [ Richard Hartmann ]
+   * Check if unsafe ENV variables are set
+   * Add support for setting jobs via config file
+   * Add support for fossil &gt;= 1.23
+   * Bump Standards-Version to 3.9.6"""]]
