@@ -1,8 +1,16 @@
-myrepos (1.20141024.2) UNRELEASED; urgency=medium
+myrepos (1.20150503) unstable; urgency=medium
 
+  [ Joey Hess ]
   * Rework help command to work on OpenBSD.
 
- -- Joey Hess <id@joeyh.name>  Fri, 23 Jan 2015 13:22:30 -0400
+  [ Richard Hartmann ]
+  * Check if unsafe ENV variables are set
+  * Rework help command to work on OpenBSD.
+  * Add support for setting jobs via config file
+  * Add support for fossil >= 1.23
+  * Bump Standards-Version to 3.9.6
+
+ -- Richard Hartmann <richih@debian.org>  Sun, 03 May 2015 20:57:08 +0200
 
 myrepos (1.20141024.1) unstable; urgency=medium
 
