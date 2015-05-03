@@ -5,7 +5,6 @@ myrepos (1.20150503) unstable; urgency=medium
 
   [ Richard Hartmann ]
   * Check if unsafe ENV variables are set
-  * Rework help command to work on OpenBSD.
   * Add support for setting jobs via config file
   * Add support for fossil >= 1.23
   * Bump Standards-Version to 3.9.6
