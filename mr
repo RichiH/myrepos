@@ -1796,12 +1796,14 @@ sub bootstrap {
 	elsif ($src eq '-') {
 		# Config file is read from stdin.
 		copy(\*STDIN, $tmpconfig) || die "stdin: $!";
+		seek $tmpconfig, 0, 0;
 	}
 	else {
 		# Config file is local.
 		die "mr bootstrap: cannot read file '$src'"
 			unless -r $src;
 		copy($src, $tmpconfig) || die "copy: $!";
+		seek $tmpconfig, 0, 0;
 	}
 
 	# Sanity check on destination directory.
