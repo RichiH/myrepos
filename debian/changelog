@@ -4,6 +4,8 @@ myrepos (1.20150504) UNRELEASED; urgency=medium
     Thanks, Fabrice Benhamouda.
   * Pass user-specified command-line arguments to mr fetch commands too.
     Thanks, Paul Wise.
+  * Make output continuous in minimal mode when there is only one job.
+    Thanks, Paul Wise.
 
  -- Joey Hess <id@joeyh.name>  Fri, 12 Jun 2015 13:49:10 -0400
 
