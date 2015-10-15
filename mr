@@ -751,13 +751,28 @@ sub terminal_friendly_spawn {
 	my $sh = shift;
 	my $quiet = shift;
 	my $minimal = shift;
+	my $jobs = shift;
+	my $continous = !$quiet && $minimal && 1 == $jobs;
 	my $output = "";
+	my $continous_output = 0;
 	if ($terminal) {
 		my $pty = IO::Pty::Easy->new;
 		$pty->spawn($sh);
-		while ($pty->is_active) {
-			my $data = $pty->read();
-			$output .= $data if defined $data;
+		if ($continous) {
+			while ($pty->is_active) {
+				my $data = $pty->read();
+				if (defined $data && $data ne '') {
+					print "$actionmsg\n" if ($actionmsg && !$continous_output);
+					$continous_output = 1;
+					print $data;
+				}
+			}
+		}
+		else {
+			while ($pty->is_active) {
+				my $data = $pty->read();
+				$output .= $data if defined $data;
+			}
 		}
 		$pty->close;
 	} else {
@@ -771,7 +786,7 @@ sub terminal_friendly_spawn {
 		print "$actionmsg\n" if $actionmsg;
 		print $output;
 	}
-	return ($ret, $output ? 1 : 0);
+	return ($ret, ($output || $continous_output) ? 1 : 0);
 }
 
 sub action {
@@ -876,7 +891,7 @@ sub action {
 			$command, \@ARGV, sub {
 				my $sh=shift;
 				if (!$jobs || $jobs > 1 || $quiet || $minimal) {
-					return terminal_friendly_spawn($actionmsg, $sh, $quiet, $minimal);
+					return terminal_friendly_spawn($actionmsg, $sh, $quiet, $minimal, $jobs);
 				}
 				else {
 					system($sh);
@@ -941,7 +956,7 @@ sub hook {
 	my ($ret,$out)=runsh $hook, $topdir, $subdir, $command, [], sub {
 			my $sh=shift;
 			if (!$jobs || $jobs > 1 || $quiet || $minimal) {
-				return terminal_friendly_spawn(undef, $sh, $quiet, $minimal);
+				return terminal_friendly_spawn(undef, $sh, $quiet, $minimal, $jobs);
 			}
 			else {
 				system($sh);
