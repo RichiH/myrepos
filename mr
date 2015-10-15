@@ -775,14 +775,16 @@ sub terminal_friendly_spawn {
 			}
 		}
 		$pty->close;
-	} else {
+	}
+	else {
 		$output = qx/$sh 2>&1/;
 	}
 	my $ret = $?;
 	if ($quiet && $ret != 0) {
 		print "$actionmsg\n" if $actionmsg;
 		print STDERR $output;
-	} elsif (!$quiet && (!$minimal || $output)) {
+	}
+	elsif (!$quiet && (!$minimal || $output)) {
 		print "$actionmsg\n" if $actionmsg;
 		print $output;
 	}
