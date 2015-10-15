@@ -2051,10 +2051,10 @@ fossil_update = fossil pull "$@"
 vcsh_update = vcsh run "$MR_REPO" git pull "$@"
 veracity_update = vv pull "$@" && vv update "$@"
 
-git_fetch = git fetch --all --prune --tags
-git_svn_fetch = git svn fetch
-darcs_fetch = darcs fetch
-hg_fetch = hg pull
+git_fetch = git fetch --all --prune --tags "$@"
+git_svn_fetch = git svn fetch "$@"
+darcs_fetch = darcs fetch "$@"
+hg_fetch = hg pull "$@"
 
 svn_clean = 
 	if [ "x$1" = x-f ] ; then
