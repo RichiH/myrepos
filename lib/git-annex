@@ -21,7 +21,6 @@ lib = git_annex_sync() { git annex --quiet sync --content; }
 
 git_test = cd ${MR_REPO} && test -d .git && ! git annex wanted . >/dev/null 2>&1
 git_annex_test = cd ${MR_REPO} && test -d .git && git annex wanted . >/dev/null 2>&1
-git_annex_fetch = git annex --quiet fetch "$@"
 git_annex_update = git_annex_sync
 git_annex_status = git annex --quiet status
 git_annex_commit = git commit -a "$@" && git_annex_sync
