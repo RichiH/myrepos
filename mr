@@ -884,7 +884,7 @@ sub action {
 			$s=~s/^\Q$fulldir\E\/?//;
 			$actionmsg="mr $action: $fulldir (in subdir $s)";
 		}
-		print "$actionmsg\n" unless $quiet || $minimal;
+		print "$actionmsg\n" unless !$jobs || $jobs > 1 || $quiet || $minimal;
 
 		my ($hookret, $hook_out)=hook("pre_$action", $topdir, $subdir);
 		return $hookret if $hookret != OK;
