@@ -1672,29 +1672,10 @@ sub dispatch {
 }
 
 sub help {
-	my $help=q#
-		if [ ! -e "$MR_PATH" ]; then
-			error "cannot find program path"
-		fi
-		tmp=$(mktemp -t mr.XXXXXXXXXX) || error "mktemp failed"
-		trap "rm -f $tmp" exit
-		pod2man -c mr "$MR_PATH" > "$tmp" || error "pod2man failed"
-		showman() {
-			case `uname -s` in
-				SunOS)
-				man -f "$tmp"
-				;;
-				OpenBSD)
-				mandoc "$tmp" | ${PAGER:-more}
-				;;
-				*)
-				man "$tmp"
-				;;
-			esac
-		}
-		showman "$tmp" || error "man failed"
-	#;
-	exec($help) || die "exec: $!";
+	if (! -e "$ENV{MR_PATH}") {
+		die "cannot find the program path";
+	}
+	exec("perldoc", $ENV{MR_PATH}) || die "exec perldoc: $!";
 }
 
 sub config {
