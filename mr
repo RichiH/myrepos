@@ -1202,7 +1202,7 @@ sub is_trusted_config {
 	my $config=shift; # must be abs_pathed already
 
 	# We always trust ~/.mrconfig.
-	return 1 if $config eq abs_path($HOME_MR_CONFIG);
+	return 1 if $config eq safe_abs_path($HOME_MR_CONFIG);
 
 	return 1 if $trust_all;
 
@@ -1214,7 +1214,7 @@ sub is_trusted_config {
 			while (<TRUST>) {
 				chomp;
 				s/^~\//$ENV{HOME}\//;
-				my $d=abs_path($_);
+				my $d=safe_abs_path($_);
 				$trusted{$d}=1 if defined $d;
 			}
 			close TRUST;
@@ -1318,7 +1318,7 @@ sub loadconfig {
 		$trusted=1;
 	}
 	else {
-		my $absf=abs_path($f);
+		my $absf=safe_abs_path($f);
 		if ($loaded{$absf}) {
 			return;
 		}
@@ -1333,7 +1333,7 @@ sub loadconfig {
 			}
 		}
 
-		$dir=abs_path($dir)."/";
+		$dir=safe_abs_path($dir)."/";
 		
 		if (! exists $configfiles{$dir}) {
 			$configfiles{$dir}=$f;
@@ -1686,7 +1686,7 @@ sub config {
 	if ($section=~/^\//) {
 		# try to convert to a path relative to the config file
 		my ($dir)=$ENV{MR_CONFIG}=~/^(.*\/)[^\/]+$/;
-		$dir=abs_path($dir);
+		$dir=safe_abs_path($dir);
 		$dir.="/" unless $dir=~/\/$/;
 		if ($section=~/^\Q$dir\E(.*)/) {
 			$section=$1;
@@ -1720,7 +1720,7 @@ sub register {
 	if ($config_overridden) {
 		# Find the directory that the specified config file is
 		# located in.
-		($directory)=abs_path($ENV{MR_CONFIG})=~/^(.*\/)[^\/]+$/;
+		($directory)=safe_abs_path($ENV{MR_CONFIG})=~/^(.*\/)[^\/]+$/;
 	}
 	else {
 		# Find the closest known mrconfig file to the current
@@ -1812,7 +1812,7 @@ sub bootstrap {
 
 	# Special case to handle checkout of the "." repo, which 
 	# would normally be skipped.
-	my $topdir=abs_path(".")."/";
+	my $topdir=safe_abs_path(".")."/";
 	my @repo=($topdir, $topdir, ".");
 	loadconfig($tmpconfig, $topdir, $src);
 	record(\@repo, action("checkout", @repo, 1))
@@ -1830,7 +1830,7 @@ sub bootstrap {
 	startingconfig();
 	loadconfig(".mrconfig");
 	dispatch("checkout");
-	@skipped=grep { abs_path($_) ne abs_path($topdir) } @skipped;
+	@skipped=grep { safe_abs_path($_) ne safe_abs_path($topdir) } @skipped;
 	showstats("bootstrap");
 	exitstats();
 }
@@ -1874,7 +1874,7 @@ sub getopts {
 	my @saved=@ARGV;
 	Getopt::Long::Configure("bundling", "no_permute");
 	my $result=GetOptions(
-		"d|directory=s" => sub { $directory=abs_path($_[1]) },
+		"d|directory=s" => sub { $directory=safe_abs_path($_[1]) },
 		"c|config=s" => sub { $ENV{MR_CONFIG}=$_[1]; $config_overridden=1 },
 		"p|path" => sub { }, # now default, ignore
 		"f|force" => \$force,
@@ -1943,6 +1943,19 @@ sub exitstats {
 	}
 	else {
 		exit 0;
+	}
+}
+
+# abs_path crashes on windows and some other platforms when given a file
+# that does not exist.
+sub safe_abs_path {
+	my $f=shift;
+	my $p=eval { abs_path($f) };
+	if ($@) {
+		return $f;
+	}
+	else {
+		return $p;
 	}
 }
 
