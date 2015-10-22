@@ -2126,7 +2126,7 @@ vcsh_clean =
 	fi
 
 svn_status = svn status "$@"
-git_status = git stash list ; git status -s "$@" || true; git --no-pager log --branches --not --remotes --simplify-by-decoration --decorate --oneline || true
+git_status = git status -s "$@" || true; git --no-pager log --branches --not --remotes --simplify-by-decoration --decorate --oneline || true; git stash list
 bzr_status = bzr status --short "$@"; bzr missing
 cvs_status = cvs -q status | grep -E '^(File:.*Status:|\?)' | grep -v 'Status: Up-to-date'
 hg_status  = hg status "$@"; hg summary --quiet | grep -v 'parent: 0:'
