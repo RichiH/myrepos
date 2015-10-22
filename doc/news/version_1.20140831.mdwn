@@ -1,9 +1,0 @@
-myrepos 1.20140831 released with [[!toggle text="these changes"]]
-[[!toggleable text="""
-   * Deal with abs\_path change in new version of perl, now it returns undefined
-     when the directory does not exist.
-   * Added --minimal mode. Closes: #[694031](http://bugs.debian.org/694031) Thanks, Paul Wise.
-   * Use libio-pty-easy-perl when available when captuting command output
-     (for --minimal or -jN), so that programs that output color to terminals
-     will be colorized. This is only a recommends as it will fall back to
-     the old method. Thanks, Paul Wise."""]]

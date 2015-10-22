@@ -1,0 +1,17 @@
+myrepos 1.20151022 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+   * mr status in a git repo now includes git stash list in the output,
+     to remind you if you have any stashes. If your workflow involves
+     making lots of stashes and not cleaning them up, you may be better served
+     by switching from "git stash apply" to "git stash pop". Of course,
+     you can also override git\_status in your mrconfig file and remove the
+     stash list.
+   * Fix bootstrap from local source files.
+     Thanks, Fabrice Benhamouda.
+   * Pass user-specified command-line arguments to mr fetch commands too.
+     Thanks, Paul Wise.
+   * Make output continuous in minimal mode when there is only one job.
+     Thanks, Paul Wise.
+   * Simplify mr help by using perldoc, rather than man.
+   * On some platforms, abs\_path crashes when the file does not exist.
+     Wrap it for safety."""]]
