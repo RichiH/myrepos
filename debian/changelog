@@ -1,4 +1,4 @@
-myrepos (1.20150504) UNRELEASED; urgency=medium
+myrepos (1.20151022) unstable; urgency=medium
 
   * mr status in a git repo now includes git stash list in the output,
     to remind you if you have any stashes. If your workflow involves
@@ -16,7 +16,7 @@ myrepos (1.20150504) UNRELEASED; urgency=medium
   * On some platforms, abs_path crashes when the file does not exist.
     Wrap it for safety.
 
- -- Joey Hess <id@joeyh.name>  Fri, 12 Jun 2015 13:49:10 -0400
+ -- Joey Hess <id@joeyh.name>  Thu, 22 Oct 2015 00:49:29 -0400
 
 myrepos (1.20150503) unstable; urgency=medium
 
