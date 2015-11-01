@@ -1,3 +1,10 @@
+myrepos (1.20151023) unstable; urgency=medium
+
+  * Allow running of mr via `mr --force-env` when within vcsh context via
+    `vcsh enter foo`. Closes: #786736
+
+ -- Richard Hartmann <richih@debian.org>  Sun, 01 Nov 2015 22:17:34 +0100
+
 myrepos (1.20151022) unstable; urgency=medium
 
   * mr status in a git repo now includes git stash list in the output,
