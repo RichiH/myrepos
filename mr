@@ -267,6 +267,11 @@ of its parent directories.
 Force mr to act on repositories that would normally be skipped due to their
 configuration.
 
+=item --force-env
+
+Force mr to execute even though potentially dangerous environment variables
+are set.
+
 =item -v
 
 =item --verbose
@@ -595,6 +600,7 @@ my $minimal=0;
 my $quiet=0;
 my $stats=0;
 my $force=0;
+my $force_env=0;
 my $insecure=0;
 my $interactive=0;
 my $max_depth;
@@ -1878,6 +1884,7 @@ sub getopts {
 		"c|config=s" => sub { $ENV{MR_CONFIG}=$_[1]; $config_overridden=1 },
 		"p|path" => sub { }, # now default, ignore
 		"f|force" => \$force,
+		"force-env" => \$force_env,
 		"v|verbose" => \$verbose,
 		"m|minimal" => \$minimal,
 		"q|quiet" => \$quiet,
@@ -1901,6 +1908,7 @@ sub getopts {
 }
 
 sub check {
+	return if $force_env;
 	my @env = qw(GIT_DIR GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_WORK_TREE VCSH_COMMAND VCSH_DIRECTORY VCSH_REPO_NAME);
 	my $error;
 	foreach (@env) {
