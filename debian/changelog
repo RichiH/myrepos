@@ -2,6 +2,7 @@ myrepos (1.20151023) UNRELEASED; urgency=medium
 
   * hg push exits 1 on non-error, apparently only 255 is used for actual errors.
     Deal with this unusual behavior. Thanks, Ivan Perez.
+  * Work when HOME is a symlink. Closes: #793381
 
  -- Joey Hess <id@joeyh.name>  Sun, 08 Nov 2015 12:07:00 -0400
 
