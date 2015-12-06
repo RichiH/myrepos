@@ -759,20 +759,20 @@ sub terminal_friendly_spawn {
 	my $quiet = shift;
 	my $minimal = shift;
 	my $jobs = shift;
-	my $continous = !$quiet && $minimal && 1 == $jobs;
+	my $continuous = !$quiet && $minimal && 1 == $jobs;
 	my $output = "";
-	my $continous_output = 0;
+	my $continuous_output = 0;
 	if ($terminal) {
 		my $pty = IO::Pty::Easy->new;
 		$pty->spawn($sh);
-		if ($continous) {
+		if ($continuous) {
 			$| = 1;
 			print "$actionmsg$erase_line\r" if $actionmsg;
 			while ($pty->is_active) {
 				my $data = $pty->getline();
 				if (defined $data && $data ne '') {
-					print "\n" if ($actionmsg && !$continous_output);
-					$continous_output = 1;
+					print "\n" if ($actionmsg && !$continuous_output);
+					$continuous_output = 1;
 					print $data;
 				}
 			}
@@ -797,7 +797,7 @@ sub terminal_friendly_spawn {
 		print "$actionmsg\n" if $actionmsg;
 		print $output;
 	}
-	return ($ret, ($output || $continous_output) ? 1 : 0);
+	return ($ret, ($output || $continuous_output) ? 1 : 0);
 }
 
 sub action {

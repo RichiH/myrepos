@@ -264,7 +264,7 @@ mr (1.04) unstable; urgency=low
 mr (1.03) unstable; urgency=low
 
   * Added git-subtree library. Thanks, Svend Sorensen
-  * Now --quiet supresses all output from commands run, as well
+  * Now --quiet suppresses all output from commands run, as well
     as from mr, unless a command fails. Closes: #529296
 
  -- Joey Hess <joeyh@debian.org>  Sun, 01 May 2011 19:09:35 -0400
@@ -594,7 +594,7 @@ mr (0.15) unstable; urgency=low
     Closes: #452467
 
   [ Joey Hess ]
-  * Add a warning about runing too many jobs at a time.
+  * Add a warning about running too many jobs at a time.
 
  -- Joey Hess <joeyh@debian.org>  Sun, 25 Nov 2007 13:13:47 -0500
 
@@ -651,7 +651,7 @@ mr (0.9) unstable; urgency=low
 
     The old style unsplit actions are still supported, and are what most
     mrconfig files will still use; this change is fully backwards compatible.
-  * Changed some things in the enviroment for the register action.
+  * Changed some things in the environment for the register action.
     It's now run in the directory that the user specifies, and MR_REPO
     is set to contain the basename of the directory that the checkout
     command should check out. These changes should be backware compatible
