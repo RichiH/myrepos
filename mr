@@ -769,7 +769,7 @@ sub terminal_friendly_spawn {
 			$| = 1;
 			print "$actionmsg$erase_line\r" if $actionmsg;
 			while ($pty->is_active) {
-				my $data = $pty->read();
+				my $data = $pty->getline();
 				if (defined $data && $data ne '') {
 					print "\n" if ($actionmsg && !$continous_output);
 					$continous_output = 1;
