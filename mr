@@ -609,6 +609,7 @@ my $jobs=1;
 my $trust_all=0;
 my $directory=getcwd();
 my $terminal=-t STDOUT && eval{require IO::Pty::Easy;IO::Pty::Easy->import();1;};
+my $erase_line=$terminal && eval{require Term::Cap;my $t=Term::Cap->Tgetent();$t->Tputs('ce');};
 
 my $HOME_MR_CONFIG = "$ENV{HOME}/.mrconfig";
 $ENV{MR_CONFIG}=find_mrconfig();
@@ -765,10 +766,12 @@ sub terminal_friendly_spawn {
 		my $pty = IO::Pty::Easy->new;
 		$pty->spawn($sh);
 		if ($continous) {
+			$| = 1;
+			print "$actionmsg$erase_line\r" if $actionmsg;
 			while ($pty->is_active) {
 				my $data = $pty->read();
 				if (defined $data && $data ne '') {
-					print "$actionmsg\n" if ($actionmsg && !$continous_output);
+					print "\n" if ($actionmsg && !$continous_output);
 					$continous_output = 1;
 					print $data;
 				}
@@ -1924,6 +1927,7 @@ sub check {
 
 sub init {
 	$SIG{INT}=sub {
+		print STDERR "$erase_line" if defined $erase_line && $terminal && !$quiet && $minimal && 1 == $jobs;
 		print STDERR "mr: interrupted\n";
 		exit 2;
 	};
