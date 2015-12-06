@@ -3,5 +3,6 @@ Or get it [from github](https://github.com/joeyh/myrepos).
 
 It's a simple perl script, which can be copied anywhere to install.
 
-Myrepos is included in all recent versions of Debian. `apt-get install mr`  
-It's also in Mac Homebrew as `mr`.
+Debian: `apt-get install myrepos`  
+Homebrew: `brew install mr`  
+FreeBSD: `pkg install myrepos`  

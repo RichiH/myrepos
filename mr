@@ -1137,13 +1137,14 @@ sub repolist {
 	} @list;
 }
 
-sub repodir {
+sub absrepodir {
 	my $repo=shift;
 	my $topdir=$repo->{topdir};
 	my $subdir=$repo->{subdir};
 	my $ret=($subdir =~/^\//) ? $subdir : $topdir.$subdir;
 	$ret=~s/\/\.$//;
-	return $ret;
+	my $absret=abs_path($ret);
+	return (defined $absret ? $absret : $ret);
 }
 
 # Figure out which repos to act on.  Returns a list of array refs
@@ -1157,7 +1158,7 @@ sub selectrepos {
 		my $subdir=$repo->{subdir};
 
 		next if $subdir eq 'DEFAULT';
-		my $dir=repodir($repo);
+		my $dir=absrepodir($repo);
 		my $d=$directory;
 		$dir.="/" unless $dir=~/\/$/;
 		$d.="/" unless $d=~/\/$/;
@@ -1177,7 +1178,7 @@ sub selectrepos {
 			my $subdir=$repo->{subdir};
 			
 			next if $subdir eq 'DEFAULT';
-			my $dir=repodir($repo);
+			my $dir=absrepodir($repo);
 			my $d=$directory;
 			$dir.="/" unless $dir=~/\/$/;
 			$d.="/" unless $d=~/\/$/;
@@ -2175,7 +2176,7 @@ svn_push = :
 git_push = git push "$@"
 bzr_push = bzr push "$@"
 cvs_push = :
-hg_push = hg push "$@"
+hg_push = hg push "$@" || if [ "$?" -eq "255" ] ; then exit 1; else exit 0; fi
 darcs_push = darcs push -a "$@"
 fossil_push = fossil push "$@"
 vcsh_push = vcsh run "$MR_REPO" git push "$@"
