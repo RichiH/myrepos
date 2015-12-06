@@ -3,4 +3,5 @@ debian/myrepos.debhelper.log
 debian/myrepos.substvars
 debian/myrepos/
 mr.1
+patches/
 webcheckout.1
