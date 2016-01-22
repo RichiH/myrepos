@@ -1146,7 +1146,7 @@ sub absrepodir {
 	my $subdir=$repo->{subdir};
 	my $ret=($subdir =~/^\//) ? $subdir : $topdir.$subdir;
 	$ret=~s/\/\.$//;
-	my $absret=abs_path($ret);
+	my $absret=safe_abs_path($ret);
 	return (defined $absret ? $absret : $ret);
 }
 

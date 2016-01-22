@@ -1,3 +1,10 @@
+myrepos (1.20151207) UNRELEASED; urgency=medium
+
+  * Fix one missing call to safe_abs_path.
+    Thanks, Chris Arndt
+
+ -- Joey Hess <id@joeyh.name>  Fri, 22 Jan 2016 18:39:18 -0400
+
 myrepos (1.20151206) unstable; urgency=medium
 
   [ Paul Wise]
