@@ -1,4 +1,4 @@
-myrepos (1.20151207) unstable; urgency=medium
+myrepos (1.20160122) unstable; urgency=medium
 
   * Fix one missing call to safe_abs_path.
     Thanks, Chris Arndt
