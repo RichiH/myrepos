@@ -1,0 +1,4 @@
+myrepos 1.20160122 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+   * Fix one missing call to safe\_abs\_path.
+     Thanks, Chris Arndt"""]]
