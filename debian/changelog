@@ -14,14 +14,14 @@ myrepos (1.20151206) unstable; urgency=medium
 
  -- Richard Hartmann <richih@debian.org>  Sun, 06 Dec 2015 07:11:40 +0100
 
-myrepos (1.20151101) UNRELEASED; urgency=medium
+myrepos (1.20151101) unstable; urgency=medium
 
   * Allow running of mr via `mr --force-env` when within vcsh context via
     `vcsh enter foo`. Closes: #786736
 
  -- Richard Hartmann <richih@debian.org>  Sun, 01 Nov 2015 22:17:34 +0100
 
-myrepos (1.20151023) UNRELEASED; urgency=medium
+myrepos (1.20151023) unstable; urgency=medium
 
   * hg push exits 1 on non-error, apparently only 255 is used for actual errors.
     Deal with this unusual behavior. Thanks, Ivan Perez.
