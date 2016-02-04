@@ -2145,7 +2145,7 @@ cvs_status = cvs -q status | grep -E '^(File:.*Status:|\?)' | grep -v 'Status: U
 hg_status  = hg status "$@"; hg summary --quiet | grep -v 'parent: 0:'
 darcs_status = darcs whatsnew -ls "$@" || true
 fossil_status = fossil changes "$@"
-vcsh_status = vcsh run "$MR_REPO" git -c status.relativePaths=false status -s "$@" || true
+vcsh_status = vcsh status "$MR_REPO" "$@" || true
 veracity_status = vv status "$@"
 
 svn_commit = svn commit "$@"
