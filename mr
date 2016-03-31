@@ -2262,12 +2262,13 @@ git_bare_register =
 	echo "Registering git url: $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone --bare '$url' '$MR_REPO'"
 vcsh_register =
-	url="`LC_ALL=C vcsh run "$MR_REPO" git config --get remote.origin.url`" || true
+	mr_repo_basename=`basename "$MR_REPO" .git`
+	url="`LC_ALL=C vcsh run "$mr_repo_basename" git config --get remote.origin.url`" || true
 	if [ -z "$url" ]; then
 		error "cannot determine git url"
 	fi
 	echo "Registering git url: $url in $MR_CONFIG"
-	mr -c "$MR_CONFIG" config "`pwd`" checkout="vcsh clone '$url' '$MR_REPO'"
+	mr -c "$MR_CONFIG" config "`pwd`" checkout="vcsh clone '$url' '$mr_repo_basename'"
 fossil_register =
 	url=`fossil remote-url`
 	repo=`fossil info | grep repository | sed -e 's/repository:*.//g' -e 's/ //g'`
