@@ -29,7 +29,7 @@
 # target directory.  You can export STOW_DIR and STOW_TARGET to
 # override these defaults.
 #
-# stowing is automatically performed via post_checkout, and restowing
+# Stowing is automatically performed via post_checkout, and restowing
 # via post_update, as can be seen from below (search for 'Automatic
 # actions').  Note that these run before fixups, which allows fixups
 # to refer to stowed files, but isn't ideal if the fixups are
