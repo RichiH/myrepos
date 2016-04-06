@@ -103,7 +103,7 @@
 lib =
     : ${STOW_DIR:=$HOME/.STOW}
     : ${STOW_TARGET:=$HOME}
-    MR_NAME=$(echo "$MR_REPO" | tr / _)
+    STOW_NAME=$(echo "$MR_REPO" | tr / _)
     #
     if ! [ -d "$STOW_TARGET"    ]; then mkdir -p "$STOW_TARGET"; fi
     if ! [ -d "$STOW_DIR"       ]; then mkdir -p "$STOW_DIR"   ; fi
@@ -120,7 +120,7 @@ lib =
             return 0
         else
             if [ -n "$1" ]; then
-                info "$MR_NAME isn't stowable; skipping $MR_ACTION"
+                info "$STOW_NAME isn't stowable; skipping $MR_ACTION"
             fi
             return 1
         fi
@@ -128,7 +128,7 @@ lib =
     #
     set_stow_common_opts () {
         : ${STOW_PKG_TYPE:=symlink}
-        STOW_PKG_PATH="$STOW_DIR/$MR_NAME"
+        STOW_PKG_PATH="$STOW_DIR/$STOW_NAME"
         stow_common_opts="-t $STOW_TARGET -d $STOW_DIR"
         STOW="${STOW_COMMAND:-stow}"
         case "`$STOW --version`" in
@@ -153,9 +153,9 @@ lib =
         stowable_then_continue || return 0
         set_stow_common_opts
         ensure_package_exists
-        command "$STOW" $stow_common_opts "$@" "$MR_NAME"
+        command "$STOW" $stow_common_opts "$@" "$STOW_NAME"
         mr_post_stow
-        info "Stowed $MR_NAME"
+        info "Stowed $STOW_NAME"
     }
     mr_restow_if_already_stowed () {
         stowable_then_continue || return 0
@@ -173,9 +173,9 @@ lib =
         # don't bother the user about unmodified dereferenced
         # symlinks; just fix them:
         mr_misstowed --delete-unmodified >/dev/null
-        command "$STOW" -R $stow_common_opts "$@" "$MR_NAME"
+        command "$STOW" -R $stow_common_opts "$@" "$STOW_NAME"
         mr_post_stow
-        info "Restowed $MR_NAME"
+        info "Restowed $STOW_NAME"
     }
     mr_pre_unstow () {
         : # This can be "overridden" by the lib section of a repo definition
@@ -193,11 +193,11 @@ lib =
             return
         fi
         mr_pre_unstow
-        command "$STOW" -D $stow_common_opts "$@" "$MR_NAME"
+        command "$STOW" -D $stow_common_opts "$@" "$STOW_NAME"
         if [ "$STOW_PKG_TYPE" = 'symlink' ]; then
             rm -f "$STOW_PKG_PATH"
         fi
-        info "Unstowed $MR_NAME"
+        info "Unstowed $STOW_NAME"
     }
     #
     ensure_symlink_exists () {
@@ -268,9 +268,9 @@ lib =
 stowable      = false
 showstowable  =
     if is_stowable; then
-        echo "$MR_NAME is stowable"
+        echo "$STOW_NAME is stowable"
     else
-        echo "$MR_NAME is not stowable"
+        echo "$STOW_NAME is not stowable"
     fi
 
 # Automatic actions
