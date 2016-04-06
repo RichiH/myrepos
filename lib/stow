@@ -79,7 +79,7 @@ lib =
     #MR_STOWABLE=no
     is_stowable () {
         [ -z "$MR_DISABLE_STOW" ] &&
-        ( cd "$MR_NAME" && mr stowable >/dev/null 2>&1 )
+        ( cd "$MR_REPO" && mr stowable >/dev/null 2>&1 )
         #[ "$MR_STOWABLE" = yes ]
     }
     stowable_then_continue () {
@@ -188,7 +188,7 @@ lib =
                 ensure_symlink_exists "$STOW_PKG_PATH" "$MR_REPO"
                 ;;
             directory)
-                [ -e "$STOW_PKG_PATH" ] || error "$STOW_PKG_PATH didn't exist; aborting."
+                [ -e "$STOW_PKG_PATH" ] || mkdir "$STOW_PKG_PATH"
                 [ -d "$STOW_PKG_PATH" ] || error "Expected $STOW_PKG_PATH to be a directory; aborting."
                 if [ -L "$STOW_PKG_PATH" ]; then
                     error "Didn't expect $STOW_PKG_PATH to be a symlink; aborting."
