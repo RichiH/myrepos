@@ -213,6 +213,13 @@ lib =
         done
         mr_restow_regardless
     }
+    #
+    mr_misstowed () {
+        stowable_then_continue || return 0
+        re="^  \* existing target is neither a link nor a directory: "
+        mr_restow_regardless 3>&1 1>&2 2>&3 | grep "$re" \
+            | sed -e "s|$re|$STOW_TARGET/|" | sort | uniq
+    }
 
 #stowable      = is_stowable
 stowable      = false
@@ -235,6 +242,7 @@ unstow        = mr_unstow "$@"
 restow        = mr_restow_regardless "$@"
 restowover    = MR_STOW_OVER=. mr_restow_regardless "$@"
 adopt         = mr_adopt "$@"
+misstowed     = mr_misstowed "$@"
 
 # Local variables:
 # mode: sh
