@@ -211,6 +211,7 @@ lib =
                 error "$wanted is a symlink; won't adopt"
             fi
         done
+        mr_restow_regardless
     }
 
 #stowable      = is_stowable
