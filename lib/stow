@@ -1,9 +1,11 @@
 # Plug-in to use GNU Stow to manage symlinks whose targets lie in a
 # repository managed with myrepos
 #
-# Original author:              Adam Spiers <mr@adamspiers.org>
+# Original author:
+# Adam Spiers <mr@adamspiers.org>
 #
-# Reworked & now maintained by: Sean Whitton <spwhitton@spwhitton.name>
+# This version reworked & maintained by:
+# Sean Whitton <spwhitton@spwhitton.name>
 
 # BASIC USAGE INSTRUCTIONS
 #
