@@ -70,6 +70,7 @@
 lib =
     : ${STOW_DIR:=$HOME/.STOW}
     : ${STOW_TARGET:=$HOME}
+    MR_NAME=$(echo "$MR_REPO" | tr / _)
     #
     if ! [ -d "$STOW_TARGET"    ]; then mkdir -p "$STOW_TARGET"; fi
     if ! [ -d "$STOW_DIR"       ]; then mkdir -p "$STOW_DIR"   ; fi
@@ -78,7 +79,7 @@ lib =
     #MR_STOWABLE=no
     is_stowable () {
         [ -z "$MR_DISABLE_STOW" ] &&
-        ( cd && mr -r "$MR_NAME" stowable >/dev/null 2>&1 )
+        ( cd "$MR_NAME" && mr stowable >/dev/null 2>&1 )
         #[ "$MR_STOWABLE" = yes ]
     }
     stowable_then_continue () {
