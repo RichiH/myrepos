@@ -199,6 +199,19 @@ lib =
                 ;;
         esac
     }
+    #
+    mr_adopt () {
+        stowable_then_continue || return 0
+        for wanted in "$@"; do
+            if [ ! -L "$wanted" ]; then
+                dest=$(printf '%s' "$wanted" | sed -e "s@$STOW_TARGET@$MR_REPO@")
+                mkdir -p "$(dirname $dest)"
+                mv "$wanted" "$dest"
+            else
+                error "$wanted is a symlink; won't adopt"
+            fi
+        done
+    }
 
 #stowable      = is_stowable
 stowable      = false
@@ -220,6 +233,7 @@ stowover      = MR_STOW_OVER=. mr_stow "$@"
 unstow        = mr_unstow "$@"
 restow        = mr_restow_regardless "$@"
 restowover    = MR_STOW_OVER=. mr_restow_regardless "$@"
+adopt         = mr_adopt "$@"
 
 # Local variables:
 # mode: sh
