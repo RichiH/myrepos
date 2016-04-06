@@ -1,10 +1,11 @@
-# Plug-in to use GNU Stow to manage symlinks to a repository managed with myrepos
+# Plug-in to use GNU Stow to manage symlinks whose targets lie in a
+# repository managed with myrepos
 #
 # Original author:              Adam Spiers <mr@adamspiers.org>
 #
 # Reworked & now maintained by: Sean Whitton <spwhitton@spwhitton.name>
 
-# INSTRUCTIONS
+# BASIC USAGE INSTRUCTIONS
 #
 # To make mr use this file, add a line like this inside the [DEFAULT]
 # section of your ~/.mrconfig:
@@ -28,6 +29,32 @@
 # By default, ~/.STOW is used as the stow directory, and ~ as the
 # target directory.  You can export STOW_DIR and STOW_TARGET to
 # override these defaults.
+#
+# DEALING WITH APPLICATIONS THAT MISTREAT SYMLINKS
+#
+# Some programs will replace a symlink to a stowed file with a regular
+# copy of the file, and a subset of these will do this even if they
+# haven't edited the file.  There are two actions designed to deal
+# with this:
+#
+# - 'cd ~/stowed && mr adopt ~/foo' will replace ~/stowed/foo with
+#   ~/foo so that when you restow, ~/foo is once again a symlink
+#   pointing to ~/stowed/foo
+#
+# - 'cd ~/stowed && mr misstowed' will output a list of all symlinks
+#   that have been replaced with regular files *and modified* by you
+#   or a program
+#
+# The recommended workflow is:
+#
+# 1. Run 'mr misstowed', look for files whose modifications you want
+#    to keep, and run 'mr adopt' on them.
+#
+# 2. Run 'mr restowover' to replace unmodified regular files, or
+#    regular files whose modifications you want to discard, with
+#    symlinks once again.
+#
+# FIXUPS THAT CREATE FILES TO BE STOWED
 #
 # Stowing is automatically performed via post_checkout, and restowing
 # via post_update, as can be seen from below (search for 'Automatic
