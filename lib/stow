@@ -43,7 +43,11 @@
 #
 # - 'cd ~/stowed && mr misstowed' will output a list of all symlinks
 #   that have been replaced with regular files *and modified* by you
-#   or a program
+#   or a program.
+#
+# - If you pass '--delete-unmodified' to 'mr misstowed', it will
+#   additionally delete all symlink targets that have been replaced
+#   with *unmodified* regular files
 #
 # The recommended workflow is:
 #
@@ -164,6 +168,9 @@ lib =
         set_stow_common_opts
         ensure_package_exists
         mr_pre_unstow
+        # don't bother the user about unmodified dereferenced
+        # symlinks; just fix them:
+        mr_misstowed --delete-unmodified >/dev/null
         command "$STOW" -R $stow_common_opts "$@" "$MR_NAME"
         mr_post_stow
         info "Restowed $MR_NAME"
@@ -249,6 +256,8 @@ lib =
             # this 'if' is executed if the file IS different from the repository version
             if ! diff -q "$dest" "$file" >/dev/null 2>&1; then
                 echo "$file"
+            elif [ "$1" = "--delete-unmodified" ]; then
+                rm "$file"
             fi
         done
     }
