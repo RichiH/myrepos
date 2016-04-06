@@ -222,7 +222,7 @@ lib =
             dest=$(printf '%s' "$file" | sed -e "s@$STOW_TARGET@$MR_REPO@")
             # this 'if' is executed if the file IS different from the repository version
             if ! diff -q "$dest" "$file" >/dev/null 2>&1; then
-                echo "$dest"
+                echo "$file"
             fi
         done
     }
