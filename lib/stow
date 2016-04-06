@@ -217,8 +217,14 @@ lib =
     mr_misstowed () {
         stowable_then_continue || return 0
         re="^  \* existing target is neither a link nor a directory: "
-        mr_restow_regardless 3>&1 1>&2 2>&3 | grep "$re" \
-            | sed -e "s|$re|$STOW_TARGET/|" | sort | uniq
+        for file in $(mr_restow_regardless 3>&1 1>&2 2>&3 | grep "$re" \
+                          | sed -e "s|$re|$STOW_TARGET/|" | sort | uniq); do
+            dest=$(printf '%s' "$file" | sed -e "s@$STOW_TARGET@$MR_REPO@")
+            # this 'if' is executed if the file IS different from the repository version
+            if ! diff -q "$dest" "$file" >/dev/null 2>&1; then
+                echo "$dest"
+            fi
+        done
     }
 
 #stowable      = is_stowable
