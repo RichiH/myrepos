@@ -203,7 +203,7 @@ lib =
     mr_adopt () {
         stowable_then_continue || return 0
         for wanted in "$@"; do
-            if [ ! -L "$wanted" ]; then
+            if [ -e "$wanted" -a ! -L "$wanted" ]; then
                 dest=$(printf '%s' "$wanted" | sed -e "s@$STOW_TARGET@$MR_REPO@")
                 mkdir -p "$(dirname $dest)"
                 mv "$wanted" "$dest"
@@ -211,7 +211,6 @@ lib =
                 error "$wanted is a symlink; won't adopt"
             fi
         done
-        mr_restow_regardless
     }
     #
     mr_misstowed () {
