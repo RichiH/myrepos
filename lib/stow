@@ -1,8 +1,8 @@
-# stow plug-in for Joey Hess' excellent mr tool.
+# Plug-in to use GNU Stow to manage symlinks to a repository managed with myrepos
 #
-# This allows using GNU Stow as a symlink manager with mr.
+# Original author:              Adam Spiers <mr@adamspiers.org>
 #
-# Author: Adam Spiers <mr@adamspiers.org>
+# Reworked & now maintained by: Sean Whitton <spwhitton@spwhitton.name>
 
 # INSTRUCTIONS
 #
@@ -16,21 +16,10 @@
 #
 #   stowable = true
 #
-# Obviously you also need Stow installed.  This plug-in assumes that
-# the stow script is somewhere on your $PATH, but you can export
-# STOW_COMMAND to override this if it's somewhere else.
+# You must have at least version 2.1.0 of stow available.  [1]
 #
-# At least version 2.1.0 is required[1], but you can easily build the
-# latest from git using the following recipe:
-#
-# --------- 8< --- copy into your ~/.mrconfig ---- 8< ---------
-# [stow]
-# checkout = git_clone git://git.savannah.gnu.org/stow.git
-# fixups =
-#     cd "$MR_REPO"
-#     ./configure --prefix=$HOME
-#     make install
-# --------- 8< --------- 8< --------- 8< --------- 8< ---------
+# If stow is not in your $PATH, you can export STOW_COMMAND to tell
+# this plug-in where it is.
 #
 # The default behaviour is to stow on checkout, and restow on update.
 # The manual actions 'stow', 'restow', and 'unstow' are also
