@@ -170,9 +170,6 @@ lib =
         set_stow_common_opts
         ensure_package_exists
         mr_pre_unstow
-        # don't bother the user about unmodified dereferenced
-        # symlinks; just fix them:
-        mr_misstowed --delete-unmodified >/dev/null
         command "$STOW" -R $stow_common_opts "$@" "$STOW_NAME"
         mr_post_stow
         info "Restowed $STOW_NAME"
