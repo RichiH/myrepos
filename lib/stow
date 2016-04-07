@@ -44,12 +44,12 @@
 #   pointing to ~/stowed/foo
 #
 # - 'cd ~/stowed && mr misstowed' will output a list of all symlinks
-#   that have been replaced with regular files of size less than 1kB
-#   *and modified* by you or a program.
+#   that have been replaced with regular files *and modified* by you
+#   or a program.
 #
 # - If you pass '--delete-unmodified' to 'mr misstowed', it will
 #   additionally delete all symlink targets that have been replaced
-#   with *unmodified* regular files of size less than 1kB
+#   with *unmodified* regular files
 #
 # The recommended workflow is:
 #
@@ -252,17 +252,11 @@ lib =
         for file in $(mr_restow_regardless 3>&1 1>&2 2>&3 | grep "$re" \
                           | sed -e "s|$re|$STOW_TARGET/|" | sort | uniq); do
             dest=$(printf '%s' "$file" | sed -e "s@$STOW_TARGET@$MR_REPO@")
-            # cross-platform size: first is GNU, second is BSD
-            size=$(stat --printf="%s" "$file" 2>/dev/null || stat -f%z "$file" 2>/dev/null)
-            # for performance reasons, only run diff on small files
-            if [ $size -le 1024 ]; then
-                # this 'if' is executed if the file IS different from the repository version
-                if ! diff -q "$dest" "$file" >/dev/null 2>&1; then
-                    echo "$file"
-                # elif is reached only if the file is unmodified
-                elif [ "$1" = "--delete-unmodified" ]; then
-                    rm "$file"
-                fi
+            # this 'if' is executed if the file IS different from the repository version
+            if ! diff -q "$dest" "$file" >/dev/null 2>&1; then
+                echo "$file"
+            elif [ "$1" = "--delete-unmodified" ]; then
+                rm "$file"
             fi
         done
     }
