@@ -1,4 +1,5 @@
 If a Git repository contains stashes, `mr status` currently stops and waits for user interaction if the pager is enabled in Git configuration (which is the default on many setups). This change disables the pager when calling `git stash list`:
+
 ```
 diff --git a/mr b/mr
 index 0c95bc6..33f65df 100755
