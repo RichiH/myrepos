@@ -2,6 +2,7 @@ myrepos (1.20160123) UNRELEASED; urgency=medium
 
   * Strip .git extension when registering vsch repositories.
     Thanks, Don March
+  * Disable git pager when mr status runs git stash list.
 
  -- Joey Hess <id@joeyh.name>  Sat, 02 Apr 2016 15:10:58 -0400
 
