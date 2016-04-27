@@ -1,3 +1,5 @@
 Please consider merging branch `stow-lib` of repo `https://git.spwhitton.name/myrepos`.  This branch adds `/usr/share/mr/stow`, a library to use GNU Stow to manage dotfiles stored in repos managed with mr.
 
 This library was originally written by Adam Spiers, but his version required changes to mainline mr which Joey wasn't willing to merge.  I have reworked the library so that it doesn't require any changes to mainline mr.  I have also added some other useful commands and improved the documentation.  I believe it is now suitable to be included in mr.  --[[spwhitton|https://spwhitton.name]]
+
+> [[merged|done]]. Thanks Sean and Adam! --[[Joey]]

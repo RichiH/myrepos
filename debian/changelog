@@ -3,6 +3,9 @@ myrepos (1.20160123) UNRELEASED; urgency=medium
   * Strip .git extension when registering vsch repositories.
     Thanks, Don March
   * Disable git pager when mr status runs git stash list.
+  * Added stow library. This lets dotfiles in repositories managed by mr
+    be symlinked into the home directory by GNU stow.
+    Thanks, Sean Whitton and Adam Spiers.
 
  -- Joey Hess <id@joeyh.name>  Sat, 02 Apr 2016 15:10:58 -0400
 

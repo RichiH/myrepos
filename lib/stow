@@ -1,8 +1,8 @@
 # Plug-in to use GNU Stow to manage symlinks whose targets lie in a
 # repository managed with myrepos
 #
-# The standard use case is for managing dotfiles inside one's home
-# directory.
+# The standard use case is for managing symlinks to dotfiles 
+# inside one's home directory.
 #
 # Original author (2011):
 # Adam Spiers <mr@adamspiers.org>
