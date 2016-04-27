@@ -4,10 +4,10 @@
 # The standard use case is for managing dotfiles inside one's home
 # directory.
 #
-# Original author:
+# Original author (2011):
 # Adam Spiers <mr@adamspiers.org>
 #
-# This version reworked & maintained by:
+# This version reworked (2016) & maintained by:
 # Sean Whitton <spwhitton@spwhitton.name>
 
 # BASIC USAGE INSTRUCTIONS
