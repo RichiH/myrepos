@@ -36,8 +36,8 @@
 #
 # Some programs will replace a symlink to a stowed file with a regular
 # copy of the file, and a subset of these will do this even if they
-# haven't edited the file.  There are two actions designed to deal
-# with this:
+# haven't edited the file.  This will cause stow operations to fail.
+# There are two actions designed to deal with this:
 #
 # - 'cd ~/stowed && mr adopt ~/foo' will replace ~/stowed/foo with
 #   ~/foo so that when you restow, ~/foo is once again a symlink
@@ -49,16 +49,20 @@
 #
 # - If you pass '--delete-unmodified' to 'mr misstowed', it will
 #   additionally delete all symlink targets that have been replaced
-#   with *unmodified* regular files
+#   with *unmodified* regular files.
+#
+# - If you pass '--delete-all' to 'mr misstowed' it will delete all
+#   symlink targets that have been replaced with regular files.
 #
 # The recommended workflow is:
 #
 # 1. Run 'mr misstowed', look for files whose modifications you want
 #    to keep, and run 'mr adopt' on them.
+
+# 2. Run 'mr misstowed --delete-all' to clean up files whose
+#    modifications you don't want to keep.
 #
-# 2. Run 'mr restowover' to replace unmodified regular files, or
-#    regular files whose modifications you want to discard, with
-#    symlinks once again.
+# 3. Run 'mr restow' to restore all symlinks.
 #
 # FOLDING
 #
@@ -266,7 +270,10 @@ lib =
             # this 'if' is executed if the file IS different from the repository version
             if ! diff -q "$dest" "$file" >/dev/null 2>&1; then
                 echo "$file"
-            elif [ "$1" = "--delete-unmodified" ]; then
+                if [ "$1" = "--delete-all" ]; then
+                    rm "$file"
+                fi
+            elif [ "$1" = "--delete-unmodified" -o "$1" = "--delete-all" ]; then
                 rm "$file"
             fi
         done
