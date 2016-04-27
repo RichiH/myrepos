@@ -144,7 +144,7 @@ lib =
         if [ -n "$MR_STOW_OVER" ]; then
             stow_common_opts="$stow_common_opts --override=$MR_STOW_OVER"
         fi
-        if [ -z "$MR_FOLD" ]; then
+        if ! (: "${MR_FOLD?}") 2>/dev/null; then
             stow_common_opts="$stow_common_opts --no-folding"
         fi
     }
