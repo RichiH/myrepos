@@ -1,0 +1,310 @@
+# Plug-in to use GNU Stow to manage symlinks whose targets lie in a
+# repository managed with myrepos
+#
+# The standard use case is for managing dotfiles inside one's home
+# directory.
+#
+# Original author (2011):
+# Adam Spiers <mr@adamspiers.org>
+#
+# This version reworked (2016) & maintained by:
+# Sean Whitton <spwhitton@spwhitton.name>
+
+# BASIC USAGE INSTRUCTIONS
+#
+# To make mr use this file, add a line like this inside the [DEFAULT]
+# section of your ~/.mrconfig:
+#
+#   include = cat /usr/share/mr/stow
+#
+# and then inside each [repo] section of your ~/.mrconfig for
+# which you want the contents to be stowed, add this line:
+#
+#   stowable = true
+#
+# You must have at least version 2.1.0 of stow available.  [1]
+#
+# If stow is not in your $PATH, you can export STOW_COMMAND to tell
+# this plug-in where it is.
+#
+# The default behaviour is to stow on checkout, and restow on update.
+# The manual actions 'stow', 'restow', and 'unstow' are also
+# available.
+#
+# By default, ~/.STOW is used as the stow directory, and ~ as the
+# target directory.  You can export STOW_DIR and STOW_TARGET to
+# override these defaults.
+#
+# DEALING WITH APPLICATIONS THAT MISTREAT SYMLINKS
+#
+# Some programs will replace a symlink to a stowed file with a regular
+# copy of the file, and a subset of these will do this even if they
+# haven't edited the file.  This will cause stow operations to fail.
+# There are two actions designed to deal with this:
+#
+# - 'cd ~/stowed && mr adopt ~/foo' will replace ~/stowed/foo with
+#   ~/foo so that when you restow, ~/foo is once again a symlink
+#   pointing to ~/stowed/foo
+#
+# - 'cd ~/stowed && mr misstowed' will output a list of all symlinks
+#   that have been replaced with regular files *and modified* by you
+#   or a program.
+#
+# - If you pass '--delete-unmodified' to 'mr misstowed', it will
+#   additionally delete all symlink targets that have been replaced
+#   with *unmodified* regular files.
+#
+# - If you pass '--delete-all' to 'mr misstowed' it will delete all
+#   symlink targets that have been replaced with regular files.
+#
+# The recommended workflow is:
+#
+# 1. Run 'mr misstowed', look for files whose modifications you want
+#    to keep, and run 'mr adopt' on them.
+
+# 2. Run 'mr misstowed --delete-all' to clean up files whose
+#    modifications you don't want to keep.
+#
+# 3. Run 'mr restow' to restore all symlinks.
+#
+# FOLDING
+#
+# By default, this library passes --no-folding to stow.  This allows
+# you to have more than one repository stowing files into a single
+# subdirectory in your home directory.  For example, you might have a
+# private and a public git repo both stowing into ~/.gnupg.  If you
+# don't want this behaviour, set MR_FOLD.  For example, in a
+# repository's myrepos config section or in [DEFAULT]:
+#
+#    lib = MR_FOLD=
+#
+# FIXUPS THAT CREATE FILES TO BE STOWED
+#
+# Stowing is automatically performed via post_checkout, and restowing
+# via post_update, as can be seen from below (search for 'Automatic
+# actions').  Note that these run before fixups, which allows fixups
+# to refer to stowed files, but isn't ideal if the fixups are
+# responsible for creating the stow package's installation image,
+# e.g. via a typical './configure && make install' sequence.  Here's a
+# suggested mrconfig chunk to handle this particular use case:
+#
+#     stowable = true
+#     lib =
+#         STOW_PKG_TYPE=directory
+#         STOW_NO_AUTOMATIC_ACTIONS=yes
+#         mr_pre_unstow () {
+#             install-info --delete --info-dir=$HOME/share/info $STOW_PKG_PATH/share/info/*.info
+#         }
+#         mr_post_stow () {
+#             install-info --info-dir=$HOME/share/info $STOW_PKG_PATH/share/info/*.info
+#         }
+#     fixups =
+#         if ! [ -e configure ]; then
+#             bash ./autogen.sh
+#         fi
+#         set_stow_common_opts
+#         ./configure --prefix=$STOW_PKG_PATH
+#         make install prefix=$STOW_PKG_PATH
+#         rm $STOW_PKG_PATH/share/info/dir
+#         mr_restow_regardless
+#
+# [1] Older versions could create a frankenstein ~/.git/ directory
+# containing symlinks to multiple .git/ sub-directories in different
+# stow packages!  2.1.0 onwards does not have this problem - it
+# supports local per-directory .stow-local-ignore and global
+# ~/.stow-global-ignore files, and even without configuration of
+# these, it chooses sensible default ignore lists which prevent
+# stowing of a package's .git/ sub-directory.  These ignore lists are
+# also ideal if you only want to stow a subset of a stow package's
+# contents.
+
+lib =
+    : ${STOW_DIR:=$HOME/.STOW}
+    : ${STOW_TARGET:=$HOME}
+    STOW_NAME=$(echo "$MR_REPO" | tr / _)
+    #
+    if ! [ -d "$STOW_TARGET"    ]; then mkdir -p "$STOW_TARGET"; fi
+    if ! [ -d "$STOW_DIR"       ]; then mkdir -p "$STOW_DIR"   ; fi
+    if ! [ -f "$STOW_DIR/.stow" ]; then touch "$STOW_DIR/.stow"; fi
+    #
+    #MR_STOWABLE=no
+    is_stowable () {
+        [ -z "$MR_DISABLE_STOW" ] &&
+        ( cd "$MR_REPO" && mr stowable >/dev/null 2>&1 )
+        #[ "$MR_STOWABLE" = yes ]
+    }
+    stowable_then_continue () {
+        if is_stowable; then
+            return 0
+        else
+            if [ -n "$1" ]; then
+                info "$STOW_NAME isn't stowable; skipping $MR_ACTION"
+            fi
+            return 1
+        fi
+    }
+    #
+    set_stow_common_opts () {
+        : ${STOW_PKG_TYPE:=symlink}
+        STOW_PKG_PATH="$STOW_DIR/$STOW_NAME"
+        stow_common_opts="-t $STOW_TARGET -d $STOW_DIR"
+        STOW="${STOW_COMMAND:-stow}"
+        case "`$STOW --version`" in
+            'version 1.*')
+                stow_common_opts="$stow_common_opts -p"
+                ;;
+            *)
+                ;;
+        esac
+        if [ -n "$MR_STOW_OPTIONS" ]; then
+            stow_common_opts="$stow_common_opts $MR_STOW_OPTIONS"
+        fi
+        if [ -n "$MR_STOW_OVER" ]; then
+            stow_common_opts="$stow_common_opts --override=$MR_STOW_OVER"
+        fi
+        if ! (: "${MR_FOLD?}") 2>/dev/null; then
+            stow_common_opts="$stow_common_opts --no-folding"
+        fi
+    }
+    #
+    mr_stow () {
+        stowable_then_continue || return 0
+        set_stow_common_opts
+        ensure_package_exists
+        command "$STOW" $stow_common_opts "$@" "$STOW_NAME"
+        mr_post_stow
+        info "Stowed $STOW_NAME"
+    }
+    mr_restow_if_already_stowed () {
+        stowable_then_continue || return 0
+        if ! [ -L "$STOW_PKG_PATH" ]; then
+            info "$MR_REPO wasn't stowed yet; won't restow."
+            return
+        fi
+        mr_restow_regardless "$@"
+    }
+    mr_restow_regardless () {
+        stowable_then_continue || return 0
+        set_stow_common_opts
+        ensure_package_exists
+        mr_pre_unstow
+        command "$STOW" -R $stow_common_opts "$@" "$STOW_NAME"
+        mr_post_stow
+        info "Restowed $STOW_NAME"
+    }
+    mr_pre_unstow () {
+        : # This can be "overridden" by the lib section of a repo definition
+        #info "no mr_pre_unstow hook"
+    }
+    mr_post_stow () {
+        : # This can be "overridden" by the lib section of a repo definition
+        #info "no mr_post_stow hook"
+    }
+    mr_unstow () {
+        stowable_then_continue || return 0
+        set_stow_common_opts
+        if ! [ -d "$STOW_PKG_PATH" ]; then
+            info "$MR_REPO wasn't stowed yet in $STOW_PKG_PATH; can't unstow."
+            return
+        fi
+        mr_pre_unstow
+        command "$STOW" -D $stow_common_opts "$@" "$STOW_NAME"
+        if [ "$STOW_PKG_TYPE" = 'symlink' ]; then
+            rm -f "$STOW_PKG_PATH"
+        fi
+        info "Unstowed $STOW_NAME"
+    }
+    #
+    ensure_symlink_exists () {
+        [ $# = 2 ] || error "CONFIG BUG: Usage: ensure_symlink_exists SYMLINK TARGET"
+        symlink="$1"
+        required_target="$2"
+        if [ -L "$symlink" ]; then
+            actual_target="`readlink $symlink`"
+            if [ "$actual_target" = "$required_target" ]; then
+                return
+            else
+                error "Symlink $symlink already points to $actual_target, cannot point to $required_target; aborting."
+            fi
+        fi
+        if [ -e "$symlink" ]; then
+            error "Cannot create symlink $symlink - already exists; aborting."
+        fi
+        ln -s "$required_target" "$symlink"
+    }
+    #
+    ensure_package_exists () {
+        case "$STOW_PKG_TYPE" in
+            symlink)
+                ensure_symlink_exists "$STOW_PKG_PATH" "$MR_REPO"
+                ;;
+            directory)
+                [ -e "$STOW_PKG_PATH" ] || mkdir "$STOW_PKG_PATH"
+                [ -d "$STOW_PKG_PATH" ] || error "Expected $STOW_PKG_PATH to be a directory; aborting."
+                if [ -L "$STOW_PKG_PATH" ]; then
+                    error "Didn't expect $STOW_PKG_PATH to be a symlink; aborting."
+                fi
+                ;;
+            *)
+                error "Unrecognised value '$STOW_PKG_TYPE' for \$STOW_PKG_TYPE; aborting."
+                ;;
+        esac
+    }
+    #
+    mr_adopt () {
+        stowable_then_continue || return 0
+        for wanted in "$@"; do
+            if [ -e "$wanted" -a ! -L "$wanted" ]; then
+                dest=$(printf '%s' "$wanted" | sed -e "s@$STOW_TARGET@$MR_REPO@")
+                mkdir -p "$(dirname $dest)"
+                mv "$wanted" "$dest"
+            else
+                error "$wanted is a symlink; won't adopt"
+            fi
+        done
+    }
+    #
+    mr_misstowed () {
+        stowable_then_continue || return 0
+        re="^  \* existing target is neither a link nor a directory: "
+        for file in $(mr_restow_regardless 3>&1 1>&2 2>&3 | grep "$re" \
+                          | sed -e "s|$re|$STOW_TARGET/|" | sort | uniq); do
+            dest=$(printf '%s' "$file" | sed -e "s@$STOW_TARGET@$MR_REPO@")
+            # this 'if' is executed if the file IS different from the repository version
+            if ! diff -q "$dest" "$file" >/dev/null 2>&1; then
+                echo "$file"
+                if [ "$1" = "--delete-all" ]; then
+                    rm "$file"
+                fi
+            elif [ "$1" = "--delete-unmodified" -o "$1" = "--delete-all" ]; then
+                rm "$file"
+            fi
+        done
+    }
+
+#stowable      = is_stowable
+stowable      = false
+showstowable  =
+    if is_stowable; then
+        echo "$STOW_NAME is stowable"
+    else
+        echo "$STOW_NAME is not stowable"
+    fi
+
+# Automatic actions
+post_checkout_append = [ -n "$STOW_NO_AUTOMATIC_ACTIONS" ] || mr_stow
+#post_update_append   = mr_restow_if_already_stowed
+post_update_append   = [ -n "$STOW_NO_AUTOMATIC_ACTIONS" ] || mr_restow_regardless
+
+# Manual actions
+stow          = mr_stow "$@"
+stowover      = MR_STOW_OVER=. mr_stow "$@"
+unstow        = mr_unstow "$@"
+restow        = mr_restow_regardless "$@"
+restowover    = MR_STOW_OVER=. mr_restow_regardless "$@"
+adopt         = mr_adopt "$@"
+misstowed     = mr_misstowed "$@"
+
+# Local variables:
+# mode: sh
+# End:
