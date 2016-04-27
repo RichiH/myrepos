@@ -60,6 +60,17 @@
 #    regular files whose modifications you want to discard, with
 #    symlinks once again.
 #
+# FOLDING
+#
+# By default, this library passes --no-folding to stow.  This allows
+# you to have more than one repository stowing files into a single
+# subdirectory in your home directory.  For example, you might have a
+# private and a public git repo both stowing into ~/.gnupg.  If you
+# don't want this behaviour, set MR_FOLD.  For example, in a
+# repository's myrepos config section or in [DEFAULT]:
+#
+#    lib = MR_FOLD=
+#
 # FIXUPS THAT CREATE FILES TO BE STOWED
 #
 # Stowing is automatically performed via post_checkout, and restowing
