@@ -1,0 +1,58 @@
+Apply this patch to add all git remotes with register.
+
+Let me know if there are strict testing or coding standard to
+conform to.
+
+Thanks and Best,
+Daniele
+
+
+```
+From 46971cbb17f4c02a281c18ff9fbbf6976c4a5a91 Mon Sep 17 00:00:00 2001
+From: Daniele Pizzolli <dan@toel.it>
+Date: Sun, 29 May 2016 10:51:05 +0200
+Subject: [PATCH] mr register take care of all git remotes
+
+---
+ mr | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/mr b/mr
+index ad75aa7..a1a1c21 100755
+--- a/mr
++++ b/mr
+@@ -2225,12 +2225,31 @@ svn_register =
+ 	echo "Registering svn url: $url in $MR_CONFIG"
+ 	mr -c "$MR_CONFIG" config "`pwd`" checkout="svn co '$url' '$MR_REPO'"
+ git_register = 
++	# TODO: do not assume origin as the only valid name
+ 	url="`LC_ALL=C git config --get remote.origin.url`" || true
+ 	if [ -z "$url" ]; then
+ 		error "cannot determine git url"
+ 	fi
+ 	echo "Registering git url: $url in $MR_CONFIG"
+ 	mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone '$url' '$MR_REPO'"
++	get_remotes() {
++	LC_ALL=C git config --get-regexp 'remote.*.url' | sed 's:^remote.\([^.]*\).url \(.*\):\1 \2:' | while read remote url; do
++		# TODO: verify the assumption that remotes does not contain .
++		# TODO: verify the assumption that the remote url is correctly escaped
++		if [ "origin" != "${remote}" ]; then
++			 echo "Adding remote ${remote} with git url: $url in $MR_CONFIG" >&2
++			 printf "%s" "&& git remote add '$remote' '$url'"
++		fi
++	done
++	}
++	ADDITIONAL_REMOTES="$(get_remotes)"
++	if [ -n "${ADDITIONAL_REMOTES}" ]; then
++		WRAP_REMOTES="&& cd '$MR_REPO'"
++		WRAP_REMOTES="${WRAP_REMOTES} ${ADDITIONAL_REMOTES}"
++		WRAP_REMOTES="${WRAP_REMOTES} && git fetch --all"
++		mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone '$url' '$MR_REPO' ${WRAP_REMOTES}"
++	fi
++
+ bzr_register =
+ 	url="`LC_ALL=C bzr info . | egrep -i 'checkout of branch|parent branch' | awk '{print $NF}' | head -n 1`"
+ 	if [ -z "$url" ]; then
+-- 
+2.1.4
+```
