@@ -1,0 +1,12 @@
+[[!comment format=mdwn
+ username="joey"
+ subject="""comment 1"""
+ date="2016-05-29T20:02:46Z"
+ content="""
+I like this idea, and it seems fine to change the default `mr register`
+behavior like this.
+
+The TODOs need to be dealt with or removed before I can merge it.
+Git remote names *are* allowed to contain ".", altough they cannot start
+with it.
+"""]]
