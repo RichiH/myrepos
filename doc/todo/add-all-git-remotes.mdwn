@@ -56,3 +56,61 @@ index ad75aa7..a1a1c21 100755
 -- 
 2.1.4
 ```
+
+Thanks for the friendly review Joey.
+
+Here is the updated version with the comment addressed:
+
+```
+From 693d0c96333581bd83b5e5074b43729b415ae5b1 Mon Sep 17 00:00:00 2001
+From: Daniele Pizzolli <dan@toel.it>
+Date: Sun, 29 May 2016 10:51:05 +0200
+Subject: [PATCH] mr register take care of all git remotes
+
+---
+ mr | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/mr b/mr
+index ad75aa7..c221ca8 100755
+--- a/mr
++++ b/mr
+@@ -2225,12 +2225,32 @@ svn_register =
+        echo "Registering svn url: $url in $MR_CONFIG"
+        mr -c "$MR_CONFIG" config "`pwd`" checkout="svn co '$url' '$MR_REPO'"
+ git_register = 
++       # NOTE: we assume the presence of a origin, even that can
++       # not be the case (for example if origin was renamed).
++       # Dealing with such edge use case is too cumbersome.
+        url="`LC_ALL=C git config --get remote.origin.url`" || true
+        if [ -z "$url" ]; then
+                error "cannot determine git url"
+        fi
+        echo "Registering git url: $url in $MR_CONFIG"
+        mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone '$url' '$MR_REPO'"
++       get_remotes() {
++       # NOTE: Since only git >= 2.7.0 supports "remote get-url", we wrangle
++       # with git config and sed
++       LC_ALL=C git config --get-regexp '^remote\..*\.url$' | sed 's:^remote\.\(.*\)\.url \(.*\):\1 \2:' | while read remote url; do
++               if [ "origin" != "${remote}" ]; then
++                        echo "Adding remote ${remote} with git url: $url in $MR_CONFIG" >&2
++                        printf "%s" " && git remote add '$remote' '$url'"
++               fi
++       done
++       }
++       ADDITIONAL_REMOTES="$(get_remotes)"
++       if [ -n "${ADDITIONAL_REMOTES}" ]; then
++               WRAP_REMOTES=" && cd '$MR_REPO'"
++               WRAP_REMOTES="${WRAP_REMOTES}${ADDITIONAL_REMOTES}"
++               WRAP_REMOTES="${WRAP_REMOTES} && git fetch --all"
++               mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone '$url' '$MR_REPO'${WRAP_REMOTES}"
++       fi
+ bzr_register =
+        url="`LC_ALL=C bzr info . | egrep -i 'checkout of branch|parent branch' | awk '{print $NF}' | head -n 1`"
+        if [ -z "$url" ]; then
+-- 
+2.8.1
+```
+
+PS: I am not able to see (or add) the comments in this page using the site <https://myrepos.branchable.com>,
+instead I have to switch to <http://source.myrepos.branchable.com>.
