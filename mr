@@ -1107,6 +1107,7 @@ sub showstats {
 			print STDERR "mr $action: (failed: ".join(" ", @failed).")\n";
 		}
 	}
+	print "$erase_line" if defined $erase_line && $terminal && !$quiet && $minimal && 1 == $jobs;
 }
 
 sub showstat {
