@@ -1,0 +1,7 @@
+# Maintainer: Sean Whitton <spwhitton@spwhitton.name>
+
+# A module for working with dgit(1) repositories.  Note that for
+# safety we never invoke dgit push: git operations work with the
+# origin remote (the vanilla git server part of dgit-repos).
+
+dgit_test = perl: -e "$ENV{MR_REPO}/.git"
