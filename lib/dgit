@@ -4,6 +4,14 @@
 # safety we never invoke dgit push: git operations work with the
 # origin remote (the vanilla git server part of dgit-repos).
 
+# For the purposes of 'mr register', we assume that any repo with
+# dgit's special refs was obtained with 'dgit clone'.  In particular,
+# if the user cloned a repository from somewhere else (e.g. alioth)
+# and then ran 'dgit fetch', this configuration will be lost.
+
+# TODO is this right?  Should we detect repos that were not dgit
+# clone'd and git_register them?
+
 dgit_test = git branch -a | grep -q "^  remotes/dgit/dgit/"
 git_test = test -e "$MR_REPO/.git" && ! (git branch -a | grep -q "^  remotes/dgit/dgit/")
 # TODO relying on overriding git_test like this this means we're
