@@ -5,3 +5,12 @@
 # origin remote (the vanilla git server part of dgit-repos).
 
 dgit_test = perl: -e "$ENV{MR_REPO}/.git/dgit"
+
+dgit_update =
+    branch_kind=$(git rev-parse --abbrev-ref HEAD | cut -d/ -f1)
+    if [ "$branch_kind" = "dgit" ]; then
+        dgit pull
+    else
+        dgit fetch
+        git pull
+    fi
