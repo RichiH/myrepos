@@ -4,4 +4,4 @@
 # safety we never invoke dgit push: git operations work with the
 # origin remote (the vanilla git server part of dgit-repos).
 
-dgit_test = perl: -e "$ENV{MR_REPO}/.git"
+dgit_test = perl: -e "$ENV{MR_REPO}/.git/dgit"
