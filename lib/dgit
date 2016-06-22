@@ -14,15 +14,27 @@ git_test = test -e "$MR_REPO/.git" && ! (git branch -a | grep -q "^  remotes/dgi
 # find, since there's no way we can tell which suites the user wants
 # from a clone.
 dgit_register =
+    package=$(dpkg-parsechangelog -SSource)
     suites=$(git branch -a \
                  | grep "^  remotes/dgit/dgit/" \
                  | sed -e 's|  remotes/dgit/dgit/||')
-    if echo "$suites" | grep -q sid; then
-        suite="sid"
-    else
+    # start generating checkout command
+    checkout="dgit clone $package"
+    # append suite if it's not the default
+    if ! echo "$suites" | grep -q sid; then
         suite=$(echo "$suites" | head -n1)
+        checkout="$checkout $suite"
+    else
+        # this is just for the echo output
+        suite="sid"
     fi
-    mr -c "$MR_CONFIG" config "`pwd`" checkout="dgit clone '$suite' './$MR_REPO'"
+    # append directory if it's not the default
+    if [ ! "$MR_REPO" = "$package" ]; then
+        checkout="$checkout ./$MR_REPO"
+    fi
+    # now write the checkout command to the config
+    echo "Registering dgit package $package from $suite in $MR_CONFIG"
+    mr -c "$MR_CONFIG" config "`pwd`" checkout="$checkout"
 
 dgit_update =
     branch_kind=$(git rev-parse --abbrev-ref HEAD | cut -d/ -f1)
