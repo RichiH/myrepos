@@ -42,5 +42,5 @@ dgit_update =
         dgit pull
     else
         dgit fetch
-        git pull $@
+        git pull "$@"
     fi
