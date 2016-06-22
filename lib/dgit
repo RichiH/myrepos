@@ -6,6 +6,21 @@
 
 dgit_test = perl: -e "$ENV{MR_REPO}/.git/dgit"
 
+# If we find the remotes/dgit/dgit/sid remote tracking branch, we just
+# use the default 'sid' suite.  Otherwise, we pick the first suite we
+# find, since there's no way we can tell which suites the user wants
+# from a clone.
+dgit_register =
+    suites=$(git branch -a \
+                 | grep "^  remotes/dgit/dgit/" \
+                 | sed -e 's|  remotes/dgit/dgit/||')
+    if echo "$suites" | grep -q sid; then
+        suite="sid"
+    else
+        suite=$(echo "$suites" | head -n1)
+    fi
+    mr -c "$MR_CONFIG" config "`pwd`" checkout="dgit clone '$suite' './$MR_REPO'"
+
 dgit_update =
     branch_kind=$(git rev-parse --abbrev-ref HEAD | cut -d/ -f1)
     if [ "$branch_kind" = "dgit" ]; then
