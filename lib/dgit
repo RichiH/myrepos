@@ -4,7 +4,10 @@
 # safety we never invoke dgit push: git operations work with the
 # origin remote (the vanilla git server part of dgit-repos).
 
-dgit_test = perl: -e "$ENV{MR_REPO}/.git/dgit"
+dgit_test = git branch -a | grep -q "^  remotes/dgit/dgit/"
+git_test = test -e "$MR_REPO/.git" && ! (git branch -a | grep -q "^  remotes/dgit/dgit/")
+# TODO relying on overriding git_test like this this means we're
+# incompatible with other libs e.g. git-svn
 
 # If we find the remotes/dgit/dgit/sid remote tracking branch, we just
 # use the default 'sid' suite.  Otherwise, we pick the first suite we
