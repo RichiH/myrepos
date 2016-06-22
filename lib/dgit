@@ -44,3 +44,17 @@ dgit_update =
         dgit fetch
         git pull "$@"
     fi
+
+dgit_fetch = dgit fetch ; git fetch --all --prune --tags "$@"
+dgit_clean = dgit clean
+
+# copied from mr's git_* commands
+# TODO can we just refer to them somehow?
+dgit_status = git status -s "$@" || true; git --no-pager log --branches --not --remotes --simplify-by-decoration --decorate --oneline || true; git --no-pager stash list
+dgit_commit = git commit -a "$@" && git push --all
+dgit_record = git commit -a "$@"
+dgit_push = git push "$@"
+dgit_diff = git diff "$@"
+dgit_log = git log "$@"
+dgit_grep = git grep "$@"
+# TODO dgit_trusted_checkout
