@@ -12,8 +12,8 @@
 # TODO is this right?  Should we detect repos that were not dgit
 # clone'd and git_register them?
 
-dgit_test = git branch -a | grep -q "^  remotes/dgit/dgit/"
-git_test = test -e "$MR_REPO/.git" && ! (git branch -a | grep -q "^  remotes/dgit/dgit/")
+dgit_test = git branch -a 2>/dev/null | grep -q "^  remotes/dgit/dgit/"
+git_test = test -e "$MR_REPO/.git" && ! (git branch -a 2>/dev/null | grep -q "^  remotes/dgit/dgit/")
 # TODO relying on overriding git_test like this this means we're
 # incompatible with other libs e.g. git-svn
 
