@@ -6,6 +6,8 @@ myrepos (1.20160123) UNRELEASED; urgency=medium
   * Added stow library. This lets dotfiles in repositories managed by mr
     be symlinked into the home directory by GNU stow.
     Thanks, Sean Whitton and Adam Spiers.
+  * cvs_status: do not fail when all files are up to date.
+    Thanks, Paul Wise.
 
  -- Joey Hess <id@joeyh.name>  Sat, 02 Apr 2016 15:10:58 -0400
 
