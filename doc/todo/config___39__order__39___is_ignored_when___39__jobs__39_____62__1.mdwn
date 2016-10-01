@@ -1,0 +1,24 @@
+I'm attempting to implement a *dummy* target as illustrated in [mrconfig.complex](https://github.com/joeyh/myrepos/blob/master/mrconfig.complex) to run fixups after all updates have been completed:
+
+```
+[tmp]
+# This is a dummy target, all it does is run fixups at the end of
+# an update.
+fixups = $HOME/bin/fixups
+checkout = mkdir -p $HOME/tmp
+status = :
+order = 25
+```
+
+1. After adding the above section to my .mrconfig, I received the following error message when executing `mr up`: 
+> **mr update: unknown repository type and no defined update command for /Users/tom/tmp**  
+>  
+> This was easily resolved by adding `update = :` to the [tmp] section.
+
+2. I now discovered that the [tmp] target was not being executed after all other targets (as the `order = 25` should have required). NOTE: none of my other targets have an **order** setting of greater than **15**.
+> I normally have `jobs = 5` set in my .mrconfig file--changing this to `jobs = 1` resulted in the desired behavior.  
+
+**Enhancement Request:**
+
+Please revise **mr** to respect the **order** setting, even if **jobs** is set to a number greater than **1**.
+
