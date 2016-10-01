@@ -79,6 +79,7 @@ skip = ! mylaptop
 fixups = $HOME/bin/fixups
 checkout = mkdir -p $HOME/tmp
 status = :
+update = :
 order = 25
 
 [.etc]
