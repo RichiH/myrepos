@@ -22,3 +22,6 @@ order = 25
 
 Please revise **mr** to respect the **order** setting, even if **jobs** is set to a number greater than **1**.
 
+-----------------------------------
+
+# NOTE: I am not able to view your comment on this page using the site https://myrepos.branchable.com--I just happened to notice a new commit at https://github.com/joeyh/myrepos/commits/master. I wasn't able to add another comment here, either (I had to edit my original comment).
