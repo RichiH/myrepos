@@ -1,0 +1,13 @@
+[[!comment format=mdwn
+ username="HBBroeker@7b8f56781fb3120ee02aa80d45117f3a3c4b162f"
+ nickname="HBBroeker"
+ avatar="http://cdn.libravatar.org/avatar/68dceeadd8964493ad730b8dba6cc4a1"
+ subject="Overwriting cvs_status failed"
+ date="2016-11-02T21:57:44Z"
+ content="""
+As per your suggestion, I did try to override the \"cvs_status\" in my ~/.mrconfig, but
+
+    mr config DEFAULT cvs_status='cvs -n -q update'
+
+had no noticeable effect.  \"mr status\" after this still uses the command in the \"mr\" script instead of my own one.
+"""]]
