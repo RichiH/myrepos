@@ -1,0 +1,14 @@
+[[!comment format=mdwn
+ username="joey"
+ subject="""comment 1"""
+ date="2016-11-02T19:02:18Z"
+ content="""
+Patches accepted.
+
+Although given the cvs status output does not include the directory at all,
+except for in some lines output to stderr, which would mean parsing stderr
+and combining it with the filenames in stdout to get actual filenames ...
+It would be quite a complicated patch.
+
+Of course you can also override `cvs_status` in  your own `.mrconfig`
+"""]]
