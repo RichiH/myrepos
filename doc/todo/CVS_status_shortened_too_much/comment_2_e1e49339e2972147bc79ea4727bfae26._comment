@@ -1,0 +1,15 @@
+[[!comment format=mdwn
+ username="HBBroeker@7b8f56781fb3120ee02aa80d45117f3a3c4b162f"
+ nickname="HBBroeker"
+ avatar="http://cdn.libravatar.org/avatar/68dceeadd8964493ad730b8dba6cc4a1"
+ subject="An easier approach "
+ date="2016-11-02T21:23:40Z"
+ content="""
+I hadn't really looked at the inner workings of myrepos before.
+
+Well, now that I did, I see the core issue is one level further down: you're actually using \"cvs status\".  Don't :-)
+
+The idiom to get the kind of output \"mr status\" wants is actually
+
+> cvs -nq up
+"""]]
