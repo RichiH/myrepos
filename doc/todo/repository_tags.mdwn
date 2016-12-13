@@ -1,0 +1,1 @@
+It would be nice to be able to tag repositories and then have commands only apply to some subset of them. For example, some repos might be built with Python's setup.py while others with plain make. It'd be nice to be able to mark commands as only making sense for certain tags.
