@@ -60,7 +60,11 @@ git_update =
         git pull "$@"
     fi
     # (2) above
-    for ref in $(git show-ref | cut -d\  -f2 | grep ^refs/remotes/dgit/dgit); do
-        suite=$(echo $ref | sed 's|refs/remotes/dgit/dgit/||')
-        dgit fetch $suite
+    for suite in $(git show-ref | grep refs/remotes/dgit/dgit | cut -d/ -f5 ); do
+        # skip if we just called `dgit pull` on this suite
+        if ! [ "$current_branch" = "dgit/$suite" ]; then
+            dgit fetch $suite
+        fi
+    done
+
     done
