@@ -1,0 +1,9 @@
+Please consider merging branch `stow-lib` of repo `https://git.spwhitton.name/myrepos`.
+
+Changes:
+
+* drastically simplify lib & workflow docs using stow's `--adopt` mode -- removes lots of shell code
+* fix usage when $HOME contains unresolved symlinks
+* minor doc tweaks
+
+--spwhitton
