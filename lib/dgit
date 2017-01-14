@@ -1,69 +1,45 @@
+# A module for working with dgit(1) repositories
+#
+# Copyright (C) 2016-2017 Sean Whitton
+#
 # Maintainer: Sean Whitton <spwhitton@spwhitton.name>
 
-# A module for working with dgit(1) repositories.  Note that for
-# safety we never invoke dgit push: git operations work with the
-# origin remote (the vanilla git server part of dgit-repos).
-
-# For the purposes of 'mr register', we assume that any repo with
-# dgit's special refs was obtained with 'dgit clone'.  In particular,
-# if the user cloned a repository from somewhere else (e.g. alioth)
-# and then ran 'dgit fetch', this configuration will be lost.
-
-# TODO is this right?  Should we detect repos that were not dgit
-# clone'd and git_register them?
-
-dgit_test = git branch -a 2>/dev/null | grep -q "^  remotes/dgit/dgit/"
-git_test = test -e "$MR_REPO/.git" && ! (git branch -a 2>/dev/null | grep -q "^  remotes/dgit/dgit/")
-# TODO relying on overriding git_test like this this means we're
-# incompatible with other libs e.g. git-svn
-# TODO factor out the `git branch -a ..` here
-
-# If we find the remotes/dgit/dgit/sid remote tracking branch, we just
-# use the default 'sid' suite.  Otherwise, we pick the first suite we
-# find, since there's no way we can tell which suites the user wants
-# from a clone.
-dgit_register =
-    package=$(dpkg-parsechangelog -SSource)
-    suites=$(git branch -a \
-                 | grep "^  remotes/dgit/dgit/" \
-                 | sed -e 's|  remotes/dgit/dgit/||')
-    # start generating checkout command
-    checkout="dgit clone $package"
-    # append suite if it's not the default
-    if ! echo "$suites" | grep -q sid; then
-        suite=$(echo "$suites" | head -n1)
-        checkout="$checkout $suite"
-    else
-        # this is just for the echo output
-        suite="sid"
-    fi
-    # append directory if it's not the default
-    if [ ! "$MR_REPO" = "$package" ]; then
-        checkout="$checkout ./$MR_REPO"
-    fi
-    # now write the checkout command to the config
-    echo "Registering dgit package $package from $suite in $MR_CONFIG"
-    mr -c "$MR_CONFIG" config "`pwd`" checkout="$checkout"
-
-dgit_update =
-    branch_kind=$(git rev-parse --abbrev-ref HEAD | cut -d/ -f1)
-    if [ "$branch_kind" = "dgit" ]; then
-        dgit pull
-    else
-        dgit fetch
-        git pull "$@"
-    fi
-
-dgit_fetch = dgit fetch ; git fetch --all --prune --tags "$@"
-dgit_clean = dgit clean
-
-# copied from mr's git_* commands
-# TODO can we just refer to them somehow?
-dgit_status = git status -s "$@" || true; git --no-pager log --branches --not --remotes --simplify-by-decoration --decorate --oneline || true; git --no-pager stash list
-dgit_commit = git commit -a "$@" && git push --all
-dgit_record = git commit -a "$@"
-dgit_push = git push "$@"
-dgit_diff = git diff "$@"
-dgit_log = git log "$@"
-dgit_grep = git grep "$@"
-# TODO dgit_trusted_checkout
+# DEFINITION
+#
+# A dgit repository is a git repository containing special remote refs
+# of the form `remotes/dgit/dgit/*` and possibly also branches of the
+# form `dgit/*`.  See dgit(7) for more details.
+#
+# USAGE
+#
+# To make mr use this file, add a line like this inside the [DEFAULT]
+# section of your ~/.mrconfig:
+#
+#   include = cat /usr/share/mr/dgit
+#
+# With this module active, `mr update` will
+#
+# (1) use `dgit fetch` to update all `remotes/dgit/dgit/*` refs
+#
+# (2) if the current branch is a descendent of `dgit/SUITE`, call `dgit
+#     pull SUITE` to merge any further uploads made to ftp-master
+#
+# `mr register` will add a post_checkout hook that calls `dgit fetch`.
+#
+# DESIGN
+#
+# A dgit repository may have been obtained with `dgit clone`, or `git
+# clone` followed by `dgit fetch`.  It is not possible for us to
+# determine which of these methods was used after the fact.
+#
+# For this reason, we do not define dgit_register and dgit_test so as
+# to generate .mrconfig lines like
+#
+#   [foo]
+#   checkout = dgit clone foo
+#
+# because that would fail to fetch branches not published to
+# dgit-repos, such as branches published to alioth.debian.org.
+#
+# Instead, we extend git_update and git_register to obtain updates
+# from dgit-repos.
