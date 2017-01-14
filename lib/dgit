@@ -21,7 +21,7 @@
 #
 # `mr update` will:
 #
-# (1) if the current branch is named `dgit/SUITE`, call `dgit pull SUITE`.
+# (1) if the current branch is named `dgit/SUITE`, call `dgit pull`.
 #
 # (2) use `dgit fetch` to update all remotes/dgit/dgit/*` refs.
 #
@@ -45,10 +45,19 @@
 # Instead, we extend git_update and git_register to obtain updates
 # from dgit-repos.
 
-git_update_append =
-    # (1) above
-    if [ "$(git rev-parse --abbrev-ref HEAD | cut -d/ -f1)" = "dgit" ]; then
+# We can't use git_update_append because mr's built-in default `git
+# pull` will often fail on a `dgit/SUITE` branch.  After a `dgit
+# clone`, (i) `dgit/SUITE` has no upstream tracking branch, and (ii)
+# the 'origin' remote might not exist at all (it depends on whether
+# the package has ever been uploaded with `dgit push`)
+git_update =
+    current_branch="$(git rev-parse --abbrev-ref HEAD)"
+    if [ "$(echo $current_branch | cut -s -d/ -f1)" = "dgit" ]; then
+        # (1) above
         dgit pull
+    else
+        # mr's built-in git_update
+        git pull "$@"
     fi
     # (2) above
     for ref in $(git show-ref | cut -d\  -f2 | grep ^refs/remotes/dgit/dgit); do
