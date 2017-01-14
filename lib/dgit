@@ -17,12 +17,13 @@
 #
 #   include = cat /usr/share/mr/dgit
 #
-# With this module active, `mr update` will
+# With this module active,
 #
-# (1) use `dgit fetch` to update all `remotes/dgit/dgit/*` refs
+# `mr update` will:
 #
-# (2) if the current branch is a descendent of `dgit/SUITE`, call `dgit
-#     pull SUITE` to merge any further uploads made to ftp-master
+# (1) if the current branch is named `dgit/SUITE`, call `dgit pull SUITE`.
+#
+# (2) use `dgit fetch` to update all remotes/dgit/dgit/*` refs.
 #
 # `mr register` will add a post_checkout hook that calls `dgit fetch`.
 #
@@ -43,3 +44,14 @@
 #
 # Instead, we extend git_update and git_register to obtain updates
 # from dgit-repos.
+
+git_update_append =
+    # (1) above
+    if [ "$(git rev-parse --abbrev-ref HEAD | cut -d/ -f1)" = "dgit" ]; then
+        dgit pull
+    fi
+    # (2) above
+    for ref in $(git show-ref | cut -d\  -f2 | grep ^refs/remotes/dgit/dgit); do
+        suite=$(echo $ref | sed 's|refs/remotes/dgit/dgit/||')
+        dgit fetch $suite
+    done
