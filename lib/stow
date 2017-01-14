@@ -126,7 +126,13 @@ lib =
     set_stow_common_opts () {
         : ${STOW_PKG_TYPE:=symlink}
         STOW_PKG_PATH="$STOW_DIR/$STOW_NAME"
-        stow_common_opts="-t $STOW_TARGET -d $STOW_DIR"
+        # canonicalise -t and -d params with readlink if available
+        # stow can fail if they aren't canonical
+        if which readlink >/dev/null 2>&1; then
+            stow_common_opts="-t $(readlink -f $STOW_TARGET) -d $(readlink -f $STOW_DIR)"
+        else
+            stow_common_opts="-t $STOW_TARGET -d $STOW_DIR"
+        fi
         STOW="${STOW_COMMAND:-stow}"
         case "`$STOW --version`" in
             'version 1.*')
