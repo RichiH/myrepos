@@ -67,4 +67,12 @@ git_update =
         fi
     done
 
+git_register_append =
+    lines="cd '$MR_REPO'"
+    for suite in $(git show-ref | grep refs/remotes/dgit/dgit | cut -d/ -f5 ); do
+        echo "Registering dgit suite: $suite in $MR_CONFIG"
+        lines="$lines; dgit fetch $suite"
     done
+    if ! [ "$lines" = "cd '$MR_REPO'" ]; then
+        mr -c "$MR_CONFIG" config "`pwd`" post_checkout="$lines"
+    fi
