@@ -48,8 +48,8 @@
 # We can't use git_update_append because mr's built-in default `git
 # pull` will often fail on a `dgit/SUITE` branch.  After a `dgit
 # clone`, (i) `dgit/SUITE` has no upstream tracking branch, and (ii)
-# the 'origin' remote might not exist at all (it depends on whether
-# the package has ever been uploaded with `dgit push`)
+# the 'origin' remote might not exist on the remote end (it depends on
+# whether the package has ever been uploaded with `dgit push`)
 git_update =
     current_branch="$(git rev-parse --abbrev-ref HEAD)"
     if [ "$(echo $current_branch | cut -s -d/ -f1)" = "dgit" ]; then
