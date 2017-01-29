@@ -1,4 +1,4 @@
-4 years ago, I created https://github.com/wimleers/mr-drupal. It still works great. I wrote about it at http://wimleers.com/article/mr-drupal.
+4 years ago, I created <https://github.com/wimleers/mr-drupal>. It still works great. I wrote about it at <http://wimleers.com/article/mr-drupal>.
 
 But this is very hard to discover.
 
