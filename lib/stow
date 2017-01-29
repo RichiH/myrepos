@@ -7,7 +7,7 @@
 # Original author (2011):
 # Adam Spiers <mr@adamspiers.org>
 #
-# This version reworked (2016) & maintained by:
+# This version reworked (2016, 2017) & maintained (2017) by:
 # Sean Whitton <spwhitton@spwhitton.name>
 
 # BASIC USAGE INSTRUCTIONS
@@ -28,7 +28,7 @@
 # this plug-in where it is.
 #
 # The default behaviour is to stow on checkout, and restow on update.
-# The manual actions 'stow', 'restow', and 'unstow' are also
+# The manual actions 'stow', 'restow', 'unstow' and 'adopt' are also
 # available.
 #
 # By default, ~/.STOW is used as the stow directory, and ~ as the
@@ -40,39 +40,18 @@
 # Some programs will replace a symlink to a stowed file with a regular
 # copy of the file, and a subset of these will do this even if they
 # haven't edited the file.  This will cause stow operations to fail.
-# There are two actions designed to deal with this:
 #
-# - 'cd ~/stowed && mr adopt ~/foo' will replace ~/stowed/foo with
-#   ~/foo so that when you restow, ~/foo is once again a symlink
-#   pointing to ~/stowed/foo
-#
-# - 'cd ~/stowed && mr misstowed' will output a list of all symlinks
-#   that have been replaced with regular files *and modified* by you
-#   or a program.
-#
-# - If you pass '--delete-unmodified' to 'mr misstowed', it will
-#   additionally delete all symlink targets that have been replaced
-#   with *unmodified* regular files.
-#
-# - If you pass '--delete-all' to 'mr misstowed' it will delete all
-#   symlink targets that have been replaced with regular files.
-#
-# The recommended workflow is:
-#
-# 1. Run 'mr misstowed', look for files whose modifications you want
-#    to keep, and run 'mr adopt' on them.
-
-# 2. Run 'mr misstowed --delete-all' to clean up files whose
-#    modifications you don't want to keep.
-#
-# 3. Run 'mr restow' to restore all symlinks.
+# To deal with this, run 'mr adopt'.  This will move the modified file
+# into your repository, and restore the usual symlink.  Then you can
+# use your VCS tools ('git diff', 'hg diff') to decide whether you
+# want to keep the changes.
 #
 # FOLDING
 #
 # By default, this library passes --no-folding to stow.  This allows
 # you to have more than one repository stowing files into a single
 # subdirectory in your home directory.  For example, you might have a
-# private and a public git repo both stowing into ~/.gnupg.  If you
+# private and a public repository both stowing into ~/.gnupg.  If you
 # don't want this behaviour, set MR_FOLD.  For example, in a
 # repository's myrepos config section or in [DEFAULT]:
 #
@@ -147,7 +126,13 @@ lib =
     set_stow_common_opts () {
         : ${STOW_PKG_TYPE:=symlink}
         STOW_PKG_PATH="$STOW_DIR/$STOW_NAME"
-        stow_common_opts="-t $STOW_TARGET -d $STOW_DIR"
+        # canonicalise -t and -d params with readlink if available
+        # stow can fail if they aren't canonical
+        if which readlink >/dev/null 2>&1; then
+            stow_common_opts="-t $(readlink -f $STOW_TARGET) -d $(readlink -f $STOW_DIR)"
+        else
+            stow_common_opts="-t $STOW_TARGET -d $STOW_DIR"
+        fi
         STOW="${STOW_COMMAND:-stow}"
         case "`$STOW --version`" in
             'version 1.*')
@@ -233,6 +218,16 @@ lib =
         ln -s "$required_target" "$symlink"
     }
     #
+    mr_adopt () {
+        stowable_then_continue || return 0
+        set_stow_common_opts
+        ensure_package_exists
+        mr_pre_unstow
+        command "$STOW" --adopt $stow_common_opts "$@" "$STOW_NAME"
+        mr_post_stow
+        info "Stowed $STOW_NAME with adoption"
+    }
+    #
     ensure_package_exists () {
         case "$STOW_PKG_TYPE" in
             symlink)
@@ -249,37 +244,6 @@ lib =
                 error "Unrecognised value '$STOW_PKG_TYPE' for \$STOW_PKG_TYPE; aborting."
                 ;;
         esac
-    }
-    #
-    mr_adopt () {
-        stowable_then_continue || return 0
-        for wanted in "$@"; do
-            if [ -e "$wanted" -a ! -L "$wanted" ]; then
-                dest=$(printf '%s' "$wanted" | sed -e "s@$STOW_TARGET@$MR_REPO@")
-                mkdir -p "$(dirname $dest)"
-                mv "$wanted" "$dest"
-            else
-                error "$wanted is a symlink; won't adopt"
-            fi
-        done
-    }
-    #
-    mr_misstowed () {
-        stowable_then_continue || return 0
-        re="^  \* existing target is neither a link nor a directory: "
-        for file in $(mr_restow_regardless 3>&1 1>&2 2>&3 | grep "$re" \
-                          | sed -e "s|$re|$STOW_TARGET/|" | sort | uniq); do
-            dest=$(printf '%s' "$file" | sed -e "s@$STOW_TARGET@$MR_REPO@")
-            # this 'if' is executed if the file IS different from the repository version
-            if ! diff -q "$dest" "$file" >/dev/null 2>&1; then
-                echo "$file"
-                if [ "$1" = "--delete-all" ]; then
-                    rm "$file"
-                fi
-            elif [ "$1" = "--delete-unmodified" -o "$1" = "--delete-all" ]; then
-                rm "$file"
-            fi
-        done
     }
 
 #stowable      = is_stowable
@@ -303,7 +267,6 @@ unstow        = mr_unstow "$@"
 restow        = mr_restow_regardless "$@"
 restowover    = MR_STOW_OVER=. mr_restow_regardless "$@"
 adopt         = mr_adopt "$@"
-misstowed     = mr_misstowed "$@"
 
 # Local variables:
 # mode: sh
