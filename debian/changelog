@@ -8,6 +8,8 @@ myrepos (1.20160123) UNRELEASED; urgency=medium
     Thanks, Sean Whitton and Adam Spiers.
   * cvs_status: do not fail when all files are up to date.
     Thanks, Paul Wise.
+  * Added dgit plugin.
+    Thanks, Sean Whitton.
 
  -- Joey Hess <id@joeyh.name>  Sat, 02 Apr 2016 15:10:58 -0400
 
