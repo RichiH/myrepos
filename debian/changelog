@@ -1,4 +1,4 @@
-myrepos (1.20160123) UNRELEASED; urgency=medium
+myrepos (1.20170129) unstable; urgency=medium
 
   * Strip .git extension when registering vsch repositories.
     Thanks, Don March
@@ -11,7 +11,7 @@ myrepos (1.20160123) UNRELEASED; urgency=medium
   * Added dgit plugin.
     Thanks, Sean Whitton.
 
- -- Joey Hess <id@joeyh.name>  Sat, 02 Apr 2016 15:10:58 -0400
+ -- Joey Hess <id@joeyh.name>  Sun, 29 Jan 2017 14:14:19 -0400
 
 myrepos (1.20160122) unstable; urgency=medium
 
