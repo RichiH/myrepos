@@ -1,0 +1,7 @@
+4 years ago, I created https://github.com/wimleers/mr-drupal. It still works great. I wrote about it at http://wimleers.com/article/mr-drupal.
+
+But this is very hard to discover.
+
+I wonder what other great additions I'm missing out on? If the canonical `myrepos` repo + website would list contributions/extensions, that'd IMHO greatly enhance the ecosystem!
+
+P.S.: thanks again for this excellent tool. A happy user for 4 years now.
