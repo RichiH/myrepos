@@ -5,3 +5,4 @@ It's a simple perl script, which can be copied anywhere to install.
 Debian: `apt-get install myrepos`  
 Homebrew: `brew install mr`  
 FreeBSD: `pkg install myrepos`  
+Gentoo: `emerge dev-vcs/mr`
