@@ -126,7 +126,7 @@ Show the commit log.
 =item grep pattern
 
 Searches for a pattern in each repository using the grep subcommand. Uses
-ack-grep on VCS that do not have their own.
+ack or ack-grep on VCS that do not have their own.
 Ignores the return value from grep subcommands so that you can use
 C<mr -m grep foo> and not get output in non-matching repositories.
 
@@ -2211,12 +2211,12 @@ vcsh_log = vcsh run "$MR_REPO" git log "$@"
 veracity_log = vv log "$@"
 
 hg_grep = hg grep "$@" || true
-cvs_grep = ack-grep "$@" || true
-svn_grep = ack-grep "$@" || true
+cvs_grep = if command -v ack-grep > /dev/null 2>&1; then ack-grep "$@" || true ; else ack "$@" || true ; fi
+svn_grep = if command -v ack-grep > /dev/null 2>&1; then ack-grep "$@" || true ; else ack "$@" || true ; fi
 git_svn_grep = git grep "$@" || true
 git_grep = git grep "$@" || true
-bzr_grep = ack-grep "$@" || true
-darcs_grep = ack-grep "$@" || true
+bzr_grep = if command -v ack-grep > /dev/null 2>&1; then ack-grep "$@" || true ; else ack "$@" || true ; fi
+darcs_grep = if command -v ack-grep > /dev/null 2>&1; then ack-grep "$@" || true ; else ack "$@" || true ; fi
 
 run = "$@"
 

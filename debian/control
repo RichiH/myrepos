@@ -15,7 +15,7 @@ Section: vcs
 Depends:
  ${misc:Depends}
 Suggests:
- ack-grep,
+ ack (>= 2.15.01) | ack-grep,
  bzr,
  curl,
  cvs,
