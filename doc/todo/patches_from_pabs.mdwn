@@ -5,7 +5,9 @@ https://anonscm.debian.org/cgit/users/pabs/myrepos.git/
 ```
 
 ```
-$ git log --oneline 
+$ git log --oneline
+0091d74 Update list of distro install commands
+692adf9 Replace Debian BTS link with myrepos/mr pages for many distros.
 cc24aa1 Cope with the transition from ack-grep to ack in Debian
 91def65 Ignore new debhelper cruft
 2e8aa85 Synchronise git_svn_status with git_status
