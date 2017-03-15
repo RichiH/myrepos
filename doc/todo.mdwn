@@ -1,6 +1,14 @@
 This is myrepos's todo list. Link items to [[todo/done]] when done.
 
-See also: [Debian BTS](http://bugs.debian.org/mr).
+See also:
+[Debian](https://tracker.debian.org/pkg/myrepos),
+[Ubuntu](https://launchpad.net/ubuntu/+source/myrepos),
+[Fedora](https://apps.fedoraproject.org/packages/myrepos/),
+[Gentoo](https://packages.gentoo.org/package/dev-vcs/mr),
+[AUR](https://aur.archlinux.org/packages/myrepos/)
+([git](https://aur.archlinux.org/packages/myrepos/)),
+[FreeBSD](https://www.freebsd.org/cgi/ports.cgi?stype=all&query=myrepos),
+[NetBSD](http://pkgsrc.se/devel/mr).
 
 [[!inline pages="./todo/* and !./todo/done and !link(done)
 and !*/Discussion" actions=yes postform=yes show=0 archive=yes]]
