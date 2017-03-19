@@ -2080,7 +2080,7 @@ veracity_update = vv pull "$@" && vv update "$@"
 
 git_fetch = git fetch --all --prune --tags "$@"
 git_svn_fetch = git svn fetch "$@"
-darcs_fetch = darcs fetch "$@"
+darcs_fetch = darcs fetch -a "$@"
 hg_fetch = hg pull "$@"
 
 svn_clean = 
