@@ -9,7 +9,7 @@ control repositories.
 It supports git, svn, mercurial, bzr, darcs, cvs, fossil and veracity.
 
 Author: Joey Hess
-Homepage: http://myrepos.branchable.com/
+Homepage: https://myrepos.branchable.com/
 
 The mr command is intended to be very self-contained, since it might be
 useful to check it into ~/bin when keeping your home in version control. It
@@ -30,4 +30,4 @@ each, run "mr commit". To check the status of each, you could run
 "mr status".
 
 For further details, and lots of configuration options, see the mr(1) man
-page or the website, http://myrepos.branchable.com/
+page or the website, https://myrepos.branchable.com/

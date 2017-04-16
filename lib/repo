@@ -1,5 +1,5 @@
 # Adds support for repo repositories.
-# http://source.android.com/source/version-control.html
+# https://source.android.com/source/developing
 
 # To make mr use this file, add a line like this inside the [DEFAULT]
 # section of your ~/.mrconfig
