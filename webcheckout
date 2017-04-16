@@ -102,7 +102,7 @@ my @anon_urls=(
 	qr/^git:\/\//i,
 	qr/^bzr:\/\//i,
 	qr/^svn:\/\//i,
-	qr/^http:\/\//i, # generally the worst transport
+	qr/^https?:\/\//i, # generally the worst transport
 );
 
 sub getopts {
