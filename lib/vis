@@ -6,7 +6,7 @@
 
 cvs_vis = cvs diff | $EDITOR -
 svn_vis = svn status | $EDITOR -
-git_svn_vis = gitk --all
-git_vis = gitk --all
+git_svn_vis = if [ "$DISPLAY" ] ; then gitk --all ; else tig --all ; fi
+git_vis = if [ "$DISPLAY" ] ; then gitk --all ; else tig --all ; fi
 bzr_vis = bzr visualize
-hg_vis = hg view
+hg_vis = if [ "$DISPLAY" ] ; then hg view ; else hgv ; fi
