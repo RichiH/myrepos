@@ -6,6 +6,7 @@ https://anonscm.debian.org/cgit/users/pabs/myrepos.git/
 
 ```
 $ git log --oneline
+6afdd95 vis: pass arguments to the commands
 145454d webcheckout: consider https URLs to be anonymous too
 4154b26 Switch URLs from http to https where possible
 8c81c1d vis: fall back from GUI to terminal tools when no X11 display is available
