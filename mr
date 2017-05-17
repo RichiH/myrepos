@@ -1044,8 +1044,8 @@ sub mrs {
 						if (! defined $fhs[$i][0] &&
 						    ! defined $fhs[$i][1]) {
 						    	waitpid($active[$i][0], 0);
-							print STDOUT $out[$i][0];
-							print STDERR $out[$i][1];
+							print STDOUT $out[$i][0] if defined $out[$i][0];
+							print STDERR $out[$i][1] if defined $out[$i][1];
 							record($active[$i][1], $? >> 8, $out[$i][0] || $out[$i][1]);
 						    	splice(@fhs, $i, 1);
 						    	splice(@active, $i, 1);

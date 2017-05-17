@@ -1,3 +1,9 @@
+myrepos (1.20170130) UNRELEASED; urgency=medium
+
+  * Fix undefined value warning when using -j.
+
+ -- Joey Hess <id@joeyh.name>  Wed, 17 May 2017 12:07:26 -0400
+
 myrepos (1.20170129) unstable; urgency=medium
 
   * Strip .git extension when registering vsch repositories.
