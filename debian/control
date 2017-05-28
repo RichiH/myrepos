@@ -33,6 +33,7 @@ Provides:
 Replaces:
  mr
 Recommends:
+ libfile-homedir-perl,
  libhtml-parser-perl,
  libio-pty-easy-perl,
  libwww-perl,
