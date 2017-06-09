@@ -1,0 +1,24 @@
+`mr config` has confusing behavior when used with chained mrconfig files.
+
+For example, I have ~/.mrconfig which defines a git-annex repository.
+And chains to ~/src/.mrconfig, which defines a git-annex repisoitory too.
+Those are separate repositories in different locations. But, if
+I run `mr config git-annex checkout`, it prints out the checkout
+actions for both repositories.
+
+Another example, my ~/.mrconfig defines a "." repository, which goes
+in my $HOME. If I run `mr config . checkout`, it prints out the checkout
+command for that repsitory, even when I'm in some other repository. Which
+is pretty confusing behavior!
+
+This might be especially bad when using mr config to change settings.
+I have not dared to try it.
+
+Looking at the code to `sub config`, it just iterates over each config
+and if it contains a section named like the basename of the repository,
+prints its config.
+
+To fix it, it seems that it would need to pay attention to where it's
+run. This would be a behavior change, and there's some chance it might
+break something.
+--[[Joey]]
