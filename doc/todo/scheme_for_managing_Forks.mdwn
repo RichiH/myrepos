@@ -1,0 +1,7 @@
+My last feature request today, I promise!
+
+A workflow that is common for Github-style hosting sites is for there to be a canonical repo for a given software project, and for contributors to have a separate "fork" of that repository, to which they push changes. The changes are merged into the canonical repository by way of Pull Requests, an out-of-band process (from the pov of command line git).
+
+I've just cloned 27 github repositories that belong to a given organisation and I wish to configure an additional remote, corresponding to my github fork, for each repo. It would be nice if mr could facilitate this in an organised way; in  addition, repositories in this github organisation (or put it another way, in this part of my filesystem hierarchy) might come and go over time (see [[nicities when working with github and similar]]).
+
+-- [Jonathan Dowland](https://jmtd.net/)
