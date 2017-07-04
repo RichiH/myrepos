@@ -1,0 +1,5 @@
+It would be useful to be able to easily move or rename repositories, e.g.
+
+    mr move historicrepo old/historicrepo
+
+Updating the relevant mrconfig(s) accordingly. -- [Jonathan Dowland](https://jmtd.net/)
