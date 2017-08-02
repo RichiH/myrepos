@@ -1,0 +1,14 @@
+I tried `mr` out on `Bash on Windows`.
+I found that `mr` does not work so well.
+
+Steps to reproduce the problem:
+
+```
+15:12:57 Andrew@LAPTOP-V9S562AR:~
+$ mr s
+mr s: /home/Andrew/.config/vcsh/repo.d/author.git
+mr s: received signal 127
+```
+The status action does not cover a number of my repos, it just stops at the first repo.
+
+I have installed `mr` via `sudo apt-get install mr`.
