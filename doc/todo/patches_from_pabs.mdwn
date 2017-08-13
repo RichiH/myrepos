@@ -20,3 +20,5 @@ cc24aa1 Cope with the transition from ack-grep to ack in Debian
 9e740ff Ignore the return value from grep and ack-grep subcommands.
 cabc3e2 Erase to the end of the line when exiting
 ```
+
+[[done]]
