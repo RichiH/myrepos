@@ -613,7 +613,7 @@ my $directory=getcwd();
 my $terminal=-t STDOUT && eval{require IO::Pty::Easy;IO::Pty::Easy->import();1;};
 my $erase_line=$terminal && eval{require Term::Cap;my $t=Term::Cap->Tgetent();$t->Tputs('ce');};
 
-eval { require File::HomeDir; $ENV{HOME} = File::HomeDir->my_home; 1; }
+eval { require File::HomeDir; $ENV{HOME} = File::HomeDir->my_home; 1; };
 my $HOME_MR_CONFIG = "$ENV{HOME}/.mrconfig";
 $ENV{MR_CONFIG}=find_mrconfig();
 
