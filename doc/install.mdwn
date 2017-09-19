@@ -2,12 +2,12 @@
 
 It's a simple perl script, which can be copied anywhere to install.
 
-Debian: `apt install myrepos`
-Ubuntu: `apt install myrepos`
-Fedora: `dnf install myrepos`
-Gentoo: `emerge dev-vcs/mr`
-Arch: `pacman -S myrepos`
-FreeBSD: `pkg install myrepos`
-NetBSD: `pkg_add mr`
-Homebrew: `brew install mr`
-MacPorts: `port install myrepos`
+Debian: `apt install myrepos`  
+Ubuntu: `apt install myrepos`  
+Fedora: `dnf install myrepos`  
+Gentoo: `emerge dev-vcs/mr`  
+Arch: `pacman -S myrepos`  
+FreeBSD: `pkg install myrepos`  
+NetBSD: `pkg_add mr`  
+Homebrew: `brew install mr`  
+MacPorts: `port install myrepos`  
