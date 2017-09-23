@@ -76,6 +76,11 @@ Some more examples of things it can do include:
 * Manage your whole home directory in version control.
   (See [VCS-Home](https://vcs-home.branchable.com/))
 
+## related software
+
+* [repo](https://android.googlesource.com/tools/repo): git repository management tool
+* [VCS](http://www.greenend.org.uk/rjk/vcs/): a wrapper for version control systems
+
 ## news
 
 [[!inline pages="news/* and !*/Discussion" show="4" archive=yes]]
