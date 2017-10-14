@@ -62,7 +62,7 @@ You can even define commands globally, so `mr` can use them in all repositories.
 	git_gc = git gc "$@"
 
 This only scratches the surface of the ways you can use myrepos to automate
-and mange your repositories!
+and manage your repositories!
 
 Some more examples of things it can do include:
 
