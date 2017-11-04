@@ -574,7 +574,7 @@ mr returns nonzero if a command failed in any of the repositories.
 
 =head1 AUTHOR
 
-Copyright 2007-2011 Joey Hess <joey@kitenet.net>
+Copyright 2007-2011 L<Joey Hess|mailto:joey@kitenet.net>
 
 Licensed under the GNU GPL version 2 or higher.
 

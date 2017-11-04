@@ -5,10 +5,10 @@ mans=mr.1 webcheckout.1
 build: $(mans)
 
 mr.1: mr
-	pod2man -c mr mr > mr.1
+	pod2man -c mr mr | sed s/mailto:// > mr.1
 
 webcheckout.1: webcheckout
-	pod2man -c webcheckout webcheckout > webcheckout.1
+	pod2man -c webcheckout webcheckout | sed s/mailto:// > webcheckout.1
 
 test:
 	(echo "[.]"; echo "checkout=") > mrconfig.tmp
