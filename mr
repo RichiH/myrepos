@@ -381,7 +381,7 @@ All other sections add repositories. The section header specifies the
 directory where the repository is located. This is relative to the directory
 that contains the mrconfig file, but you can also choose to use absolute
 paths. (Note that you can use environment variables in section names; they
-will be passed through the shell for expansion. For example, 
+will be passed through the shell for expansion. For example,
 C<[$HOSTNAME]>, or C<[${HOSTNAME}foo]>).
 
 Within a section, each setting defines a shell command to run to handle a
@@ -400,7 +400,7 @@ C<$@>. All commands other than "checkout" are run inside the repository,
 though not necessarily at the top of it.
 
 The C<MR_REPO> environment variable is set to the path to the top of the
-repository. (For the "register" action, "MR_REPO" is instead set to the 
+repository. (For the "register" action, "MR_REPO" is instead set to the
 basename of the directory that should be created when checking the
 repository out.)
 
@@ -433,9 +433,9 @@ been at least 12 hours since the last update.
   [linux]
   checkout = ...
   skip = [ "$1" = update ] && ! hours_since "$1" 12
- 
+
 Another way to use skip is for a lazy checkout. This makes mr skip
-operating on a repo unless it already exists. To enable the 
+operating on a repo unless it already exists. To enable the
 repo, you have to explicitly check it out (using "mr --force -d foo checkout").
 
   [foo]
@@ -485,7 +485,7 @@ to keep track of and remember to delete old repositories.
 
 The "lib" setting can contain some shell code that will be run
 before each command, this can be a useful way to define shell
-functions for other commands to use. 
+functions for other commands to use.
 
 Unlike most other settings, this can be specified multiple times, in
 which case the chunks of shell code are accumulatively concatenated
@@ -529,7 +529,7 @@ run before committing; "post_update" is run after updating.
 =item _append
 
 Any setting can be suffixed with C<_append>, to add an additional value
-to the existing value of the setting. In this way, actions 
+to the existing value of the setting. In this way, actions
 can be constructed accumulatively.
 
 =item VCS_test
@@ -648,7 +648,7 @@ sub runsh {
 		$?=0;
 		return 1;
 	}
-	
+
 	my $quotedparams=join(" ", (map { shellquote($_) } @$params));
 	my $lib=exists $config{$topdir}{$subdir}{lib} ?
 	               $config{$topdir}{$subdir}{lib}."\n" : "";
@@ -689,7 +689,7 @@ sub vcs_test {
 	my %perltest;
 	foreach my $vcs_test (
 			sort {
-				length $a <=> length $b 
+				length $a <=> length $b
 				          ||
 				       $a cmp $b
 			} grep { /_test$/ } keys %{$config{$topdir}{$subdir}}) {
@@ -728,10 +728,10 @@ sub vcs_test {
 		return $vcs{$dir}=$vcs[0];
 	}
 }
-	
+
 sub findcommand {
 	my ($action, $dir, $topdir, $subdir, $is_checkout) = @_;
-	
+
 	if (exists $config{$topdir}{$subdir}{$action}) {
 		return $config{$topdir}{$subdir}{$action};
 	}
@@ -742,7 +742,7 @@ sub findcommand {
 
 	my $vcs=vcs_test(@_);
 
-	if (defined $vcs && 
+	if (defined $vcs &&
 	    exists $config{$topdir}{$subdir}{$vcs."_".$action}) {
 		return $config{$topdir}{$subdir}{$vcs."_".$action};
 	}
@@ -814,7 +814,7 @@ sub action {
 
 	($ENV{MR_REPO}=$dir) =~ s!/$!!;
 	$ENV{MR_ACTION}=$action;
-	
+
 	foreach my $testname ("skip", "deleted") {
 		next if $force && $testname eq "skip";
 
@@ -854,7 +854,7 @@ sub action {
 				print "mr $action: $dir already exists, skipping checkout\n" if $verbose;
 				return SKIPPED;
 			}
-	
+
 			$dir=~s/^(.*)\/[^\/]+\/?$/$1/;
 		}
 	}
@@ -945,7 +945,7 @@ sub action {
 
 			my ($ret, $hook_out)=hook("post_$action", $topdir, $subdir);
 			return $ret if $ret != OK;
-			
+
 			if ($is_checkout || $is_update) {
 				if ($is_checkout && ! $no_chdir) {
 					if (! chdir($checkout_dir)) {
@@ -956,7 +956,7 @@ sub action {
 				my ($ret, $hook_out)=hook("fixups", $topdir, $subdir);
 				return $ret if $ret != OK;
 			}
-			
+
 			return (OK, $out || $hook_out);
 		}
 	}
@@ -1183,7 +1183,7 @@ sub selectrepos {
 		foreach my $repo (reverse repolist()) {
 			my $topdir=$repo->{topdir};
 			my $subdir=$repo->{subdir};
-			
+
 			next if $subdir eq 'DEFAULT';
 			my $dir=absrepodir($repo);
 			my $d=$directory;
@@ -1201,13 +1201,13 @@ sub selectrepos {
 
 sub expandenv {
 	my $val=shift;
-	
+
 
 	if ($val=~/\$/) {
 		$val=`echo "$val"`;
 		chomp $val;
 	}
-	
+
 	return $val;
 }
 
@@ -1241,7 +1241,7 @@ sub is_trusted_config {
 
 sub is_trusted_repo {
 	my $repo=shift;
-	
+
 	# Tightly limit what is allowed in a repo name.
 	# No ../, no absolute paths, and no unusual filenames
 	# that might try to escape to the shell.
@@ -1251,12 +1251,12 @@ sub is_trusted_repo {
 
 sub is_trusted_checkout {
 	my $command=shift;
-	
+
 	# To determine if the command is safe, compare it with the
 	# *_trusted_checkout config settings. Those settings are
 	# templates for allowed commands, so make sure that each word
 	# of the command matches the corresponding word of the template.
-	
+
 	my @words;
 	foreach my $word (split(' ', $command)) {
 		# strip quoting
@@ -1348,7 +1348,7 @@ sub loadconfig {
 		}
 
 		$dir=safe_abs_path($dir)."/";
-		
+
 		if (! exists $configfiles{$dir}) {
 			$configfiles{$dir}=$f;
 		}
@@ -1365,7 +1365,7 @@ sub loadconfig {
 				last;
 			}
 		}
-		
+
 		if (! -e $f) {
 			return;
 		}
@@ -1407,7 +1407,7 @@ sub loadconfig {
 	};
 	my $trusterror = sub {
 		my $msg=shift;
-	
+
 		if (defined $bootstrap_src) {
 			die "mr: $msg in untrusted $bootstrap_src line $lineno\n".
 				"(To trust this url, --trust-all can be used; but please use caution;\n".
@@ -1603,7 +1603,7 @@ sub modifyconfig {
 			push @out, $_;
 		}
 		elsif (/^\[([^\]]*)\]\s*$/) {
-			if (defined $section && 
+			if (defined $section &&
 			    $section eq $targetsection) {
 				$addfields->();
 			}
@@ -1636,7 +1636,7 @@ sub modifyconfig {
 		}
 	}
 
-	if (defined $section && 
+	if (defined $section &&
 	    $section eq $targetsection) {
 		$addfields->();
 	}
@@ -1651,7 +1651,7 @@ sub modifyconfig {
 
 	open(my $out, ">", $f) || die "mr: write $f: $!\n";
 	print $out @out;
-	close $out;	
+	close $out;
 }
 
 sub dispatch {
@@ -1781,7 +1781,7 @@ sub bootstrap {
 
 	my $src=shift @ARGV;
 	my $dir=shift @ARGV || ".";
-	
+
 	if (! defined $src || ! length $src) {
 		die "mr: bootstrap requires source\n";
 	}
@@ -1824,7 +1824,7 @@ sub bootstrap {
 	}
 	chdir($dir) || die "chdir $dir: $!";
 
-	# Special case to handle checkout of the "." repo, which 
+	# Special case to handle checkout of the "." repo, which
 	# would normally be skipped.
 	my $topdir=safe_abs_path(".")."/";
 	my @repo=($topdir, $topdir, ".");
@@ -1907,7 +1907,7 @@ sub getopts {
 		die("Usage: mr [options] action [params ...]\n".
 		    "(Use mr help for man page.)\n");
 	}
-	
+
 	$ENV{MR_SWITCHES}="";
 	foreach my $option (@saved) {
 		last if $option eq $ARGV[0];
@@ -1935,7 +1935,7 @@ sub init {
 		print STDERR "mr: interrupted\n";
 		exit 2;
 	};
-	
+
 	# This can happen if it's run in a directory that was removed
 	# or other strangeness.
 	if (! defined $directory) {
@@ -1953,7 +1953,7 @@ sub init {
 		$ENV{MR_PATH}=$Bin."/".$Script;
 	};
 }
-	
+
 sub exitstats {
 	if (@failed) {
 		exit 1;
@@ -1986,7 +1986,7 @@ sub main {
 	loadconfig($HOME_MR_CONFIG);
 	loadconfig($ENV{MR_CONFIG});
 	#use Data::Dumper; print Dumper(\%config);
-	
+
 	my $action=expandaction(shift @ARGV);
 	dispatch($action);
 
@@ -2054,7 +2054,7 @@ cvs_test = perl: -d "$ENV{MR_REPO}/CVS"
 hg_test  = perl: -d "$ENV{MR_REPO}/.hg"
 darcs_test = perl: -d "$ENV{MR_REPO}/_darcs"
 fossil_test = perl: -f "$ENV{MR_REPO}/_FOSSIL_" || -f "$ENV{MR_REPO}/.fslckout"
-git_bare_test = perl: 
+git_bare_test = perl:
 	-d "$ENV{MR_REPO}/refs/heads" && -d "$ENV{MR_REPO}/refs/tags" &&
 	-d "$ENV{MR_REPO}/objects" && -f "$ENV{MR_REPO}/config" &&
 	`GIT_CONFIG="$ENV{MR_REPO}"/config git config --get core.bare` =~ /true/
@@ -2066,7 +2066,7 @@ veracity_test  = perl: -d "$ENV{MR_REPO}/.sgdrawer"
 
 svn_update = svn update "$@"
 git_update = git pull "$@"
-bzr_update = 
+bzr_update =
 	if is_bzr_checkout; then
 		bzr update "$@"
 	else
@@ -2084,42 +2084,42 @@ git_svn_fetch = git svn fetch "$@"
 darcs_fetch = darcs fetch -a "$@"
 hg_fetch = hg pull "$@"
 
-svn_clean = 
+svn_clean =
 	if [ "x$1" = x-f ] ; then
 		shift
 		svn-clean "$@"
 	else
 		svn-clean --print "$@"
 	fi
-git_clean = 
+git_clean =
 	if [ "x$1" = x-f ] ; then
 		shift
 		git clean -dx --force "$@"
 	else
 		git clean -dx --dry-run "$@"
 	fi
-git_svn_clean = 
+git_svn_clean =
 	if [ "x$1" = x-f ] ; then
 		shift
 		git clean -dx --force "$@"
 	else
 		git clean -dx --dry-run "$@"
 	fi
-bzr_clean = 
+bzr_clean =
 	if [ "x$1" = x-f ] ; then
 		shift
 		bzr clean-tree --verbose --force --ignored --unknown --detritus "$@"
 	else
 		bzr clean-tree --verbose --dry-run --ignored --unknown --detritus "$@"
 	fi
-cvs_clean = 
+cvs_clean =
         if [ "x$1" = x-f ] ; then
 		shift
 		cvs-clean "$@"
 	else
 		cvs-clean --dry-run "$@"
 	fi
-hg_clean = 
+hg_clean =
 	if [ "x$1" = x-f ] ; then
 		shift
 		hg purge --print --all "$@"
@@ -2127,14 +2127,14 @@ hg_clean =
 	else
 		hg purge --print --all "$@"
 	fi
-fossil_clean = 
+fossil_clean =
 	if [ "x$1" = x-f ] ; then
 		shift
 		fossil clean --dry-run --dotfiles --emptydirs "$@"
 	else
 		fossil clean --force --dotfiles --emptydirs "$@"
 	fi
-vcsh_clean = 
+vcsh_clean =
 	if [ "x$1" = x-f ] ; then
 		shift
 		vcsh run "$MR_REPO" git clean -dx "$@"
@@ -2154,7 +2154,7 @@ veracity_status = vv status "$@"
 
 svn_commit = svn commit "$@"
 git_commit = git commit -a "$@" && git push --all
-bzr_commit = 
+bzr_commit =
 	if is_bzr_checkout; then
 		bzr commit "$@"
 	else
@@ -2228,7 +2228,7 @@ svn_register =
 	fi
 	echo "Registering svn url: $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="svn co '$url' '$MR_REPO'"
-git_register = 
+git_register =
 	url="`LC_ALL=C git config --get remote.origin.url`" || true
 	if [ -z "$url" ]; then
 		error "cannot determine git url"
@@ -2250,15 +2250,15 @@ cvs_register =
 		fi
 	echo "Registering cvs repository $repo at root $root"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="cvs -d '$root' co -d '$MR_REPO' '$repo'"
-hg_register = 
+hg_register =
 	url=`hg showconfig paths.default`
 	echo "Registering mercurial repo url: $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="hg clone '$url' '$MR_REPO'"
-darcs_register = 
+darcs_register =
 	url=`cat _darcs/prefs/defaultrepo`
 	echo "Registering darcs repository $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="darcs get '$url' '$MR_REPO'"
-git_bare_register = 
+git_bare_register =
 	url="`LC_ALL=C GIT_CONFIG=config git config --get remote.origin.url`" || true
 	if [ -z "$url" ]; then
 		error "cannot determine git url"
@@ -2299,8 +2299,8 @@ veracity_trusted_checkout = vv clone $url $repo
 
 
 list = true
-config = 
-bootstrap = 
+config =
+bootstrap =
 
 online =
 	if [ -s ~/.mrlog ]; then

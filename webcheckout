@@ -10,7 +10,7 @@ B<webcheckout> [options] url [destdir]
 
 =head1 DESCRIPTION
 
-B<webcheckout> downloads an url and parses it, looking for version control 
+B<webcheckout> downloads an url and parses it, looking for version control
 repositories referenced by the page. It checks out each repository into
 a subdirectory of the current directory, using whatever VCS program is
 appropriate for that repository (git, svn, etc).

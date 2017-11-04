@@ -8,4 +8,4 @@ File: Makefile          Status: Locally Modified
 File: Makefile          Status: Locally Modified
 File: Makefile.am       Status: Locally Modified
 
-Aha, so 3 out of 66 files named 'Makefile' are modified. 
+Aha, so 3 out of 66 files named 'Makefile' are modified.

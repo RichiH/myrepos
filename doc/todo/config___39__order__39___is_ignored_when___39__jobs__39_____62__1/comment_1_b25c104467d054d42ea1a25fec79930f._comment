@@ -23,7 +23,7 @@ I think there are probably two ways `order` might be used:
    linux repo updated concurrently.
 
 These are both valid; might be better to keep order as it is to handle #2,
-and add a more formal dependency mechanism for #1. 
+and add a more formal dependency mechanism for #1.
 
 The use of a dummy target to run a `fixups` at the end of the update, which
 is what we're both using `order` for suggests a simpler approach: Just make

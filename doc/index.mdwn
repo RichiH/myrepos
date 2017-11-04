@@ -28,11 +28,11 @@ of other commands. These work no matter which version control system is
 used for a repository. Of course, you can still use the native version
 control commands too.
 
-Oh, and you can abbreviate any command to any unambiguous abbreviation. 
+Oh, and you can abbreviate any command to any unambiguous abbreviation.
 `mr up`, `mr pu`, etc.
 
 Now, maybe you find that you always want to update one repository using
-`git pull --rebase`, instead of the default `git pull` that `mr update` runs. 
+`git pull --rebase`, instead of the default `git pull` that `mr update` runs.
 No problem: The `~/.mrconfig` file makes it easy to override the command
 run for any repository. It's like a `Makefile` for repositories.
 
@@ -43,14 +43,14 @@ run for any repository. It's like a `Makefile` for repositories.
 You can make up your own commands too:
 
 	[bar]
-	# This repository has an upstream, which I've forked; 
+	# This repository has an upstream, which I've forked;
 	# set up a remote on checkout.
-	checkout = 
+	checkout =
 		git clone git@github.com:joeyh/bar.git
 		cd bar
 		git remote add upstream git@github.com:barbar/bar.git
 	# make `mr zap` integrate from upstream
-	zap = 
+	zap =
 		git pull upstream
 		git merge upstream/master
 		git push origin master
@@ -86,6 +86,6 @@ Some more examples of things it can do include:
 [[!inline pages="news/* and !*/Discussion" show="4" archive=yes]]
 
 [[!sidebar content="""
-[[install]]  
-[[todo]]  
+[[install]]
+[[todo]]
 """]]
