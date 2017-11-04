@@ -1,6 +1,10 @@
 myrepos (1.20170130) UNRELEASED; urgency=medium
 
+  [ Joey Hess ]
   * Fix undefined value warning when using -j.
+
+  [ Paul Wise ]
+  * Join the Debian package maintainers
 
  -- Joey Hess <id@joeyh.name>  Wed, 17 May 2017 12:07:26 -0400
 
