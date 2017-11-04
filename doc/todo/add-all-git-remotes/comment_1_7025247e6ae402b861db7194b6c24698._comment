@@ -7,6 +7,6 @@ I like this idea, and it seems fine to change the default `mr register`
 behavior like this.
 
 The TODOs need to be dealt with or removed before I can merge it.
-Git remote names *are* allowed to contain ".", altough they cannot start
+Git remote names *are* allowed to contain ".", although they cannot start
 with it.
 """]]

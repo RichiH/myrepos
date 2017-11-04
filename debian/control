@@ -40,7 +40,7 @@ Recommends:
  perl
 Description: tool to manage all your version control repos
  The mr(1) command can checkout, update, or perform other actions on
- a set of repositories as if they were one combined respository. It
+ a set of repositories as if they were one combined repository. It
  supports any combination of git, svn, mercurial, bzr, darcs, cvs, vcsh,
  fossil, and veracity repositories, and support for other version control
  systems can easily be added. (There are extensions adding support for unison

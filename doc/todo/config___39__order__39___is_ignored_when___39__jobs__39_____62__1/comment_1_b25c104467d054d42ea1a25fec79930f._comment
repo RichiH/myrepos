@@ -13,7 +13,7 @@ guarantee that.
 
 I think there are probably two ways `order` might be used:
 
-1. To make a dependant repository be processed after another one. I use it
+1. To make a dependent repository be processed after another one. I use it
    this way myself. Broken by --jobs.
 2. To eg, sort more expensive or less important repositories later. For
    example, I used to keep a clone of the linux git repo, but it's very

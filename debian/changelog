@@ -264,7 +264,7 @@ mr (1.07) unstable; urgency=low
 
 mr (1.06) unstable; urgency=low
 
-  * Fix propigation of failure from pre and post hooks and from fixups.
+  * Fix propagation of failure from pre and post hooks and from fixups.
   * Support chaining to absolute paths.
   * Add support for skip = lazy, a mode where mr only operates on repositories
     that are checked out.
