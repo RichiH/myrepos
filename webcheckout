@@ -17,7 +17,7 @@ appropriate for that repository (git, svn, etc).
 
 The information about the repositories is embedded in the web page using
 the rel=vcs-* microformat, which is documented at
-<https://joeyh.name/rfc/rel-vcs/>.
+L<https://joeyh.name/rfc/rel-vcs/>.
 
 If the optional destdir parameter is specified, VCS programs will be asked
 to check out repositories into that directory. If there are multiple
@@ -61,7 +61,7 @@ Copyright 2009 Joey Hess <joey@kitenet.net>
 
 Licensed under the GNU GPL version 2 or higher.
 
-This program is included in myrepos <https://myrepos.branchable.com/>
+This program is included in myrepos L<https://myrepos.branchable.com/>
 
 =cut
 
