@@ -138,7 +138,7 @@ myrepos (1.20140613) unstable; urgency=medium
 
 myrepos (1.20140227) unstable; urgency=medium
 
-  * Avoid using man -l, relying on both versions of man for linux working
+  * Avoid using man -l, relying on both versions of man for Linux working
     when a file is passed, with no switches.
   * When blocking control codes in untrusted mrconfig files, ignore
     ones inside comments. (Thanks, Philipp Ittershagen)
