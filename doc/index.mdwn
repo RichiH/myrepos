@@ -89,6 +89,8 @@ Some more examples of things it can do include:
 * [vcstool](https://github.com/dirk-thomas/vcstool): work with multiple repositories
 * [vcstools](https://github.com/vcstools/vcstools): Python API wrapping version control systems
 * [rosinstall](https://github.com/vcstools/rosinstall): source code workspace management tool
+* [vcs-repo-mgr](https://github.com/xolox/python-vcs-repo-mgr): version control repository manager
+* [go-vcs](https://github.com/Masterminds/vcs): version control repository management for Golang
 
 ## news
 
