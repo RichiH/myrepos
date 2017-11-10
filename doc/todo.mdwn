@@ -4,11 +4,24 @@ See also:
 [Debian](https://tracker.debian.org/pkg/myrepos),
 [Ubuntu](https://launchpad.net/ubuntu/+source/myrepos),
 [Fedora](https://apps.fedoraproject.org/packages/myrepos/),
+[openSUSE](https://software.opensuse.org/package/mr),
+[Mageia](https://madb.mageia.org/package/show/application/0/name/myrepos),
+[Sisyphus](http://www.sisyphus.ru/en/srpm/Sisyphus/mr),
 [Gentoo](https://packages.gentoo.org/package/dev-vcs/mr),
+[Funtoo](https://github.com/funtoo/dev-kit/tree/master/dev-vcs/mr),
 [AUR](https://aur.archlinux.org/packages/myrepos/)
 ([git](https://aur.archlinux.org/packages/myrepos/)),
+[Alpine Linux](https://pkgs.alpinelinux.org/packages?name=myrepos),
+[nixpkgs](https://github.com/NixOS/nixpkgs/tree/master/pkgs/applications/version-management/mr),
+[GNU Guix](https://www.gnu.org/software/guix/packages/m.html#myrepos),
 [FreeBSD](https://www.freebsd.org/cgi/ports.cgi?stype=all&query=myrepos),
-[NetBSD](http://pkgsrc.se/devel/mr).
+[NetBSD](http://pkgsrc.se/devel/mr),
+[MacPorts](https://github.com/macports/macports-ports/tree/master/devel/myrepos),
+[Homebrew](https://github.com/Homebrew/homebrew-core/blob/master/Formula/mr.rb),
+[Linuxbrew](https://github.com/Linuxbrew/homebrew-core/blob/master/Formula/mr.rb),
+Repology
+([myrepos](https://repology.org/metapackage/myrepos/versions),
+[mr](https://repology.org/metapackage/mr/versions])).
 
 [[!inline pages="./todo/* and !./todo/done and !link(done)
 and !*/Discussion" actions=yes postform=yes show=0 archive=yes]]
