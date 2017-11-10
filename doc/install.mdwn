@@ -5,9 +5,16 @@ It's a simple perl script, which can be copied anywhere to install.
 Debian: `apt install myrepos`  
 Ubuntu: `apt install myrepos`  
 Fedora: `dnf install myrepos`  
+openSUSE: `zypper install mr`  
+Mageia: `urpmi myrepos`  
+Sisyphus: `sisyphus install mr`  
 Gentoo: `emerge dev-vcs/mr`  
 Arch: `pacman -S myrepos`  
+Alpine: `apk add myrepos`  
+Nix: `nix-env -i mr`  
+Guix: `guix package -i myrepos`  
 FreeBSD: `pkg install myrepos`  
 NetBSD: `pkg_add mr`  
 Homebrew: `brew install mr`  
+Linuxbrew: `brew install mr`  
 MacPorts: `port install myrepos`  
