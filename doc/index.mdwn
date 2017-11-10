@@ -76,10 +76,19 @@ Some more examples of things it can do include:
 * Manage your whole home directory in version control.
   (See [VCS-Home](https://vcs-home.branchable.com/))
 
+## extensions
+
+* [drupal](https://github.com/wimleers/mr-drupal): simple way to manage drupal websites
+* [freeze](https://bitbucket.org/mforbes/mmfhg#rst-header-mr-un-freeze): record and restore VCS revision details
+
 ## related software
 
 * [repo](https://android.googlesource.com/tools/repo): git repository management tool
+* [kas](https://github.com/siemens/kas): bitbake repository management tool
 * [VCS](http://www.greenend.org.uk/rjk/vcs/): a wrapper for version control systems
+* [vcstool](https://github.com/dirk-thomas/vcstool): work with multiple repositories
+* [vcstools](https://github.com/vcstools/vcstools): Python API wrapping version control systems
+* [rosinstall](https://github.com/vcstools/rosinstall): source code workspace management tool
 
 ## news
 
