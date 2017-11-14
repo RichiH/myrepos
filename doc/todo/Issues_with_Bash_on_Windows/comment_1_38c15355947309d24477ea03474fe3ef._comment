@@ -1,0 +1,15 @@
+[[!comment format=mdwn
+ username="joey"
+ subject="""comment 1"""
+ date="2017-11-14T16:38:01Z"
+ content="""
+It seems that, when it tries to run a command that is not available, or
+if waiting for the command somehow fails, mr incorrectly interprets
+the resulting -1 exit code as a signal 127. I suspect that is what
+happened here. I've fixed mr to say "failed to execute" and give the
+system error message in this case.
+
+As to why this would happen in WSL, I don't know. Other than WSL not being
+a perfect linux system call emulation. Hopefully the above fix will let mr
+report what the actual problem is.
+"""]]

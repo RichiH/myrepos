@@ -824,6 +824,10 @@ sub action {
 			my $ret=runsh "$testname test", $topdir, $subdir,
 				$testcommand, [$action],
 				sub { system(shift()) };
+			if ($ret == -1) {
+				print STDERR "mr $action: failed to execute: $!\n";
+				return FAILED;
+			}
 			if ($ret != 0) {
 				if (($? & 127) == 2) {
 					print STDERR "mr $action: interrupted\n";
@@ -912,17 +916,24 @@ sub action {
 				}
 			};
 		if ($ret != 0) {
-			if (($? & 127) == 2) {
-				print STDERR "mr $action: interrupted\n";
-				return ABORT;
-			}
-			elsif ($? & 127) {
-				print STDERR "mr $action: received signal ".($? & 127)."\n";
-				return ABORT;
+			if ($ret != -1) {
+				if (($? & 127) == 2) {
+					print STDERR "mr $action: interrupted\n";
+					return ABORT;
+				}
+				elsif ($? & 127) {
+					print STDERR "mr $action: received signal ".($? & 127)."\n";
+					return ABORT;
+				}
 			}
 			print STDERR "mr $action: failed ($ret)\n" if $verbose;
 			if ($ret >> 8 != 0) {
-				print STDERR "mr $action: command failed\n";
+				if ($ret == -1) {
+					print STDERR "mr $action: failed to execute: $!\n";
+				}
+				else {
+					print STDERR "mr $action: command failed\n";
+				}
 				if (-e "$ENV{HOME}/.mrlog" && $action ne 'remember') {
 					# recreate original command line to
 					# remember, and avoid recursing
@@ -976,6 +987,10 @@ sub hook {
 				system($sh);
 			}
 		};
+	if ($ret == -1) {
+		print STDERR "mr $hook: failed to execute: $!\n";
+		return FAILED;
+	}
 	if ($ret != 0) {
 		if (($? & 127) == 2) {
 			print STDERR "mr $hook: interrupted\n";
@@ -1524,6 +1539,9 @@ sub loadconfig {
 					}
 					if (-e "$chaindir/.mrconfig") {
 						my $ret=system($value);
+						if ($ret == -1) {
+							print STDERR "mr: chain test failed to execute: $!\n";
+						}
 						if ($ret != 0) {
 							if (($? & 127) == 2) {
 								print STDERR "mr: chain test interrupted\n";
