@@ -1,0 +1,15 @@
+[[!comment format=mdwn
+ username="DancingQuanta"
+ avatar="http://cdn.libravatar.org/avatar/e9aa3e1b35d54c698b63b33d8ec9b57d"
+ subject="Clearer error"
+ date="2017-11-15T09:17:35Z"
+ content="""
+Thank you for the clear error reporting update of `mr`.
+The hidden error turns out to be 
+```
+mr update: failed to execute: Bad file descriptor
+```
+Now I believe that WSL is responsible for this as it have incomplete Unix filesystem compared to Unix.
+Can this `Bad file descriptor` be triggered because `mr` was acting on bad file descriptor number?
+
+"""]]
