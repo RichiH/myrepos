@@ -1,0 +1,1 @@
+Currently when a repository defined in mrconfig is a symlink to a directory/repository, myrepos simply ignores it and outputs "no repositories found to work on".
