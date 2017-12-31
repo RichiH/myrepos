@@ -1,4 +1,4 @@
-myrepos (1.20170130) UNRELEASED; urgency=medium
+myrepos (1.20171231) unstable; urgency=medium
 
   [ Joey Hess ]
   * Fix undefined value warning when using -j.
@@ -11,7 +11,7 @@ myrepos (1.20170130) UNRELEASED; urgency=medium
   * Improve error message when system exits -1. This was incorrectly
     displayed as a signal when in fact the program could not be run.
 
- -- Joey Hess <id@joeyh.name>  Wed, 17 May 2017 12:07:26 -0400
+ -- Joey Hess <id@joeyh.name>  Sun, 31 Dec 2017 11:56:27 -0400
 
 myrepos (1.20170129) unstable; urgency=medium
 
