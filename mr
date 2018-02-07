@@ -2044,6 +2044,14 @@ lib =
 			fi
 		done
 		if [ -z "$flagfile" ]; then
+			for dir in refs/heads; do
+				if [ -e "$MR_REPO/$dir" ]; then
+					flagfile="$MR_REPO/.mr_last$1"
+					break
+				fi
+			done
+		fi
+		if [ -z "$flagfile" ]; then
 			error "cannot determine flag filename"
 		fi
 		delta=`perl -wle 'print -f shift() ? int((-M _) * 24) : 9999' "$flagfile"`
