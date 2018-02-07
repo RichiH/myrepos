@@ -872,7 +872,7 @@ sub action {
 
 	if ($is_checkout && ! -d $dir) {
 		print "mr $action: creating parent directory $dir\n" if $verbose;
-		system("mkdir", "-p", $dir);
+		system(qw(mkdir -p --), $dir);
 	}
 
 	if (! $no_chdir && ! chdir($dir)) {
@@ -1815,8 +1815,9 @@ sub bootstrap {
 			@downloader = ("scp", $1, $tmpconfig);
 		}
 		else {
-			@downloader = ("curl", "-A", "mr", "-L", "-s", $src, "-o", $tmpconfig);
+			@downloader = (qw(curl -A mr -L -s -o), $tmpconfig);
 			push(@downloader, "-k") if $insecure;
+			push(@downloader, '--', $src);
 		}
 		my $status = system(@downloader);
 		die "mr bootstrap: invalid SSL certificate for $src (consider -k)\n"
@@ -1838,7 +1839,7 @@ sub bootstrap {
 
 	# Sanity check on destination directory.
 	if (! -e $dir) {
-		system("mkdir", "-p", $dir);
+		system(qw(mkdir -p --), $dir);
 	}
 	chdir($dir) || die "chdir $dir: $!";
 

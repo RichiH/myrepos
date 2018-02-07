@@ -89,9 +89,9 @@ my $destdir;
 
 # how to perform checkouts
 my %handlers=(
-	git => sub { doit("git", "clone", shift, $destdir) },
-	svn => sub { doit("svn", "checkout", shift, $destdir) },
-	bzr => sub { doit("bzr", "branch", shift, $destdir) },
+	git => sub { doit(qw(git clone --), shift, $destdir) },
+	svn => sub { doit(qw(svn checkout --), shift, $destdir) },
+	bzr => sub { doit(qw(bzr branch --), shift, $destdir) },
 );
 
 # Regexps matching urls that are used for anonymous
