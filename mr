@@ -632,6 +632,9 @@ my $max_depth;
 my $no_chdir=0;
 my $jobs=1;
 my $trust_all=0;
+my $print_action=1;
+my $print_dir=1;
+my $print_subdir=1;
 my $directory=getcwd();
 my $terminal=-t STDOUT && eval{require IO::Pty::Easy;IO::Pty::Easy->import();1;};
 my $erase_line=$terminal && eval{require Term::Cap;my $t=Term::Cap->Tgetent();$t->Tputs('ce');};
@@ -916,14 +919,17 @@ sub action {
 		}
 	}
 	else {
-		my $actionmsg;
+		my $actionmsg = "";
 		if (! $no_chdir) {
-			$actionmsg="mr $action: $fulldir";
+			$actionmsg .= "mr $action: " if $print_action;
+			$actionmsg .= $fulldir if $print_dir;
 		}
 		else {
 			my $s=$directory;
 			$s=~s/^\Q$fulldir\E\/?//;
-			$actionmsg="mr $action: $fulldir (in subdir $s)";
+			$actionmsg .= "mr $action: " if $print_action;
+			$actionmsg .= $fulldir if $print_dir;
+			$actionmsg .= " (in subdir $s)" if $print_subdir;
 		}
 		print "$actionmsg\n" unless !$jobs || $jobs > 1 || $quiet || $minimal;
 
@@ -1940,6 +1946,9 @@ sub getopts {
 	my $result=GetOptions(
 		"d|directory=s" => sub { $directory=safe_abs_path($_[1]) },
 		"c|config=s" => sub { $ENV{MR_CONFIG}=$_[1]; $config_overridden=1 },
+		"no-print-action" => sub { $print_action = 0 },
+		"no-print-dir" => sub { $print_dir = 0 },
+		"no-print-subdir" => sub { $print_subdir = 0 },
 		"p|path" => sub { }, # now default, ignore
 		"f|force" => \$force,
 		"force-env" => \$force_env,
