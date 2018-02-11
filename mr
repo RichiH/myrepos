@@ -344,11 +344,15 @@ a good speedup in updates without loading the machine too much.
 Saves the command output and return values to files in the F<~/.mrcache/>
 directory tree after executing each command.
 
+Ignored when being run from subdirs of a repo unless --top is enabled.
+
 =item --cached
 
 For repos where the cache is populated, prints the cached output instead
 of executing the commands. For repos with an unpopulated cache, executes
 the commands and stores output into the cache.
+
+Ignored when being run from subdirs of a repo unless --top is enabled.
 
 =item --uncache
 
@@ -1025,6 +1029,7 @@ sub action {
 	}
 	else {
 		local $save_cache = $save_cache;
+		local $print_cache = $print_cache;
 
 		my $actionmsg = "";
 		if (! $no_chdir) {
@@ -1038,6 +1043,14 @@ sub action {
 			$actionmsg .= $fulldir if $print_dir;
 			$actionmsg .= " (in subdir $s)" if $print_subdir;
 			if ($chdir_top) { chdir($fulldir); }
+			else {
+				# Avoid contaminating the cache with results for
+				# just part of the repo instead of the whole repo.
+				$save_cache = 0;
+				# Avoid using the cache since it contains results for
+				# the whole repo instead of just part of the repo.
+				$print_cache = 0;
+			}
 		}
 		print "$actionmsg\n" unless !$jobs || $jobs > 1 || $quiet || $minimal || $save_cache || $print_cache;
 
