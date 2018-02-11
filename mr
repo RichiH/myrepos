@@ -960,7 +960,7 @@ sub action {
 			if ($is_checkout || $is_update) {
 				if ($is_checkout && ! $no_chdir) {
 					if (! chdir($checkout_dir)) {
-				                print STDERR "mr $action: failed to chdir to $checkout_dir: $!\n";
+						print STDERR "mr $action: failed to chdir to $checkout_dir: $!\n";
 						return FAILED;
 					}
 				}
@@ -2139,7 +2139,7 @@ bzr_clean =
 		bzr clean-tree --verbose --dry-run --ignored --unknown --detritus "$@"
 	fi
 cvs_clean =
-        if [ "x$1" = x-f ] ; then
+	if [ "x$1" = x-f ] ; then
 		shift
 		cvs-clean "$@"
 	else
