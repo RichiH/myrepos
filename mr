@@ -339,6 +339,17 @@ Note that running more than 10 jobs at a time is likely to run afoul of
 ssh connection limits. Running between 3 and 5 jobs at a time will yield
 a good speedup in updates without loading the machine too much.
 
+=item --cache
+
+Saves the command output and return values to files in the F<~/.mrcache/>
+directory tree after executing each command.
+
+=item --cached
+
+For repos where the cache is populated, prints the cached output instead
+of executing the commands. For repos with an unpopulated cache, executes
+the commands and stores output into the cache.
+
 =item --top
 
 When being run from subdirs of a repo, change directory to the top
@@ -638,6 +649,8 @@ my $no_chdir=0;
 my $chdir_top=0;
 my $jobs=1;
 my $trust_all=0;
+our $save_cache=0;
+our $print_cache=0;
 my $print_action=1;
 my $print_dir=1;
 my $print_subdir=1;
@@ -649,6 +662,8 @@ my $erase_line=$terminal && eval{require Term::Cap;my $t=Term::Cap->Tgetent();$t
 eval { require File::HomeDir; $ENV{HOME} = File::HomeDir->my_home; 1; };
 my $HOME_MR_CONFIG = "$ENV{HOME}/.mrconfig";
 $ENV{MR_CONFIG}=find_mrconfig();
+
+my $HOME_MR_CACHE = "$ENV{HOME}/.mrcache";
 
 # globals :-(
 my %config;
@@ -795,6 +810,8 @@ sub terminal_friendly_spawn {
 	my $quiet = shift;
 	my $minimal = shift;
 	my $jobs = shift;
+	my $ret_cache = shift;
+	my $output_cache = shift;
 	my $continuous = !$quiet && $minimal && 1 == $jobs;
 	my $output = "";
 	my $continuous_output = 0;
@@ -809,11 +826,13 @@ sub terminal_friendly_spawn {
 					print "\n";
 				}
 				$continuous_output = 1;
+				print $output_cache $data if defined $output_cache;
 				print $data;
 			}
 		}
 		else {
 			while (my $data = $pty->read()) {
+				print $output_cache $data if defined $output_cache;
 				$output .= $data;
 			}
 		}
@@ -821,8 +840,15 @@ sub terminal_friendly_spawn {
 	}
 	else {
 		$output = qx/$sh 2>&1/;
+		print $output_cache $output if defined $output && defined $output_cache;
 	}
 	my $ret = $?;
+	print $ret_cache "$ret" if defined $ret && defined $ret_cache;
+	return print_results($actionmsg, $quiet, $minimal, $output, $continuous_output, $ret);
+}
+
+sub print_results {
+	my ($actionmsg, $quiet, $minimal, $output, $continuous_output, $ret) = @_;
 	if ($quiet && $ret != 0) {
 		print "$actionmsg\n" if $actionmsg;
 		print STDERR $output;
@@ -832,6 +858,65 @@ sub terminal_friendly_spawn {
 		print $output;
 	}
 	return ($ret, ($output || $continuous_output) ? 1 : 0);
+}
+
+sub cache_dir {
+	my ($action, $fulldir) = @_;
+	return "$HOME_MR_CACHE/$action/$fulldir";
+}
+
+sub cache_names {
+	my ($action, $fulldir) = @_;
+	my $ret_name = 'mr_ret';
+	my $output_name = 'mr_output';
+	my $dir = cache_dir($action, $fulldir);
+	my $ret_full_name = "$dir/$ret_name";
+	my $output_full_name = "$dir/$output_name";
+	return ($dir, $ret_full_name, $output_full_name);
+}
+sub cache_open {
+	my ($action, $fulldir, $read_only) = @_;
+	my $file_mode = $read_only ? '<' : '>>';
+	my ($dir, $ret_name, $output_name) = cache_names($action, $fulldir);
+	if (!$read_only) {
+		system(qw(mkdir --parents --), $dir);
+		$ret_name .= '.tmp';
+		$output_name .= '.tmp';
+		unlink $ret_name, $output_name;
+	}
+	my ($ret_fh, $output_fh);
+	open $ret_fh, $file_mode, $ret_name;
+	open $output_fh, $file_mode, $output_name;
+	return ($ret_fh, $output_fh);
+}
+
+sub cache_done {
+	my ($action, $fulldir, $read_only, $ret_fh, $output_fh) = @_;
+	cache_close($ret_fh, $output_fh);
+	cache_finalise($action, $fulldir) if !$read_only;
+}
+
+sub cache_close {
+	my ($ret_fh, $output_fh) = @_;
+	close $ret_fh if defined $ret_fh;
+	close $output_fh if defined $output_fh;
+}
+
+sub cache_finalise {
+	my ($action, $fulldir) = @_;
+	my (undef, $ret_name, $output_name) = cache_names($action, $fulldir);
+	rename "$ret_name.tmp", $ret_name;
+	rename "$output_name.tmp", $output_name;
+}
+
+sub cache_print {
+	my ($actionmsg, $quiet, $minimal, $ret_fh, $output_fh) = @_;
+	my $continuous_output = 0;
+	my $ret = do { local $/ = undef; <$ret_fh> };
+	my $output = do { local $/ = undef; <$output_fh> };
+	return (undef, undef) unless defined $ret && defined $output;
+	$ret = int($ret) if defined $ret;
+	return print_results($actionmsg, $quiet, $minimal, $output, $continuous_output, $ret);
 }
 
 sub action {
@@ -926,6 +1011,8 @@ sub action {
 		}
 	}
 	else {
+		local $save_cache = $save_cache;
+
 		my $actionmsg = "";
 		if (! $no_chdir) {
 			$actionmsg .= "mr $action: " if $print_action;
@@ -939,21 +1026,35 @@ sub action {
 			$actionmsg .= " (in subdir $s)" if $print_subdir;
 			if ($chdir_top) { chdir($fulldir); }
 		}
-		print "$actionmsg\n" unless !$jobs || $jobs > 1 || $quiet || $minimal;
+		print "$actionmsg\n" unless !$jobs || $jobs > 1 || $quiet || $minimal || $save_cache || $print_cache;
 
 		my ($hookret, $hook_out)=hook("pre_$action", $topdir, $subdir);
 		return $hookret if $hookret != OK;
 
+		my ($cache_ret_fh, $cache_output_fh);
+		($cache_ret_fh, $cache_output_fh) = cache_open($action, $fulldir, !$save_cache) if $save_cache || $print_cache;
+
 		my ($ret, $out)=runsh $action, $topdir, $subdir,
 			$command, \@ARGV, sub {
 				my $sh=shift;
-				if (!$jobs || $jobs > 1 || $quiet || $minimal) {
-					return terminal_friendly_spawn($actionmsg, $sh, $quiet, $minimal, $jobs);
+				if ($print_cache && defined $cache_ret_fh && defined $cache_output_fh){
+					my ($ret, $out) = cache_print($actionmsg, $quiet, $minimal, $cache_ret_fh, $cache_output_fh);
+					return ($ret, $out) if defined $ret && defined $out;
+					# Reopen cache for writing if no cache was found
+					cache_close($cache_ret_fh, $cache_output_fh);
+					$save_cache = 1;
+					($cache_ret_fh, $cache_output_fh) = cache_open($action, $fulldir, !$save_cache);
+				}
+				if (!$jobs || $jobs > 1 || $quiet || $minimal || (defined $cache_ret_fh && defined $cache_output_fh)) {
+					return terminal_friendly_spawn($actionmsg, $sh, $quiet, $minimal, $jobs, $cache_ret_fh, $cache_output_fh);
 				}
 				else {
 					system($sh);
 				}
 			};
+
+		cache_done($action, $fulldir, !$save_cache, $cache_ret_fh, $cache_output_fh);
+
 		if ($ret != 0) {
 			if ($ret != -1) {
 				if (($? & 127) == 2) {
@@ -1014,18 +1115,36 @@ sub action {
 
 sub hook {
 	my ($hook, $topdir, $subdir) = @_;
+	my $fulldir=fulldir($topdir, $subdir);
 
 	my $command=$config{$topdir}{$subdir}{$hook};
 	return OK unless defined $command;
+
+	local $save_cache = $save_cache;
+
+	my ($cache_ret_fh, $cache_output_fh);
+	($cache_ret_fh, $cache_output_fh) = cache_open($hook, $fulldir, !$save_cache) if $save_cache || $print_cache;
+
 	my ($ret,$out)=runsh $hook, $topdir, $subdir, $command, [], sub {
 			my $sh=shift;
-			if (!$jobs || $jobs > 1 || $quiet || $minimal) {
-				return terminal_friendly_spawn(undef, $sh, $quiet, $minimal, $jobs);
+			if ($print_cache && defined $cache_ret_fh && defined $cache_output_fh){
+				my ($ret, $out) = cache_print(undef, $quiet, $minimal, $cache_ret_fh, $cache_output_fh);
+				return ($ret, $out) if defined $ret && defined $out;
+				# Reopen cache for writing if no cache was found
+				cache_close($cache_ret_fh, $cache_output_fh);
+				$save_cache = 1;
+				($cache_ret_fh, $cache_output_fh) = cache_open($hook, $fulldir, !$save_cache);
+			}
+			if (!$jobs || $jobs > 1 || $quiet || $minimal || (defined $cache_ret_fh && defined $cache_output_fh)) {
+				return terminal_friendly_spawn(undef, $sh, $quiet, $minimal, $jobs, $cache_ret_fh, $cache_output_fh);
 			}
 			else {
 				system($sh);
 			}
 		};
+
+	cache_done($hook, $fulldir, !$save_cache, $cache_ret_fh, $cache_output_fh);
+
 	if ($ret == -1) {
 		print STDERR "mr $hook: failed to execute: $!\n";
 		return FAILED;
@@ -1954,6 +2073,8 @@ sub getopts {
 	my $result=GetOptions(
 		"d|directory=s" => sub { $directory=safe_abs_path($_[1]) },
 		"c|config=s" => sub { $ENV{MR_CONFIG}=$_[1]; $config_overridden=1 },
+		"cache" => \$save_cache,
+		"cached" => \$print_cache,
 		"top" => \$chdir_top,
 		"no-print-action" => sub { $print_action = 0 },
 		"no-print-dir" => sub { $print_dir = 0 },
