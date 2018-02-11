@@ -635,6 +635,7 @@ my $trust_all=0;
 my $print_action=1;
 my $print_dir=1;
 my $print_subdir=1;
+my $print_footer=1;
 my $directory=getcwd();
 my $terminal=-t STDOUT && eval{require IO::Pty::Easy;IO::Pty::Easy->import();1;};
 my $erase_line=$terminal && eval{require Term::Cap;my $t=Term::Cap->Tgetent();$t->Tputs('ce');};
@@ -1147,7 +1148,7 @@ sub showstats {
 		showstat($#ok+1, "ok", "ok"),
 		showstat($#failed+1, "failed", "failed"),
 		showstat($#skipped+1, "skipped", "skipped"),
-	).")\n" unless $quiet || $minimal;
+	).")\n" unless $quiet || $minimal || !$print_footer;
 	if ($stats) {
 		if (@skipped) {
 			print "mr $action: (skipped: ".join(" ", @skipped).")\n" unless $quiet || $minimal;
@@ -1949,6 +1950,7 @@ sub getopts {
 		"no-print-action" => sub { $print_action = 0 },
 		"no-print-dir" => sub { $print_dir = 0 },
 		"no-print-subdir" => sub { $print_subdir = 0 },
+		"no-print-footer" => sub { $print_footer = 0 },
 		"p|path" => sub { }, # now default, ignore
 		"f|force" => \$force,
 		"force-env" => \$force_env,
