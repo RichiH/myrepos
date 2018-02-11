@@ -350,6 +350,11 @@ For repos where the cache is populated, prints the cached output instead
 of executing the commands. For repos with an unpopulated cache, executes
 the commands and stores output into the cache.
 
+=item --uncache
+
+For repos where the cache is populated, remove the cached output before
+executing any commands.
+
 =item --top
 
 When being run from subdirs of a repo, change directory to the top
@@ -651,6 +656,7 @@ my $jobs=1;
 my $trust_all=0;
 our $save_cache=0;
 our $print_cache=0;
+my $remove_cache=0;
 my $print_action=1;
 my $print_dir=1;
 my $print_subdir=1;
@@ -909,6 +915,13 @@ sub cache_finalise {
 	rename "$output_name.tmp", $output_name;
 }
 
+sub cache_remove {
+	my ($action, $fulldir) = @_;
+	my ($dir, $ret_name, $output_name) = cache_names($action, $fulldir);
+	unlink $ret_name, $output_name;
+	system(qw(rmdir --ignore-fail-on-non-empty --parents --), $dir);
+}
+
 sub cache_print {
 	my ($actionmsg, $quiet, $minimal, $ret_fh, $output_fh) = @_;
 	my $continuous_output = 0;
@@ -1031,6 +1044,8 @@ sub action {
 		my ($hookret, $hook_out)=hook("pre_$action", $topdir, $subdir);
 		return $hookret if $hookret != OK;
 
+		cache_remove($action, $fulldir) if $remove_cache;
+
 		my ($cache_ret_fh, $cache_output_fh);
 		($cache_ret_fh, $cache_output_fh) = cache_open($action, $fulldir, !$save_cache) if $save_cache || $print_cache;
 
@@ -1121,6 +1136,8 @@ sub hook {
 	return OK unless defined $command;
 
 	local $save_cache = $save_cache;
+
+	cache_remove($hook, $fulldir) if $remove_cache;
 
 	my ($cache_ret_fh, $cache_output_fh);
 	($cache_ret_fh, $cache_output_fh) = cache_open($hook, $fulldir, !$save_cache) if $save_cache || $print_cache;
@@ -2075,6 +2092,7 @@ sub getopts {
 		"c|config=s" => sub { $ENV{MR_CONFIG}=$_[1]; $config_overridden=1 },
 		"cache" => \$save_cache,
 		"cached" => \$print_cache,
+		"uncache" => \$remove_cache,
 		"top" => \$chdir_top,
 		"no-print-action" => sub { $print_action = 0 },
 		"no-print-dir" => sub { $print_dir = 0 },
