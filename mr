@@ -339,6 +339,11 @@ Note that running more than 10 jobs at a time is likely to run afoul of
 ssh connection limits. Running between 3 and 5 jobs at a time will yield
 a good speedup in updates without loading the machine too much.
 
+=item --top
+
+When being run from subdirs of a repo, change directory to the top
+of the repo before running any commands.
+
 =item -t
 
 =item --trust-all
@@ -630,6 +635,7 @@ my $insecure=0;
 my $interactive=0;
 my $max_depth;
 my $no_chdir=0;
+my $chdir_top=0;
 my $jobs=1;
 my $trust_all=0;
 my $print_action=1;
@@ -931,6 +937,7 @@ sub action {
 			$actionmsg .= "mr $action: " if $print_action;
 			$actionmsg .= $fulldir if $print_dir;
 			$actionmsg .= " (in subdir $s)" if $print_subdir;
+			if ($chdir_top) { chdir($fulldir); }
 		}
 		print "$actionmsg\n" unless !$jobs || $jobs > 1 || $quiet || $minimal;
 
@@ -1947,6 +1954,7 @@ sub getopts {
 	my $result=GetOptions(
 		"d|directory=s" => sub { $directory=safe_abs_path($_[1]) },
 		"c|config=s" => sub { $ENV{MR_CONFIG}=$_[1]; $config_overridden=1 },
+		"top" => \$chdir_top,
 		"no-print-action" => sub { $print_action = 0 },
 		"no-print-dir" => sub { $print_dir = 0 },
 		"no-print-subdir" => sub { $print_subdir = 0 },
