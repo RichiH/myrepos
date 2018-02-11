@@ -666,7 +666,8 @@ my $print_dir=1;
 my $print_subdir=1;
 my $print_footer=1;
 my $directory=getcwd();
-my $terminal=-t STDOUT && eval{require IO::Pty::Easy;IO::Pty::Easy->import();1;};
+my $have_pty=eval{require IO::Pty::Easy;IO::Pty::Easy->import();1;};
+my $terminal=-t STDOUT && $have_pty;
 my $erase_line=$terminal && eval{require Term::Cap;my $t=Term::Cap->Tgetent();$t->Tputs('ce');};
 
 eval { require File::HomeDir; $ENV{HOME} = File::HomeDir->my_home; 1; };
@@ -814,6 +815,14 @@ sub fulldir {
 	return $subdir =~ /^\// ? $subdir : $topdir.$subdir;
 }
 
+sub strip_ansi_escape_codes {
+	my $output = shift;
+	$output =~ s/\e\[[?0-9;]*.//g;
+	$output =~ s/\e%.//g;
+	$output =~ s/\e\];\d[^\a\e]*(?:\a:\e.)//g;
+	return $output;
+}
+
 sub terminal_friendly_spawn {
 	my $actionmsg = shift;
 	my $sh = shift;
@@ -825,18 +834,24 @@ sub terminal_friendly_spawn {
 	my $continuous = !$quiet && $minimal && 1 == $jobs;
 	my $output = "";
 	my $continuous_output = 0;
-	if ($terminal) {
+	# When caching the output, save the terminal output
+	# since the output may be viewed on a terminal later
+	# and the output will probably be the same for both
+	# pipes and terminals after stripping ANSI escape codes.
+	if ($terminal || ($have_pty && defined $output_cache)) {
 		my $pty = IO::Pty::Easy->new;
 		$pty->spawn($sh);
 		if ($continuous) {
 			$| = 1;
-			print "$actionmsg$erase_line\r" if $actionmsg;
+			print "$actionmsg$erase_line\r" if $actionmsg && $terminal;
 			while (my $data = $pty->getline()){
 				if ($actionmsg && !$continuous_output) {
+					print $actionmsg if !$terminal;
 					print "\n";
 				}
 				$continuous_output = 1;
 				print $output_cache $data if defined $output_cache;
+				$data = strip_ansi_escape_codes($data) if !$terminal;
 				print $data;
 			}
 		}
@@ -845,6 +860,7 @@ sub terminal_friendly_spawn {
 				print $output_cache $data if defined $output_cache;
 				$output .= $data;
 			}
+			$output = strip_ansi_escape_codes($output) if !$terminal;
 		}
 		$pty->close;
 	}
@@ -933,6 +949,7 @@ sub cache_print {
 	my $output = do { local $/ = undef; <$output_fh> };
 	return (undef, undef) unless defined $ret && defined $output;
 	$ret = int($ret) if defined $ret;
+	$output = strip_ansi_escape_codes($output) if !$terminal && defined $output;
 	return print_results($actionmsg, $quiet, $minimal, $output, $continuous_output, $ret);
 }
 
