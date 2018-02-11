@@ -99,10 +99,11 @@ my %handlers=(
 # urls matching earlier in the list are preferred over
 # those matching later.
 my @anon_urls=(
+	qr/^https:\/\//i,
 	qr/^git:\/\//i,
 	qr/^bzr:\/\//i,
 	qr/^svn:\/\//i,
-	qr/^https?:\/\//i, # generally the worst transport
+	qr/^http:\/\//i, # generally the worst transport
 );
 
 sub getopts {
