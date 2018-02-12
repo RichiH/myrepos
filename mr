@@ -1031,6 +1031,13 @@ sub action {
 		local $save_cache = $save_cache;
 		local $print_cache = $print_cache;
 
+		# Do not bother caching true/false
+		# since runsh optimises them away.
+		if ($command =~ /^\s*(?:true|false)\s*$/) {
+			$save_cache = 0;
+			$print_cache = 0;
+		}
+
 		my $actionmsg = "";
 		if (! $no_chdir) {
 			$actionmsg .= "mr $action: " if $print_action;
@@ -1149,6 +1156,14 @@ sub hook {
 	return OK unless defined $command;
 
 	local $save_cache = $save_cache;
+	local $print_cache = $print_cache;
+
+	# Do not bother caching true/false
+	# since runsh optimises them away.
+	if ($command =~ /^\s*(?:true|false)\s*$/) {
+		$save_cache = 0;
+		$print_cache = 0;
+	}
 
 	cache_remove($hook, $fulldir) if $remove_cache;
 
