@@ -771,19 +771,15 @@ sub terminal_friendly_spawn {
 		if ($continuous) {
 			$| = 1;
 			print "$actionmsg$erase_line\r" if $actionmsg;
-			while ($pty->is_active) {
-				my $data = $pty->getline();
-				if (defined $data && $data ne '') {
-					print "\n" if ($actionmsg && !$continuous_output);
-					$continuous_output = 1;
-					print $data;
-				}
+			while (my $data = $pty->getline()){
+				print "\n" if ($actionmsg && !$continuous_output);
+				$continuous_output = 1;
+				print $data;
 			}
 		}
 		else {
-			while ($pty->is_active) {
-				my $data = $pty->read();
-				$output .= $data if defined $data;
+			while (my $data = $pty->read()) {
+				$output .= $data;
 			}
 		}
 		$pty->close;
