@@ -6,6 +6,10 @@
 
 cvs_vis = cvs diff "$@" | $EDITOR -
 svn_vis = svn status "$@" | $EDITOR -
+git_annex_vis = if [ "$DISPLAY" ] ; then gitk --all "$@" ; else tig --all "$@" ; fi
+git_cvs_vis = cd "$MR_REPO/gitdir" && if [ "$DISPLAY" ] ; then gitk --all "$@" ; else tig --all "$@" ; fi
+git_fake_bare_vis = if [ "$DISPLAY" ] ; then gitk --all "$@" ; else tig --all "$@" ; fi
+git_subtree_vis = if [ "$DISPLAY" ] ; then gitk --all "$@" ; else tig --all "$@" ; fi
 git_svn_vis = if [ "$DISPLAY" ] ; then gitk --all "$@" ; else tig --all "$@" ; fi
 git_vis = if [ "$DISPLAY" ] ; then gitk --all "$@" ; else tig --all "$@" ; fi
 bzr_vis = bzr visualize "$@"
