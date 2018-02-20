@@ -1,0 +1,14 @@
+# Adds a "mr graph" command to graph repository history.
+
+# To make mr use this file, add a line like this inside the [DEFAULT]
+# section of your ~/.mrconfig
+#include = cat /usr/share/mr/graph
+
+git_graph = git big-picture -v xdg-open
+git_svn_graph = git big-picture -v xdg-open
+git_cvs_graph = git big-picture -v xdg-open
+git_annex_graph = git big-picture -v xdg-open
+git_cvs_graph = cd "$MR_REPO/gitdir" && git big-picture -v xdg-open
+git_fake_bare_graph = git big-picture -v xdg-open
+git_subtree_graph = git big-picture -v xdg-open
+git_svn_graph = git big-picture -v xdg-open

@@ -23,6 +23,7 @@ Suggests:
  cvs,
  darcs,
  fossil,
+ git-big-picture,
  git-core | git (>= 1:1.7),
  kdesdk-scripts,
  liburi-perl,
@@ -30,7 +31,8 @@ Suggests:
  perl-doc,
  subversion,
  subversion-tools,
- vcsh
+ vcsh,
+ xdg-utils,
 Provides:
  mr
 Replaces:
