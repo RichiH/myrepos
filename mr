@@ -553,6 +553,8 @@ setting when a VCS-specific setting cannot be found. This is mostly for
 making actions do nothing for most VCS actions by setting action_default
 to "true" and then setting the action for each VCS that has the action.
 
+This is used by the mr C<upgrade> extension.
+
 =item VCS_test
 
 The name of the version control system is itself determined by
