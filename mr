@@ -526,6 +526,18 @@ specified action. Similarly, "post_action" commands are run after mr
 successfully performs the specified action. For example, "pre_commit" is
 run before committing; "post_update" is run after updating.
 
+=item _prepend
+
+Any setting can be suffixed with C<_prepend>, to prepend an additional
+value to the existing value of the setting. A line ending is added
+between the additional value and the existing value. In this way,
+actions can be constructed accumulatively.
+
+This is useful for applying modifier commands such as nice, ionice or nocache.
+To apply modifier commands, ensure you end this suffix with a shell line
+continuation character (the backslash C<\> in most shells) so that the line
+ending added by this suffix is ignored.
+
 =item _append
 
 Any setting can be suffixed with C<_append>, to append an additional value
@@ -1516,6 +1528,9 @@ sub loadconfig {
 			}
 			if ($section eq 'ALIAS') {
 				$alias{$parameter}=$value;
+			}
+			elsif ($parameter =~ s/_prepend$//) {
+				$config{$dir}{$section}{$parameter} = $value."\n".$config{$dir}{$section}{$parameter};
 			}
 			elsif ($parameter eq 'lib' or $parameter =~ s/_append$//) {
 				$config{$dir}{$section}{$parameter}.="\n".$value."\n";
