@@ -528,8 +528,9 @@ run before committing; "post_update" is run after updating.
 
 =item _append
 
-Any setting can be suffixed with C<_append>, to add an additional value
-to the existing value of the setting. In this way, actions
+Any setting can be suffixed with C<_append>, to append an additional value
+to the existing value of the setting. Line endings are added at the end
+of the existing value and after the additional value. In this way, actions
 can be constructed accumulatively.
 
 =item VCS_test
