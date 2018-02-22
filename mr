@@ -512,7 +512,8 @@ a good speedup in updates without loading the machine too much.
 When looking for a command to run for a given action, mr first looks for
 a setting with the same name as the action. If that is not found, it
 looks for a setting named "VCS_action" (substituting in the name of the
-version control system and the action).
+version control system and the action). If that is not found, it looks for
+a setting named "action_default" (substituting in the name of the action).
 
 Internally, mr has settings for "git_update", "svn_update", etc. To change
 the action that is performed for a given version control system, you can
@@ -544,6 +545,13 @@ Any setting can be suffixed with C<_append>, to append an additional value
 to the existing value of the setting. Line endings are added at the end
 of the existing value and after the additional value. In this way, actions
 can be constructed accumulatively.
+
+=item _default
+
+Any setting can be suffixed with C<_default>, to set the value for the
+setting when a VCS-specific setting cannot be found. This is mostly for
+making actions do nothing for most VCS actions by setting action_default
+to "true" and then setting the action for each VCS that has the action.
 
 =item VCS_test
 
@@ -888,7 +896,11 @@ sub action {
 		print STDERR "mr $action: failed to chdir to $dir: $!\n";
 		return FAILED;
 	}
-	elsif (! defined $command) {
+	if (! defined $command) {
+		my $default_command=findcommand("${action}_default", $dir, $topdir, $subdir, $is_checkout);
+		$command = $default_command if defined $default_command;
+	}
+	if (! defined $command) {
 		my $vcs=vcs_test(@_);
 		if (! defined $vcs) {
 			print STDERR "mr $action: unknown repository type and no defined $action command for $fulldir\n";
@@ -1534,6 +1546,9 @@ sub loadconfig {
 			}
 			elsif ($parameter eq 'lib' or $parameter =~ s/_append$//) {
 				$config{$dir}{$section}{$parameter}.="\n".$value."\n";
+			}
+			elsif ($parameter =~ /_default$/) {
+				$config{$dir}{$section}{$parameter}=$value;
 			}
 			else {
 				$config{$dir}{$section}{$parameter}=$value;
