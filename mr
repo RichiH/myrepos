@@ -346,6 +346,8 @@ directory tree after executing each command.
 
 Ignored when being run from subdirs of a repo unless --top is enabled.
 
+This is used by the C<cache-mr-status.sh> shell extension.
+
 =item --cached
 
 For repos where the cache is populated, prints the cached output instead
@@ -354,15 +356,21 @@ the commands and stores output into the cache.
 
 Ignored when being run from subdirs of a repo unless --top is enabled.
 
+This is most useful when the C<cache-mr-status.sh> shell extension is enabled.
+
 =item --uncache
 
 For repos where the cache is populated, remove the cached output before
 executing any commands.
 
+This may be useful to users of the C<cache-mr-status.sh> shell extension.
+
 =item --top
 
 When being run from subdirs of a repo, change directory to the top
 of the repo before running any commands.
+
+This is used by the C<cache-mr-status.sh> shell extension.
 
 =item -t
 
