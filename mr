@@ -1749,7 +1749,7 @@ sub loadconfig {
 				$alias{$parameter}=$value;
 			}
 			elsif ($parameter =~ s/_prepend$//) {
-				$config{$dir}{$section}{$parameter} = $value."\n".$config{$dir}{$section}{$parameter};
+				$config{$dir}{$section}{$parameter} = $value."\n".($config{$dir}{$section}{$parameter}//'');
 			}
 			elsif ($parameter eq 'lib' or $parameter =~ s/_append$//) {
 				$config{$dir}{$section}{$parameter}.="\n".$value."\n";
