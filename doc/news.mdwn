@@ -1,0 +1,8 @@
+## news
+
+[[!inline pages="news/* and !*/Discussion" show="10" archive=yes]]
+
+[[!sidebar content="""
+[[install]]
+[[todo]]
+"""]]
