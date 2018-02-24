@@ -2498,8 +2498,8 @@ svn_register =
 	echo "Registering svn url: $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="svn co '$url' '$MR_REPO'"
 git_register =
-	branch="$(git rev-parse --abbrev-ref HEAD || echo master)"
-	remote="$(git config "branch.$branch.remote" || echo origin)"
+	branch="$(LC_ALL=C git rev-parse --abbrev-ref HEAD 2> /dev/null | grep -v '^HEAD$')" || branch=master
+	remote="$(LC_ALL=C git config --get branch.$branch.remote 2> /dev/null)" || remote=origin
 	url="`LC_ALL=C git config --get "remote.$remote.url"`" || true
 	if [ -z "$url" ]; then
 		error "cannot determine git url"
@@ -2530,8 +2530,8 @@ darcs_register =
 	echo "Registering darcs repository $url in $MR_CONFIG"
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="darcs get '$url' '$MR_REPO'"
 git_bare_register =
-	branch="$(git rev-parse --abbrev-ref HEAD || echo master)"
-	remote="$(git config "branch.$branch.remote" || echo origin)"
+	branch="$(LC_ALL=C GIT_CONFIG=config git rev-parse --abbrev-ref HEAD 2> /dev/null | grep -v '^HEAD$')" || branch=master
+	remote="$(LC_ALL=C GIT_CONFIG=config git config --get branch.$branch.remote 2> /dev/null)" || remote=origin
 	url="`LC_ALL=C GIT_CONFIG=config git config --get "remote.$remote.url"`" || true
 	if [ -z "$url" ]; then
 		error "cannot determine git url"
@@ -2540,8 +2540,8 @@ git_bare_register =
 	mr -c "$MR_CONFIG" config "`pwd`" checkout="git clone --bare '$url' '$MR_REPO'"
 vcsh_register =
 	mr_repo_basename=`basename "$MR_REPO" .git`
-	branch="$(git rev-parse --abbrev-ref HEAD || echo master)"
-	remote="$(git config "branch.$branch.remote" || echo origin)"
+	branch="$(LC_ALL=C vcsh run "$mr_repo_basename" git rev-parse --abbrev-ref HEAD 2> /dev/null | grep -v '^HEAD$')" || branch=master
+	remote="$(LC_ALL=C vcsh run "$mr_repo_basename" git config --get branch.$branch.remote 2> /dev/null)" || remote=origin
 	url="`LC_ALL=C vcsh run "$mr_repo_basename" git config --get "remote.$remote.url"`" || true
 	if [ -z "$url" ]; then
 		error "cannot determine git url"

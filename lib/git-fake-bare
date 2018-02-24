@@ -74,8 +74,8 @@ git_fake_bare_diff =
 git_fake_bare_log = GIT_DIR="$MR_REPO" git log "$@"
 
 git_fake_bare_register =
-	branch="$(git rev-parse --abbrev-ref HEAD || echo master)"
-	remote="$(git config branch.$branch.remote || echo origin)"
+	branch="$(LC_ALL=C GIT_CONFIG=config git rev-parse --abbrev-ref HEAD 2> /dev/null | grep -v '^HEAD$')" || branch=master
+	remote="$(LC_ALL=C GIT_CONFIG=config git config --get branch.$branch.remote 2> /dev/null)" || remote=origin
 	url="$(LC_ALL=C GIT_CONFIG=config git config --get "remote.$remote.url")" || true
 	if [ -z "$url" ]; then
 		error "cannot determine git url"
