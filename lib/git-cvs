@@ -35,7 +35,12 @@ git_cvs_test = perl:
 	1
 
 git_cvs_register =
-	. "$MR_REPO/.gitcvsrc" &&
-	mr -c "$MR_CONFIG" config "$(pwd)" checkout="git cvs sync '$url' '$MR_REPO'"
+	CVSROOT="$(sed -n s/^CVSROOT=//p .gitcvsrc)"
+	MODULE="$(sed -n s/^MODULE=//p .gitcvsrc)"
+	if [ -z "$CVSROOT" ] || [ -z "$MODULE" ]; then
+		error "cannot determine git cvs repository or module"
+	fi
+	echo "Registering git cvs repository: $CVSROOT module $MODULE in $MR_CONFIG"
+	mr -c "$MR_CONFIG" config "$(pwd)" checkout="mkdir '$MR_REPO' && cd '$MR_REPO' && git cvs sync '$CVSROOT' '$MODULE'"
 
 # vim:sw=8:sts=0:ts=8:noet
