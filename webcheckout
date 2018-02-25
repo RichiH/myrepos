@@ -76,7 +76,7 @@ my $git_unsafe = 1;
 my $git_version = `git --version`;
 $git_version =~ s{^git version }{};
 my ($major, $minor) = split(/\./, $git_version);
-if (int($major) >= 2 && int($minor) >= 12) {
+if ($major > 2 || ($major == 2 && $minor >= 12)) {
 	$ENV{GIT_PROTOCOL_FROM_USER} = 0;
 	$git_unsafe = 0;
 }
