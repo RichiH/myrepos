@@ -1,0 +1,16 @@
+[[!comment format=mdwn
+ username="duncan@f5130b2b0a997a1072abb7c83c68f15497146966"
+ nickname="duncan"
+ avatar="http://cdn.libravatar.org/avatar/275e9d19ecd061c064e33814b52eeb1c"
+ subject="comment 1"
+ date="2018-03-09T10:35:53Z"
+ content="""
+Checkout and set up your additional remote manually for 1 repo, then you can transcribe that into a reusable shell function that uses the MR_REPO envinoment variable (probably `basename`ing it) and a supplied GitHub username. 
+
+Then paste that function into  \"lib =\"  in the [DEFAULT] section of your mrconfig file. Your 27 \"checkout =\" commands can now just call that function rather than doing git commands themselves. 
+
+I do this and so have lots of lines in my mrconfig like:
+
+    [workspace/programming/someproj]
+    checkout = cloneGithubForkContributing somegithubuser
+"""]]
