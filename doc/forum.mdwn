@@ -1,0 +1,4 @@
+This is a place to discuss using myrepos, share tips and tricks, etc.
+If you need help, advice, or anything, post about it here.
+
+[[!inline pages="forum/* and !*/Discussion" archive=yes rootpage=forum postformtext="Add a new thread titled:"]]
