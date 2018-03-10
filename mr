@@ -919,8 +919,8 @@ sub cache_open {
 		unlink $ret_name, $output_name;
 	}
 	my ($ret_fh, $output_fh);
-	open $ret_fh, $file_mode, $ret_name;
-	open $output_fh, $file_mode, $output_name;
+	open $ret_fh, $file_mode, $ret_name or $ret_fh = undef;
+	open $output_fh, $file_mode, $output_name or $output_fh = undef;
 	return ($ret_fh, $output_fh);
 }
 
