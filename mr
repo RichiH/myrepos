@@ -1098,7 +1098,7 @@ sub action {
 		my ($ret, $out)=runsh $action, $topdir, $subdir,
 			$command, \@ARGV, sub {
 				my $sh=shift;
-				if ($print_cache && defined $cache_ret_fh && defined $cache_output_fh){
+				if ($print_cache){
 					my ($ret, $out) = cache_print($actionmsg, $quiet, $minimal, $cache_ret_fh, $cache_output_fh);
 					return ($ret, $out) if defined $ret && defined $out;
 					# Reopen cache for writing if no cache was found
@@ -1198,7 +1198,7 @@ sub hook {
 
 	my ($ret,$out)=runsh $hook, $topdir, $subdir, $command, [], sub {
 			my $sh=shift;
-			if ($print_cache && defined $cache_ret_fh && defined $cache_output_fh){
+			if ($print_cache){
 				my ($ret, $out) = cache_print(undef, $quiet, $minimal, $cache_ret_fh, $cache_output_fh);
 				return ($ret, $out) if defined $ret && defined $out;
 				# Reopen cache for writing if no cache was found
