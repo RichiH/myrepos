@@ -953,6 +953,7 @@ sub cache_remove {
 sub cache_print {
 	my ($actionmsg, $quiet, $minimal, $ret_fh, $output_fh) = @_;
 	my $continuous_output = 0;
+	return (undef, undef) unless defined $ret_fh && defined $output_fh;
 	my $ret = do { local $/ = undef; <$ret_fh> };
 	my $output = do { local $/ = undef; <$output_fh> };
 	return (undef, undef) unless defined $ret && defined $output;
