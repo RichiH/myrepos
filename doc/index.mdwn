@@ -97,7 +97,7 @@ Some more examples of things it can do include:
 [[!inline pages="news/* and !*/Discussion" show="4" archive=yes]]
 
 [[!sidebar content="""
-[[install]]  
-[[todo]]  
-[[forum]]  
+[[Install]]  
+[[Todo]]  
+[[Forum]]  
 """]]
