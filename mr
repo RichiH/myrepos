@@ -896,7 +896,7 @@ sub print_results {
 
 sub cache_dir {
 	my ($action, $fulldir) = @_;
-	return "$HOME_MR_CACHE/$action/$fulldir";
+	return "$HOME_MR_CACHE/$action$fulldir";
 }
 
 sub cache_names {
@@ -919,8 +919,8 @@ sub cache_open {
 		unlink $ret_name, $output_name;
 	}
 	my ($ret_fh, $output_fh);
-	open $ret_fh, $file_mode, $ret_name;
-	open $output_fh, $file_mode, $output_name;
+	open $ret_fh, $file_mode, $ret_name or $ret_fh = undef;
+	open $output_fh, $file_mode, $output_name or $output_fh = undef;
 	return ($ret_fh, $output_fh);
 }
 
@@ -947,12 +947,13 @@ sub cache_remove {
 	my ($action, $fulldir) = @_;
 	my ($dir, $ret_name, $output_name) = cache_names($action, $fulldir);
 	unlink $ret_name, $output_name;
-	system(qw(rmdir --ignore-fail-on-non-empty --parents --), $dir);
+	system(qw(rmdir --ignore-fail-on-non-empty --parents --), $dir) if -d $dir;
 }
 
 sub cache_print {
 	my ($actionmsg, $quiet, $minimal, $ret_fh, $output_fh) = @_;
 	my $continuous_output = 0;
+	return (undef, undef) unless defined $ret_fh && defined $output_fh;
 	my $ret = do { local $/ = undef; <$ret_fh> };
 	my $output = do { local $/ = undef; <$output_fh> };
 	return (undef, undef) unless defined $ret && defined $output;
@@ -1097,7 +1098,7 @@ sub action {
 		my ($ret, $out)=runsh $action, $topdir, $subdir,
 			$command, \@ARGV, sub {
 				my $sh=shift;
-				if ($print_cache && defined $cache_ret_fh && defined $cache_output_fh){
+				if ($print_cache){
 					my ($ret, $out) = cache_print($actionmsg, $quiet, $minimal, $cache_ret_fh, $cache_output_fh);
 					return ($ret, $out) if defined $ret && defined $out;
 					# Reopen cache for writing if no cache was found
@@ -1197,7 +1198,7 @@ sub hook {
 
 	my ($ret,$out)=runsh $hook, $topdir, $subdir, $command, [], sub {
 			my $sh=shift;
-			if ($print_cache && defined $cache_ret_fh && defined $cache_output_fh){
+			if ($print_cache){
 				my ($ret, $out) = cache_print(undef, $quiet, $minimal, $cache_ret_fh, $cache_output_fh);
 				return ($ret, $out) if defined $ret && defined $out;
 				# Reopen cache for writing if no cache was found
