@@ -896,7 +896,7 @@ sub print_results {
 
 sub cache_dir {
 	my ($action, $fulldir) = @_;
-	return "$HOME_MR_CACHE/$action/$fulldir";
+	return "$HOME_MR_CACHE/$action$fulldir";
 }
 
 sub cache_names {
