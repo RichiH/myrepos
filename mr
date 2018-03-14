@@ -621,8 +621,9 @@ present, mr assumes it is in offline mode.
 =head1 EXTENSIONS
 
 mr can be extended to support things such as unison and git-svn. Some
-files providing such extensions are available in F</usr/share/mr/>. See
-the documentation in the files for details about using them.
+files providing such extensions are available in F</usr/share/mr/>.
+Some files providing mr shell extensions are in F</usr/share/mr.sh/>.
+See the documentation in the files for details about using them.
 
 =head1 EXIT STATUS
 

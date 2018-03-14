@@ -9,7 +9,7 @@
 # To incrementally update the cache of the mr status output on repository
 # changes and shell exits, add this line to your shell configuration:
 #
-# . /usr/share/mr/cache-mr-status.sh
+# . /usr/share/mr.sh/cache-mr-status.sh
 #
 # To print the status of each repository, using the cache when available:
 #

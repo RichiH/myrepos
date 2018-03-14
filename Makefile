@@ -19,6 +19,7 @@ install: build
 	install -d ${DESTDIR}${PREFIX}/bin
 	install -d ${DESTDIR}${PREFIX}/share/man/man1
 	install -d ${DESTDIR}${PREFIX}/share/mr
+	install -d ${DESTDIR}${PREFIX}/share/mr.sh
 
 	install -m0755 mr ${DESTDIR}${PREFIX}/bin/
 	install -m0755 webcheckout ${DESTDIR}${PREFIX}/bin/
@@ -27,6 +28,7 @@ install: build
 	install -m0644 webcheckout.1 ${DESTDIR}${PREFIX}/share/man/man1/
 
 	install -m0644 lib/* ${DESTDIR}${PREFIX}/share/mr/
+	install -m0644 lib.sh/* ${DESTDIR}${PREFIX}/share/mr.sh/
 
 clean:
 	rm -f $(mans)
