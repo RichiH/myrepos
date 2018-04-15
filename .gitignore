@@ -1,3 +1,4 @@
+debian/debhelper-build-stamp
 debian/files
 debian/myrepos.debhelper.log
 debian/myrepos.substvars

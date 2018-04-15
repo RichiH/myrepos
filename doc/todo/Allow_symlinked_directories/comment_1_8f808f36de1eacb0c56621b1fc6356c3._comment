@@ -1,0 +1,15 @@
+[[!comment format=mdwn
+ username="simonjena@4ef913dc612cd8f4bd72ef70ef1d534ed8bdd69b"
+ nickname="simonjena"
+ avatar="http://cdn.libravatar.org/avatar/1b3e001e798156fb7d97fd064b63c3e2"
+ subject="State of affairs with symlinks"
+ date="2018-04-05T19:35:58Z"
+ content="""
+Hi; 
+I think that project is absolutely great. However, I was disappointed that symlinks are not supported. I, too, have fallen victim to a $HOME symlink situation, but additionally, my idea of creating a generic symlink-based \"views on my repositories\"-kind of structure vanished before my eyes. I really think this project could need a propper refactoring with respect to resolving symlinks with respect to BOTH path-to-configuration-file and path-to-repository. I am absolutely no good with perl, however, as I learned when trying to fix it myself the last few hours :/
+
+Thank you in any case for the project, because it is a nice help already! however, proper symlink support seems a must-have to me at least for real adaption into my core setup and developing stuff around it.
+
+Cheers!
+S.
+"""]]

@@ -1,3 +1,5 @@
 a way to detect repos in a tree that are not registered, and warn
 about or even auto-register them. (svn externals make this quite
 difficult!)
+
+Debian bug #[482371](https://bugs.debian.org/482371)

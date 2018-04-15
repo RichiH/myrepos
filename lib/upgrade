@@ -1,0 +1,10 @@
+# To avoid ambiguity when typing `mr up`,
+# alias that to your preferred command:
+#
+#[ALIAS]
+#up = update
+
+bzr_upgrade = bzr upgrade "$@"
+svn_upgrade = svn upgrade "$@"
+hg_upgrade = echo 'To upgrade this repository, backup any local changes, delete it, run `mr checkout` and restore changes.' ; false
+upgrade_default = true

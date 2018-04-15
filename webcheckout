@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 =head1 NAME
 
@@ -10,14 +10,14 @@ B<webcheckout> [options] url [destdir]
 
 =head1 DESCRIPTION
 
-B<webcheckout> downloads an url and parses it, looking for version control 
+B<webcheckout> downloads an url and parses it, looking for version control
 repositories referenced by the page. It checks out each repository into
 a subdirectory of the current directory, using whatever VCS program is
 appropriate for that repository (git, svn, etc).
 
 The information about the repositories is embedded in the web page using
 the rel=vcs-* microformat, which is documented at
-<http://kitenet.net/~joey/rfc/rel-vcs/>.
+L<https://joeyh.name/rfc/rel-vcs/>.
 
 If the optional destdir parameter is specified, VCS programs will be asked
 to check out repositories into that directory. If there are multiple
@@ -57,11 +57,11 @@ what you mean by partial URLs, such as "kitenet.net/~joey"'
 
 =head1 AUTHOR
 
-Copyright 2009 Joey Hess <joey@kitenet.net>
+Copyright 2009 L<Joey Hess|mailto:joey@kitenet.net>
 
 Licensed under the GNU GPL version 2 or higher.
 
-This program is included in myrepos <http://myrepos.branchable.com/>
+This program is included in myrepos L<https://myrepos.branchable.com/>
 
 =cut
 
@@ -70,6 +70,16 @@ use HTML::Parser;
 use Getopt::Long;
 use warnings;
 use strict;
+
+# Mitigate some git remote types being dangerous
+my $git_unsafe = 1;
+my $git_version = `git --version`;
+$git_version =~ s{^git version }{};
+my ($major, $minor) = split(/\./, $git_version);
+if ($major > 2 || ($major == 2 && $minor >= 12)) {
+	$ENV{GIT_PROTOCOL_FROM_USER} = 0;
+	$git_unsafe = 0;
+}
 
 # What to download.
 my $url;
@@ -89,9 +99,19 @@ my $destdir;
 
 # how to perform checkouts
 my %handlers=(
-	git => sub { doit("git", "clone", shift, $destdir) },
-	svn => sub { doit("svn", "checkout", shift, $destdir) },
-	bzr => sub { doit("bzr", "branch", shift, $destdir) },
+	git => sub {
+		my $git_url = shift;
+		# Reject unsafe URLs with older versions of git
+		# that do not already check the URL safety.
+		if ($git_unsafe && $git_url !~ m{^(?:(?:https?|git|ssh):[^:]|(?:[-_.A-Za-z0-9]+@)?[-_.A-Za-z0-9]+:(?!:|//))}) {
+			print STDERR "potentially unsafe git URL, may fail, touch local files or execute arbitrary code\n";
+			return 1;
+		}
+		# Reject cloning local directories too, webcheckout is for remote repos
+		doit(qw(git -c protocol.file.allow=user clone --), $git_url, $destdir)
+	},
+	svn => sub { doit(qw(svn checkout --), shift, $destdir) },
+	bzr => sub { doit(qw(bzr branch --), shift, $destdir) },
 );
 
 # Regexps matching urls that are used for anonymous
@@ -99,6 +119,7 @@ my %handlers=(
 # urls matching earlier in the list are preferred over
 # those matching later.
 my @anon_urls=(
+	qr/^https:\/\//i,
 	qr/^git:\/\//i,
 	qr/^bzr:\/\//i,
 	qr/^svn:\/\//i,

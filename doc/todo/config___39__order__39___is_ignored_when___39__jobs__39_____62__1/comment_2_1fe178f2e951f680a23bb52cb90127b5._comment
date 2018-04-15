@@ -1,0 +1,14 @@
+[[!comment format=mdwn
+ username="tom@6463e5ce4c0e478cb7583fb37288d6954e17bfc6"
+ nickname="tom"
+ avatar="http://cdn.libravatar.org/avatar/a39876f3fdeb0295ec9258bbb1b37f88"
+ subject="fixups commands"
+ date="2016-10-13T22:37:19Z"
+ content="""
+After thinking about your comment suggesting the simplest way might be to run all fixups at the end, it occurred to me that for some it might be important to keep the fixups where they are. I can't think of a specific example offhand, but might there not be a time that cloning a repository, and executing its fixups, be a prerequisite before cloning another repository? Like I mentioned, I can't think of a specific example right now; however, I'm sure someone can think of something. :-)
+
+A quick fix for the way we're both using the dummy target might be to simply create a reserved 'order' value (e.g \"order = 99\" or \"order = last\") that is is broken out of the repo list and kept until last. I can barely make out what's happening when I try to read perl, but maybe the target containing the reserved 'order' value could be processed immediately after completion of the 'while' loop contained within the 'mrs' subroutine? (I hope that made sense)
+
+Long-term, I see the value of keeping the original intent of 'order' (i.e. make a dependent repository be processed after another). Now that I know what's happening, I've revised my .mrconfig to eliminate the need for the 'final' fixups. If I ever need it again, I can always run with jobs=1.
+
+"""]]

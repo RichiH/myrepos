@@ -63,7 +63,7 @@ git_fake_bare_commit =
 git_fake_bare_push =
 	GIT_DIR="$MR_REPO" git push --all
 
-git_fake_bare_record = 
+git_fake_bare_record =
 	cd "$(git_get_worktree)"
 	GIT_DIR="$MR_REPO" git commit -a "$@"
 
@@ -73,8 +73,10 @@ git_fake_bare_diff =
 
 git_fake_bare_log = GIT_DIR="$MR_REPO" git log "$@"
 
-git_fake_bare_register = 
-	url="$(LC_ALL=C GIT_CONFIG=config git config --get remote.origin.url)" || true
+git_fake_bare_register =
+	branch="$(LC_ALL=C GIT_CONFIG=config git rev-parse --abbrev-ref HEAD 2> /dev/null | grep -v '^HEAD$')" || branch=master
+	remote="$(LC_ALL=C GIT_CONFIG=config git config --get branch.$branch.remote 2> /dev/null)" || remote=origin
+	url="$(LC_ALL=C GIT_CONFIG=config git config --get "remote.$remote.url")" || true
 	if [ -z "$url" ]; then
 		error "cannot determine git url"
 	fi

@@ -1,0 +1,78 @@
+# A module for working with dgit(1) repositories
+#
+# Copyright (C) 2017 Sean Whitton
+#
+# Maintainer: Sean Whitton <spwhitton@spwhitton.name>
+
+# DEFINITION
+#
+# A dgit repository is a git repository containing special remote refs
+# of the form `remotes/dgit/dgit/*` and possibly also branches of the
+# form `dgit/*`.  See dgit(7) for more details.
+#
+# USAGE
+#
+# To make mr use this file, add a line like this inside the [DEFAULT]
+# section of your ~/.mrconfig:
+#
+#   include = cat /usr/share/mr/dgit
+#
+# With this module active,
+#
+# `mr update` will:
+#
+# (1) if the current branch is named `dgit/SUITE`, call `dgit pull`.
+#
+# (2) use `dgit fetch` to update all remotes/dgit/dgit/*` refs.
+#
+# `mr register` will add a post_checkout hook that calls `dgit fetch`.
+#
+# DESIGN
+#
+# A dgit repository may have been obtained with `dgit clone`, or `git
+# clone` followed by `dgit fetch`.  It is not possible for us to
+# determine which of these methods was used after the fact.
+#
+# For this reason, we do not define dgit_register and dgit_test so as
+# to generate .mrconfig lines like
+#
+#   [foo]
+#   checkout = dgit clone foo
+#
+# because that would fail to fetch branches not published to
+# dgit-repos, such as branches published to alioth.debian.org.
+#
+# Instead, we extend git_update and git_register to obtain updates
+# from dgit-repos.
+
+# We can't use git_update_append because mr's built-in default `git
+# pull` will often fail on a `dgit/SUITE` branch.  After a `dgit
+# clone`, (i) `dgit/SUITE` has no upstream tracking branch, and (ii)
+# the 'origin' remote might not exist on the remote end (it depends on
+# whether the package has ever been uploaded with `dgit push`)
+git_update =
+    current_branch="$(git rev-parse --abbrev-ref HEAD)"
+    if [ "$(echo $current_branch | cut -s -d/ -f1)" = "dgit" ]; then
+        # (1) above
+        dgit pull
+    else
+        # mr's built-in git_update
+        git pull "$@"
+    fi
+    # (2) above
+    for suite in $(git show-ref | grep refs/remotes/dgit/dgit | cut -d/ -f5 ); do
+        # skip if we just called `dgit pull` on this suite
+        if ! [ "$current_branch" = "dgit/$suite" ]; then
+            dgit fetch $suite
+        fi
+    done
+
+git_register_append =
+    lines="cd '$MR_REPO'"
+    for suite in $(git show-ref | grep refs/remotes/dgit/dgit | cut -d/ -f5 ); do
+        echo "Registering dgit suite: $suite in $MR_CONFIG"
+        lines="$lines; dgit fetch $suite"
+    done
+    if ! [ "$lines" = "cd '$MR_REPO'" ]; then
+        mr -c "$MR_CONFIG" config "`pwd`" post_checkout="$lines"
+    fi

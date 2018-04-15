@@ -1,0 +1,11 @@
+[[!comment format=mdwn
+ username="work@2755f4a6f2444f511295fe4cbe38b246105ca833"
+ nickname="work"
+ avatar="http://cdn.libravatar.org/avatar/d0d17378b21f669a28ac7ea4013091f7"
+ subject="comment 3"
+ date="2017-01-29T23:11:17Z"
+ content="""
+> Just make fixups commands be run after all repositories are updated, instead of the current behavior of running them when the repository that defines them is updated.
+
+This is honestly exactly how I thought it was meant to work when I started using `mr`. It's always been confusing to me that it doesn't work this way. So, insofar voting is relevant: +1 :)
+"""]]

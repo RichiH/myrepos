@@ -1,0 +1,7 @@
+Please consider merging branch `dgit` of repo `https://git.spwhitton.name/myrepos`
+
+Adds a new plugin to make life easier for dgit users.  Please see comments in the file for info about some of the design choices.
+
+--spwhitton
+
+> merged [[done]] --[[Joey]]

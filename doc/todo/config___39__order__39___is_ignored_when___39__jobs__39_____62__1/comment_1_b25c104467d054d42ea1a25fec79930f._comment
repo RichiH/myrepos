@@ -1,0 +1,33 @@
+[[!comment format=mdwn
+ username="joey"
+ subject="""comment 1"""
+ date="2016-10-01T23:04:02Z"
+ content="""
+`order` is still honored with --jobs, in that the repos are processed in
+order. It's just that the concurrent processing doesn't guarantee a low
+order repository will be done being processed by the time a higher order
+repository starts being processed (or even finishes).
+
+It would of course be possible to stall the concurrent processing to
+guarantee that.
+
+I think there are probably two ways `order` might be used:
+
+1. To make a dependent repository be processed after another one. I use it
+   this way myself. Broken by --jobs.
+2. To eg, sort more expensive or less important repositories later. For
+   example, I used to keep a clone of the linux git repo, but it's very
+   large and so I'd rather it not be processed until most everything else is
+   done, especially if running with --jobs 1 in a low bandwidth setting --
+   but if I used --jobs 2, I'd not care if the second to last repo and the
+   linux repo updated concurrently.
+
+These are both valid; might be better to keep order as it is to handle #2,
+and add a more formal dependency mechanism for #1.
+
+The use of a dummy target to run a `fixups` at the end of the update, which
+is what we're both using `order` for suggests a simpler approach: Just make
+fixups commands be run after all repositories are updated, instead of the
+current behavior of running them when the repository that defines them is
+updated.
+"""]]

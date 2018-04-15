@@ -1,0 +1,13 @@
+Yeah, I know, CVS is ancient, and clunky and should no longer be used...  but it is, and myrepos does support it, so here we are.
+
+'mr status' removes all non-directory elements of a locally modified file's name.  As can be seen in
+this little excerpt from a local sandbox here, that's not terribly helpful:
+
+File: Makefile          Status: Locally Modified
+File: Makefile          Status: Locally Modified
+File: Makefile          Status: Locally Modified
+File: Makefile.am       Status: Locally Modified
+
+Aha, so 3 out of 66 files named 'Makefile' are modified.
+
+[[done]] --pabs

@@ -1,0 +1,24 @@
+Please merge the patches from the master branch of my repo:
+
+```
+https://anonscm.debian.org/cgit/users/pabs/myrepos.git/
+```
+
+```
+$ git log --oneline
+a0c46bd Fix home directory handling
+6afdd95 vis: pass arguments to the commands
+145454d webcheckout: consider https URLs to be anonymous too
+4154b26 Switch URLs from http to https where possible
+8c81c1d vis: fall back from GUI to terminal tools when no X11 display is available
+84583ce Pass -a to darcs fetch command
+0091d74 Update list of distro install commands
+692adf9 Replace Debian BTS link with myrepos/mr pages for many distros.
+cc24aa1 Cope with the transition from ack-grep to ack in Debian
+91def65 Ignore new debhelper cruft
+2e8aa85 Synchronise git_svn_status with git_status
+9e740ff Ignore the return value from grep and ack-grep subcommands.
+cabc3e2 Erase to the end of the line when exiting
+```
+
+[[done]]

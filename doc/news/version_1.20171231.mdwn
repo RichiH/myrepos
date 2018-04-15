@@ -1,0 +1,10 @@
+myrepos 1.20171231 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+ * [ Joey Hess ]
+   * Fix undefined value warning when using -j.
+ * [ Paul Wise ]
+   * Join the Debian package maintainers
+   * Bump Standards-Version, no changes needed
+ * [ Joey Hess ]
+   * Improve error message when system exits -1. This was incorrectly
+     displayed as a signal when in fact the program could not be run."""]]

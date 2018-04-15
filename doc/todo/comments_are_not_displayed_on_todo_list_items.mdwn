@@ -1,0 +1,3 @@
+When a new todo item is created on the myrepos "todo" list (here on branchable), none of the comments are viewable. I only noticed you commented on my [post](https://myrepos.branchable.com/todo/config___39__order__39___is_ignored_when___39__jobs__39_____62__1/) when I saw a [new commit](https://github.com/joeyh/myrepos/commits/master). I wasn't able to add another comment there, either (I edited my original comment to try to let you know, but I'm guessing you weren't notified). I'm not the only one who has seen this issue--please see the statement in the last line of this [item](https://myrepos.branchable.com/todo/add-all-git-remotes/).
+
+[[done]]

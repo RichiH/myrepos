@@ -9,7 +9,7 @@
 # configure that as follows in your ~/.mrconfig:
 #git_svn_update = git svn rebase
 git_svn_update = git svn fetch "$@"
-git_svn_status = git status -s "$@" || true; git --no-pager log --branches --not --remotes --simplify-by-decoration --decorate --oneline || true
+git_svn_status = git status -s "$@" || true; git --no-pager log --branches --not --remotes --simplify-by-decoration --decorate --oneline || true; git --no-pager stash list
 git_svn_commit = git svn dcommit
 git_svn_push = git svn dcommit
 git_svn_record = git commit -a "$@"

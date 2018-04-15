@@ -20,9 +20,9 @@ git_svn_update = git svn rebase
 #   if not, the checkout is minimal
 # - on checks whether the given host basename is one of the listed
 #   values. A value can also have a username in it, ie "joey@dodo".
-# - mylaptop only succeeds if it's on my main development laptop, which 
+# - mylaptop only succeeds if it's on my main development laptop, which
 #   gets lots of extra cruft
-lib = 
+lib =
 	hostname="$(hostname)"
 	whoami="$(whoami)"
 	anon() {
@@ -79,11 +79,12 @@ skip = ! mylaptop
 fixups = $HOME/bin/fixups
 checkout = mkdir -p $HOME/tmp
 status = :
+update = :
 order = 25
 
 [.etc]
 order = 2
-checkout = 
+checkout =
 	if anon; then
 		git clone git://git.kitenet.net/joey/home-etc .etc
 	else
@@ -110,13 +111,13 @@ skip = ! mylaptop || ([ "$1" = update ] && ! hours_since "$1" 12)
 push = error "as if!"
 
 [/etc]
-# I use etckeeper to keep /etc in git. But it only works if I'm root, 
+# I use etckeeper to keep /etc in git. But it only works if I'm root,
 # and if it's not already in etc, skip it.
 skip = ! test -d /etc/.git || ! test "$(whoami)" = root
 
 [dpkg]
 # A merge of the upstream dpkg git repo and my own personal branch.
-checkout = 
+checkout =
 	git clone git://git.debian.org/git/dpkg/dpkg.git &&
 	cd dpkg &&
 	git remote add kite ssh://git.kitenet.net/srv/git/kitenet.net/dpkg &&
